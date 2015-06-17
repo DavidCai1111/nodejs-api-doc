@@ -659,28 +659,33 @@ console.log(buf);
 
 #### buf.writeInt32BE(value, offset[, noAssert])#
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, value must be a valid signed 32 bit integer.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的有符号32位整形数。
 
-Works as buffer.writeUInt32*, except value is written out as a two's complement signed integer into buffer.
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
 
-buf.writeFloatLE(value, offset[, noAssert])#
+运作和`buffer.writeUInt32`相同，除非buffer内容中有包含了作为2的补码的有符号值。
 
-buf.writeFloatBE(value, offset[, noAssert])#
+#### buf.writeFloatLE(value, offset[, noAssert])#
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, behavior is unspecified if value is not a 32 bit float.
+#### buf.writeFloatBE(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Example:
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的32位浮点数。
 
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 buf.writeFloatBE(0xcafebabe, 0);
 
@@ -692,19 +697,24 @@ console.log(buf);
 
 // <Buffer 4f 4a fe bb>
 // <Buffer bb fe 4a 4f>
-buf.writeDoubleLE(value, offset[, noAssert])#
+```
 
-buf.writeDoubleBE(value, offset[, noAssert])#
+#### buf.writeDoubleLE(value, offset[, noAssert])#
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, value must be a valid 64 bit double.
+#### buf.writeDoubleBE(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Example:
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的64位双精度数。
 
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(8);
 buf.writeDoubleBE(0xdeadbeefcafebabe, 0);
 
@@ -716,36 +726,45 @@ console.log(buf);
 
 // <Buffer 43 eb d5 b7 dd f9 5f d7>
 // <Buffer d7 5f f9 dd b7 d5 eb 43>
-buf.fill(value[, offset][, end])#
+```
 
-value
-offset Number, Optional
-end Number, Optional
-Fills the buffer with the specified value. If the offset (defaults to 0) and end (defaults to buffer.length) are not given it will fill the entire buffer.
+#### buf.fill(value[, offset][, end])#
 
+ - value
+ - offset Number 可选
+ - end Number 可选
+
+使用指定的`value`填充buffer。如果`offset`（默认为0）和`end`（默认为`buffer.length`）没有指定，将会填充整个buffer。
+
+```js
 var b = new Buffer(50);
 b.fill("h");
-buffer.values()#
+```
 
-Creates iterator for buffer values (bytes). This function is called automatically when buffer is used in a for..of statement.
+#### buffer.values()#
 
-buffer.keys()#
+创建一个buffer内的值（bytes）的迭代器。这个函数会被自动调用当buffer被用于`for..of`语句中时。
 
-Creates iterator for buffer keys (indices).
+#### buffer.keys()#
 
-buffer.entries()#
+创建一个buffer的索引的迭代器。
 
-Creates iterator for [index, byte] arrays.
+#### buffer.entries()#
 
-buffer.INSPECT_MAX_BYTES#
-Number, Default: 50
-How many bytes will be returned when buffer.inspect() is called. This can be overridden by user modules.
+创建一个[index, byte]数组迭代器。
 
-Note that this is a property on the buffer module returned by require('buffer'), not on the Buffer global, or a buffer instance.
+#### buffer.INSPECT_MAX_BYTES#
 
-ES6 iteration#
-Buffers can be iterated over using for..of syntax:
+Number 默认值： 50
 
+表示有多少字节会被返回当调用`buffer.inspect() `时。它可以被用户的模块所覆盖。
+
+注意这是一个由`require('buffer')`返回的`buffer模块`的属性，并不是全局`Buffer`对象或buffer实例的。
+
+### ES6 迭代器#
+`Buffers`可以被ES6的`for..of`语法迭代：
+
+```js
 var buf = new Buffer([1, 2, 3]);
 
 for (var b of buf)
@@ -754,15 +773,20 @@ for (var b of buf)
 // 1
 // 2
 // 3
-Additionally, buffer.values(), buffer.keys() and buffer.entries() methods can be used to create iterators.
+```
 
-Class: SlowBuffer#
-Returns an un-pooled Buffer.
+另外的，`buffer.values()`，`buffer.keys()`和`buffer.entries()`方法都可以被用来创建迭代器。
 
-In order to avoid the garbage collection overhead of creating many individually allocated Buffers, by default allocations under 4KB are sliced from a single larger allocated object. This approach improves both performance and memory usage since v8 does not need to track and cleanup as many Persistent objects.
+#### Class: SlowBuffer#
+返回一个不被池管理的`Buffer`。
+
+为了避免创建许多单个的被分配内存的小Buffer的垃圾回收开销。默认得，分配小于4KB的空间将会被从一个更大的被分配好内存的对象（allocated object）中切片(sliced)得到。这个方法改进了性能以及内存占用，因为V8的垃圾回收机制不再需要追踪和清理许多的小对象。
 
 In the case where a developer may need to retain a small chunk of memory from a pool for an indeterminate amount of time it may be appropriate to create an un-pooled Buffer instance using SlowBuffer and copy out the relevant bits.
 
+当开发者需要将池中一小块数据保留不确定的一段时间，较为妥当的办法是用 `SlowBuffer`创建一个不被池管理的`Buffer`实例并将相应数据拷贝出来。
+
+```js
 // need to keep around a few small chunks of memory
 var store = [];
 
@@ -774,4 +798,6 @@ socket.on('readable', function() {
   data.copy(sb, 0, 0, 10);
   store.push(sb);
 });
-Though this should be used sparingly and only be a last resort after a developer has actively observed undue memory retention in their applications.
+```
+
+请谨慎使用，仅作为开发者察觉到在应用中有过度的内存保留时的最后手段。
