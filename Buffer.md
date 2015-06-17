@@ -270,18 +270,21 @@ console.log(buf);
 #### buf.compare(otherBuffer)#
 
  - otherBuffer Buffer
-Returns a number indicating whether this comes before or after or is the same as the otherBuffer in sort order.
 
-buf.copy(targetBuffer[, targetStart][, sourceStart][, sourceEnd])#
+返回一个数字表示在排序上`buf`在`otherBuffer`之前，之后或相同。
 
-targetBuffer Buffer object - Buffer to copy into
-targetStart Number, Optional, Default: 0
-sourceStart Number, Optional, Default: 0
-sourceEnd Number, Optional, Default: buffer.length
-Copies data from a region of this buffer to a region in the target buffer even if the target memory region overlaps with the source. If undefined the targetStart and sourceStart parameters default to 0 while sourceEnd defaults to buffer.length.
+#### buf.copy(targetBuffer[, targetStart][, sourceStart][, sourceEnd])#
 
-Example: build two Buffers, then copy buf1 from byte 16 through byte 19 into buf2, starting at the 8th byte in buf2.
+ - targetBuffer Buffer 将要进行复制的Buffer
+ - targetStart Number 可选，默认为 0
+ - sourceStart Number 可选，默认为 0
+ - sourceEnd Number 可选，默认为 `buffer.length`
 
+从`buf`中的指定范围复制数据到`targetBuffer`中的指定范围，它们是可以重叠的。
+
+例子：创建两个Buffer，然后复制buf1的第16字节到19字节到buf2，buf2的偏移位置从第8字节开始：
+
+```js
 buf1 = new Buffer(26);
 buf2 = new Buffer(26);
 
@@ -294,8 +297,11 @@ buf1.copy(buf2, 8, 16, 20);
 console.log(buf2.toString('ascii', 0, 25));
 
 // !!!!!!!!qrst!!!!!!!!!!!!!
-Example: Build a single buffer, then copy data from one region to an overlapping region in the same buffer
+```
 
+例子： 创建一个单独的Buffer，然后复制数据到自身的一个重叠的范围。
+
+```js
 buf = new Buffer(26);
 
 for (var i = 0 ; i < 26 ; i++) {
@@ -306,16 +312,19 @@ buf.copy(buf, 0, 4, 10);
 console.log(buf.toString());
 
 // efghijghijklmnopqrstuvwxyz
-buf.slice([start][, end])#
+```
 
-start Number, Optional, Default: 0
-end Number, Optional, Default: buffer.length
-Returns a new buffer which references the same memory as the old, but offset and cropped by the start (defaults to 0) and end (defaults to buffer.length) indexes. Negative indexes start from the end of the buffer.
+#### buf.slice([start][, end])#
 
-Modifying the new buffer slice will modify memory in the original buffer!
+ - start Number 可选，默认为 0
+ - end Number 可选，默认为 `buffer.length`
+ - 返回一个和旧的buffer引用了相同内存的新的buffer，但是被`start`和`end`参数所偏移和裁剪。
 
-Example: build a Buffer with the ASCII alphabet, take a slice, then modify one byte from the original Buffer.
+修改这个新的buffer的切片，也会改变内存中原来的buffer。
 
+例子： 创建一个ASCII字母的Buffer，然后对其进行`slice`，然后修改源Buffer上的一个字节：
+
+```js
 var buf1 = new Buffer(26);
 
 for (var i = 0 ; i < 26 ; i++) {
@@ -329,24 +338,29 @@ console.log(buf2.toString('ascii', 0, buf2.length));
 
 // abc
 // !bc
-buf.indexOf(value[, byteOffset])#
+```
 
-value String, Buffer or Number
-byteOffset Number, Optional, Default: 0
-Return: Number
-Operates similar to Array#indexOf(). Accepts a String, Buffer or Number. Strings are interpreted as UTF8. Buffers will use the entire buffer. So in order to compare a partial Buffer use Buffer#slice(). Numbers can range from 0 to 255.
+#### buf.indexOf(value[, byteOffset])#
 
-buf.readUInt8(offset[, noAssert])#
+ - value String Buffer或Number
+ - byteOffset Number 可选，默认为 0
+ - Return: Number
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads an unsigned 8 bit integer from the buffer at the specified offset.
+行为和Array.indexOf()相似。接受一个字符串，Buffer或数字。字符串被解释为UTF8编码，Buffer将使用整个buffer，所以如果要比较部分的Buffer请使用`Buffer.slice()`，数字的范围需在0到255之间。
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+#### buf.readUInt8(offset[, noAssert])#
 
-Example:
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
+根据制定偏移量从buffer中读取一个无符号8位整数。
+
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
+
+例子:
+
+```js
 var buf = new Buffer(4);
 
 buf[0] = 0x3;
@@ -362,19 +376,23 @@ for (ii = 0; ii < buf.length; ii++) {
 // 0x4
 // 0x23
 // 0x42
-buf.readUInt16LE(offset[, noAssert])#
+```
 
-buf.readUInt16BE(offset[, noAssert])#
+#### buf.readUInt16LE(offset[, noAssert])#
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads an unsigned 16 bit integer from the buffer at the specified offset with specified endian format.
+#### buf.readUInt16BE(offset[, noAssert])#
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-Example:
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个无符号16位整数。
 
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
+
+例子:
+
+```js
 var buf = new Buffer(4);
 
 buf[0] = 0x3;
@@ -395,19 +413,23 @@ console.log(buf.readUInt16LE(2));
 // 0x2304
 // 0x2342
 // 0x4223
-buf.readUInt32LE(offset[, noAssert])#
+```
 
-buf.readUInt32BE(offset[, noAssert])#
+#### buf.readUInt32LE(offset[, noAssert])#
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads an unsigned 32 bit integer from the buffer at the specified offset with specified endian format.
+#### buf.readUInt32BE(offset[, noAssert])#
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-Example:
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个无符号32位整数。
 
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 
 buf[0] = 0x3;
@@ -420,56 +442,63 @@ console.log(buf.readUInt32LE(0));
 
 // 0x03042342
 // 0x42230403
-buf.readInt8(offset[, noAssert])#
+```
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads a signed 8 bit integer from the buffer at the specified offset.
+#### buf.readInt8(offset[, noAssert])#
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-Works as buffer.readUInt8, except buffer contents are treated as two's complement signed values.
+根据制定偏移量从buffer中读取一个有符号8位整数。
 
-buf.readInt16LE(offset[, noAssert])#
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
 
-buf.readInt16BE(offset[, noAssert])#
+运作和`buffer.readUInt8`相同，除非buffer内容中有包含了作为2的补码的有符号值。
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads a signed 16 bit integer from the buffer at the specified offset with specified endian format.
+#### buf.readInt16LE(offset[, noAssert])#
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+#### buf.readInt16BE(offset[, noAssert])#
 
-Works as buffer.readUInt16*, except buffer contents are treated as two's complement signed values.
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-buf.readInt32LE(offset[, noAssert])#
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个有符号16位整数。
 
-buf.readInt32BE(offset[, noAssert])#
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads a signed 32 bit integer from the buffer at the specified offset with specified endian format.
+运作和`buffer.readUInt16`相同，除非buffer内容中有包含了作为2的补码的有符号值。
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+#### buf.readInt32LE(offset[, noAssert])#
 
-Works as buffer.readUInt32*, except buffer contents are treated as two's complement signed values.
+#### buf.readInt32BE(offset[, noAssert])#
 
-buf.readFloatLE(offset[, noAssert])#
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-buf.readFloatBE(offset[, noAssert])#
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个有符号32位整数。
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads a 32 bit float from the buffer at the specified offset with specified endian format.
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+运作和`buffer.readUInt32`相同，除非buffer内容中有包含了作为2的补码的有符号值。
 
-Example:
+#### buf.readFloatLE(offset[, noAssert])#
 
+#### buf.readFloatBE(offset[, noAssert])#
+
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
+
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个32位浮点数。
+
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 
 buf[0] = 0x00;
@@ -480,19 +509,23 @@ buf[3] = 0x3f;
 console.log(buf.readFloatLE(0));
 
 // 0x01
-buf.readDoubleLE(offset[, noAssert])#
+```
 
-buf.readDoubleBE(offset[, noAssert])#
+#### buf.readDoubleLE(offset[, noAssert])#
 
-offset Number
-noAssert Boolean, Optional, Default: false
-Return: Number
-Reads a 64 bit double from the buffer at the specified offset with specified endian format.
+#### buf.readDoubleBE(offset[, noAssert])#
 
-Set noAssert to true to skip validation of offset. This means that offset may be beyond the end of the buffer. Defaults to false.
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
+ - Return: Number
 
-Example:
+根据制定偏移量从buffer中根据特定的`endian`字节序读取一个64位双精度数。
 
+将`noAssert`设置为true将会跳过`value`和`offset`的检验，这意味着`offset`将可能超过buffer的结束位置，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(8);
 
 buf[0] = 0x55;
@@ -507,17 +540,22 @@ buf[7] = 0x3f;
 console.log(buf.readDoubleLE(0));
 
 // 0.3333333333333333
-buf.writeUInt8(value, offset[, noAssert])#
+```
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset. Note, value must be a valid unsigned 8 bit integer.
+#### buf.writeUInt8(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Example:
+向`buffer`的指定偏移位置写入`value`。
+注意，`value`必须是一个合法的无符号8位整形数。
 
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 buf.writeUInt8(0x3, 0);
 buf.writeUInt8(0x4, 1);
@@ -527,19 +565,24 @@ buf.writeUInt8(0x42, 3);
 console.log(buf);
 
 // <Buffer 03 04 23 42>
-buf.writeUInt16LE(value, offset[, noAssert])#
+```
 
-buf.writeUInt16BE(value, offset[, noAssert])#
+#### buf.writeUInt16LE(value, offset[, noAssert])#
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, value must be a valid unsigned 16 bit integer.
+#### buf.writeUInt16BE(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Example:
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的无符号16位整形数。
 
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 buf.writeUInt16BE(0xdead, 0);
 buf.writeUInt16BE(0xbeef, 2);
@@ -553,19 +596,24 @@ console.log(buf);
 
 // <Buffer de ad be ef>
 // <Buffer ad de ef be>
-buf.writeUInt32LE(value, offset[, noAssert])#
+```
 
-buf.writeUInt32BE(value, offset[, noAssert])#
+#### buf.writeUInt32LE(value, offset[, noAssert])#
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, value must be a valid unsigned 32 bit integer.
+#### buf.writeUInt32BE(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Example:
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的无符号32位整形数。
 
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+例子：
+
+```js
 var buf = new Buffer(4);
 buf.writeUInt32BE(0xfeedface, 0);
 
@@ -577,33 +625,39 @@ console.log(buf);
 
 // <Buffer fe ed fa ce>
 // <Buffer ce fa ed fe>
-buf.writeInt8(value, offset[, noAssert])#
+```
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset. Note, value must be a valid signed 8 bit integer.
+#### buf.writeInt8(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-Works as buffer.writeUInt8, except value is written out as a two's complement signed integer into buffer.
+向`buffer`的指定偏移位置中写入`value`。
+注意，`value`必须是一个合法的无符号32位整形数。
 
-buf.writeInt16LE(value, offset[, noAssert])#
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
 
-buf.writeInt16BE(value, offset[, noAssert])#
+运作和`buffer.writeUInt8`相同，除非buffer内容中有包含了作为2的补码的有符号值。
 
-value Number
-offset Number
-noAssert Boolean, Optional, Default: false
-Writes value to the buffer at the specified offset with specified endian format. Note, value must be a valid signed 16 bit integer.
+#### buf.writeInt16LE(value, offset[, noAssert])#
 
-Set noAssert to true to skip validation of value and offset. This means that value may be too large for the specific function and offset may be beyond the end of the buffer leading to the values being silently dropped. This should not be used unless you are certain of correctness. Defaults to false.
+#### buf.writeInt16BE(value, offset[, noAssert])#
 
-Works as buffer.writeUInt16*, except value is written out as a two's complement signed integer into buffer.
+ - value Number
+ - offset Number
+ - noAssert Boolean 可选，默认为 `false`
 
-buf.writeInt32LE(value, offset[, noAssert])#
+向`buffer`的指定偏移位置根据特定的`endian`字节序写入`value`。
+注意，`value`必须是一个合法的有符号16位整形数。
 
-buf.writeInt32BE(value, offset[, noAssert])#
+将`noAssert`设置为`true`将跳过`value`和`offset`的验证。这意味着`value`可能会过大，或者`offset`超过`buffer`的末尾导致`value`被丢弃，这个参数除非你十分有把握否则你不应去使用它，默认为`false`。
+
+运作和`buffer.writeUInt16`相同，除非buffer内容中有包含了作为2的补码的有符号值。
+
+#### buf.writeInt32LE(value, offset[, noAssert])#
+
+#### buf.writeInt32BE(value, offset[, noAssert])#
 
 value Number
 offset Number
