@@ -4,17 +4,19 @@
 这个模块被用来为你的应用编写单元测试，你可以通过
 require('assert')来取得它。
 
-assert.fail(actual, expected, message, operator)#
-Throws an exception that displays the values for actual and expected separated by the provided operator.
+#### assert.fail(actual, expected, message, operator)
 
-assert(value[, message]), assert.ok(value[, message])#
-Tests if value is truthy, it is equivalent to assert.equal(true, !!value, message);
+抛出一个显示用例实际值和期望值的异常，使用分隔符隔开。
 
-assert.equal(actual, expected[, message])#
-Tests shallow, coercive equality with the equal comparison operator ( == ).
+#### assert(value[, message]), assert.ok(value[, message])#
+测试`value`是否是真值，它等同于`assert.equal(true, !!value, message);`。
 
-assert.notEqual(actual, expected[, message])#
-Tests shallow, coercive non-equality with the not equal comparison operator ( != ).
+#### assert.equal(actual, expected[, message])#
+浅测试，等同于使用`==`进行比较。
+
+
+#### assert.notEqual(actual, expected[, message])#
+前测试，等同于使用`!=`进行比较。
 
 assert.deepEqual(actual, expected[, message])#
 Tests for deep equality. Primitive values are compared with the equal comparison operator ( == ). Doesn't take object prototypes into account.
