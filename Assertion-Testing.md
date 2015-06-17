@@ -16,7 +16,7 @@
 
 
 #### assert.notEqual(actual, expected[, message])
-前测试，等同于使用`!=`进行比较。
+浅测试，等同于使用`!=`进行比较。
 
 #### assert.deepEqual(actual, expected[, message])
 深度测试。原始类型值讲通过`==`进行比较。不要将对象原型进行比较。
