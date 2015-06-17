@@ -782,8 +782,6 @@ for (var b of buf)
 
 为了避免创建许多单个的被分配内存的小Buffer的垃圾回收开销。默认得，分配小于4KB的空间将会被从一个更大的被分配好内存的对象（allocated object）中切片(sliced)得到。这个方法改进了性能以及内存占用，因为V8的垃圾回收机制不再需要追踪和清理许多的小对象。
 
-In the case where a developer may need to retain a small chunk of memory from a pool for an indeterminate amount of time it may be appropriate to create an un-pooled Buffer instance using SlowBuffer and copy out the relevant bits.
-
 当开发者需要将池中一小块数据保留不确定的一段时间，较为妥当的办法是用 `SlowBuffer`创建一个不被池管理的`Buffer`实例并将相应数据拷贝出来。
 
 ```js
