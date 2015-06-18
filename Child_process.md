@@ -19,46 +19,42 @@
 #### Event: 'error'#
 
  - err Error 错误对象
-Emitted when:
 
-The process could not be spawned, or
-The process could not be killed, or
-Sending a message to the child process failed for whatever reason.
-Note that the exit-event may or may not fire after an error has occurred. If you are listening on both events to fire a function, remember to guard against calling your function twice.
+发生于：
 
-See also ChildProcess#kill() and ChildProcess#send().
+进程不能被创建时，进程不能杀死时，给子进程发送信息失败时。
+注意`exit`事件在一个错误发生后可能触发。如果你同时监听了这两个事件来触发一个函数，需要记住不要让这个函数被触发两次。
 
-Event: 'exit'#
+参阅 `ChildProcess.kill()` 和 `ChildProcess.send()`。
 
-code Number the exit code, if it exited normally.
-signal String the signal passed to kill the child process, if it was killed by the parent.
-This event is emitted after the child process ends. If the process terminated normally, code is the final exit code of the process, otherwise null. If the process terminated due to receipt of a signal, signal is the string name of the signal, otherwise null.
+#### Event: 'exit'#
 
-Note that the child process stdio streams might still be open.
+ - code Number 如果进程正常退出，则为退出码。如果进程被父进程杀死，则为被传递的信号字符串。这个事件将在子进程结束运行时被触发。
 
-Also, note that io.js establishes signal handlers for 'SIGINT' and 'SIGTERM', so it will not terminate due to receipt of those signals, it will exit.
+注意子进程的stdio流可能仍为打开状态。
 
-See waitpid(2).
+还需要注意的是，`io.js`已经为我们添加了'SIGINT'信号和'SIGTERM'信号的事件处理函数，所以在父进程发出这两个信号时，进程将会退出。
 
-Event: 'close'#
+参阅 `waitpid(2)`。
 
-code Number the exit code, if it exited normally.
-signal String the signal passed to kill the child process, if it was killed by the parent.
-This event is emitted when the stdio streams of a child process have all terminated. This is distinct from 'exit', since multiple processes might share the same stdio streams.
+#### Event: 'close'#
 
-Event: 'disconnect'#
+ - code Number 如果进程正常退出，则为退出码。如果进程被父进程杀死，则为被传递的信号字符串。这个事件将在子进程结束运行时被触发。这个事件将会在子进程的`stdio`流都关闭时触发。这是与`exit`的区别，因为可能会有几个进程共享同样的`stdio`流。
 
-This event is emitted after calling the .disconnect() method in the parent or in the child. After disconnecting it is no longer possible to send messages, and the .connected property is false.
+#### Event: 'disconnect'#
 
-Event: 'message'#
+在父进程或子进程中使用`.disconnect() `方法后这个事件会触发。在断开之后，将不能继续相互发送信息，并且子进程的`.connected`属性将会是`false`。
 
-message Object a parsed JSON object or primitive value
-sendHandle Handle object a Socket or Server object
-Messages send by .send(message, [sendHandle]) are obtained using the message event.
+#### Event: 'message'#
 
-child.stdin#
+ - message Object 一个已解析的JSON对象或一个原始类型值
+ - sendHandle Handle object 一个`Socket`或`Server`对象
 
-Stream object
+通过`.send(message, [sendHandle])`发送的信息可以通过监听`message`事件获取到。
+
+#### child.stdin#
+
+ - Stream object
 A Writable Stream that represents the child process's stdin. If the child is waiting to read all its input, it will not continue until this stream has been closed via end().
 
 If the child was not spawned with stdio[0] set to 'pipe', then this will not be set.
