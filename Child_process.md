@@ -278,7 +278,7 @@ process.on('message', function(m, socket) {
  - command String 将要运行的命令
  - args Array 字符串参数数组
 
- __options Object__
+ - __options Object__
   - cwd String 子进程的当前工作目录
   - env Object 环境变量键值对
   - stdio Array|String 子进程的stdio配置
@@ -439,18 +439,18 @@ spawn('prg', [], { stdio: ['pipe', null, null, null, 'pipe'] });
 
  - command String 将要运行的命令，参数使用空格隔开
 
- __options Object__
+ - __options Object__
   - cwd String 子进程的当前工作目录
   - env Object 环境变量键值对
-  - encoding 字符编码（默认： 'utf8'）
+  - encoding String 字符编码（默认： 'utf8'）
   - shell String 将要执行命令的Shell（默认: 在UNIX中为`/bin/sh`， 在Windows中为`cmd.exe`， Shell应当能识别 `-c`开关在UNIX中，或 `/s /c` 在Windows中。 在Windows中，命令行解析应当能兼容`cmd.exe`）
-  - timeout 超时时间（默认： 0）
+  - timeout Number 超时时间（默认： 0）
   - maxBuffer Number 在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死 （默认: 200*1024）
   - killSignal String 结束信号（默认：'SIGTERM'）
   - uid Number 设置用户进程的ID
   - gid Number 设置进程组的ID
 
-__callback Function__
+ - __callback Function__
   - error Error
   - stdout Buffer
   - stderr Buffer
@@ -486,121 +486,132 @@ child = exec('cat *.js bad_file | wc -l',
   env: null }
 ```
 
-If timeout is greater than 0, then it will kill the child process if it runs longer than timeout milliseconds. The child process is killed with killSignal (default: 'SIGTERM'). maxBuffer specifies the largest amount of data (in bytes) allowed on stdout or stderr - if this value is exceeded then the child process is killed.
+如果`timeout`大于0，那么子进程在运行时超过`timeout`时将会被杀死。子进程使用`killSignal`信号结束（默认为: 'SIGTERM'）。`maxBuffer`指定了`stdout`，`stderr`中的最大数据量（字节），如果超过了这个数据量子进程也会被杀死。
 
-Note: Unlike the exec() POSIX system call, child_process.exec() does not replace the existing process and uses a shell to execute the command.
+注意：不像POSIX中的`exec()`，`child_process.exec()`不替换已经存在的进程并且使用一个SHELL去执行命令。
 
-child_process.execFile(file[, args][, options][, callback])#
+#### child_process.execFile(file[, args][, options][, callback])#
 
-file String The filename of the program to run
-args Array List of string arguments
-options Object
-cwd String Current working directory of the child process
-env Object Environment key-value pairs
-encoding String (Default: 'utf8')
-timeout Number (Default: 0)
-maxBuffer Number largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed (Default: 200*1024)
-killSignal String (Default: 'SIGTERM')
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-callback Function called with the output when process terminates
-error Error
-stdout Buffer
-stderr Buffer
+ - file String 将要运行的命令，参数使用空格隔开
+ - args 字符串参数数组
+
+ - __options Object__
+  -cwd String 子进程的当前工作目录
+  -env Object 环境变量键值对
+  - encoding String 字符编码（默认： 'utf8'）
+  - timeout Number 超时时间（默认： 0）
+  - maxBuffer Number 在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死 （默认: 200*1024）
+  - killSignal String 结束信号（默认：'SIGTERM'）
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+ - __callback Function__
+  - error Error
+  - stdout Buffer
+  - stderr Buffer
+
+ - Return: ChildProcess object
+
+这个方法和`child_process.exec()`相似，除了它不是使用一个子SHELL执行命令而是直接执行文件。因此它比`child_process.exec`稍许精简一些。它们有相同的配置。
+
+#### child_process.fork(modulePath[, args][, options])#
+
+ - modulePath String 将要在子进程中运行的模块
+ - args Array 字符串参数数组
+
+ - __options Object__
+ - cwd String 子进程的当前工作目录
+ - env Object 环境变量键值对
+ - execPath String 创建子进程的可执行文件
+ - execArgv Array 子进程的可执行文件的字符串参数数组（默认： process.execArgv）
+ - silent Boolean 如果为`true`，子进程的`stdin`，`stdout`和`stderr`将会被关联至父进程，否则，它们将会从父进程中继承。（默认为：`false`）
+ - uid Number 设置用户进程的ID
+ - gid Number 设置进程组的ID
+
 Return: ChildProcess object
-This is similar to child_process.exec() except it does not execute a subshell but rather the specified file directly. This makes it slightly leaner than child_process.exec. It has the same options.
 
-child_process.fork(modulePath[, args][, options])#
+这个方法是`spawn() `的特殊形式，用于创建`io.js`进程。返回的对象除了拥有`ChildProcess`实例的所有方法，还有一个内建的通信信道。详情参阅`child.send(message, [sendHandle])`。
 
-modulePath String The module to run in the child
-args Array List of string arguments
-options Object
-cwd String Current working directory of the child process
-env Object Environment key-value pairs
-execPath String Executable used to create the child process
-execArgv Array List of string arguments passed to the executable (Default: process.execArgv)
-silent Boolean If true, stdin, stdout, and stderr of the child will be piped to the parent, otherwise they will be inherited from the parent, see the "pipe" and "inherit" options for spawn()'s stdio for more details (default is false)
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-Return: ChildProcess object
-This is a special case of the spawn() functionality for spawning io.js processes. In addition to having all the methods in a normal ChildProcess instance, the returned object has a communication channel built-in. See child.send(message, [sendHandle]) for details.
+这些`io.js`子进程都是全新的V8实例。每个新的`io.js`进程都至少需要30ms启动以及10mb的内存。所以，你不能无休止地创建它们。
 
-These child io.js processes are still whole new instances of V8. Assume at least 30ms startup and 10mb memory for each new io.js. That is, you cannot create many thousands of them.
+`options`对象中的`execPath`属性可以用非当前`io.js`可执行文件来创建子进程。这需要小心使用，并且缺省情况下会使用子进程上的`NODE_CHANNEL_FD`环境变量所指定的文件描述符来通讯。该文件描述符的输入和输出假定为以行分割的JSON对象。
 
-The execPath property in the options object allows for a process to be created for the child rather than the current iojs executable. This should be done with care and by default will talk over the fd represented an environmental variable NODE_CHANNEL_FD on the child process. The input and output on this fd is expected to be line delimited JSON objects.
+注意：不像POSIX中的`fork()`，`child_process.fork()`不会复制当前进程。
 
-Note: Unlike the fork() POSIX system call, child_process.fork() does not clone the current process.
-
-Synchronous Process Creation#
-These methods are synchronous, meaning they WILL block the event loop, pausing execution of your code until the spawned process exits.
+### 同步进程创建
+以下这些方法是同步的，意味着它们会阻塞事件循环。直到被创建的进程退出前，代码都将停止执行。
 
 Blocking calls like these are mostly useful for simplifying general purpose scripting tasks and for simplifying the loading/processing of application configuration at startup.
+这些同步方法对简化大多数脚本任务都十分有用，并对简化应用配置的加载/执行也之分有用。
 
-child_process.spawnSync(command[, args][, options])#
+#### child_process.spawnSync(command[, args][, options])
 
-command String The command to run
-args Array List of string arguments
-options Object
-cwd String Current working directory of the child process
-input String|Buffer The value which will be passed as stdin to the spawned process
-supplying this value will override stdio[0]
-stdio Array Child's stdio configuration.
-env Object Environment key-value pairs
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-timeout Number In milliseconds the maximum amount of time the process is allowed to run. (Default: undefined)
-killSignal String The signal value to be used when the spawned process will be killed. (Default: 'SIGTERM')
-maxBuffer Number largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed
-encoding String The encoding used for all stdio inputs and outputs. (Default: 'buffer')
-return: Object
-pid Number Pid of the child process
-output Array Array of results from stdio output
-stdout Buffer|String The contents of output[1]
-stderr Buffer|String The contents of output[2]
-status Number The exit code of the child process
-signal String The signal used to kill the child process
-error Error The error object if the child process failed or timed out
-spawnSync will not return until the child process has fully closed. When a timeout has been encountered and killSignal is sent, the method won't return until the process has completely exited. That is to say, if the process handles the SIGTERM signal and doesn't exit, your process will wait until the child process has exited.
+ - command 将要运行的命令
+ - args Array 字符串参数数组
 
-child_process.execFileSync(command[, args][, options])#
+ - __options Object__
+  - cwd String 子进程的当前工作目录
+  - input String|Buffer 将要被作为`stdin`传入被创建的进程的值，提供这个值将会覆盖`stdio[0]`
+  - stdio Array 子进程的`stdio`配置
+  - env Object 环境变量键值对
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+  - timeout Number 毫秒数，子进程允许运行的最长时间（默认：`undefined`）
+  - killSignal String 结束信号（默认：'SIGTERM'）
+  - maxBuffer Number 在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死
+  - encoding String 被用于所有`stdio`输入和输出的编码（默认：'buffer'）
 
-command String The command to run
-args Array List of string arguments
-options Object
-cwd String Current working directory of the child process
-input String|Buffer The value which will be passed as stdin to the spawned process
-supplying this value will override stdio[0]
-stdio Array Child's stdio configuration. (Default: 'pipe')
-stderr by default will be output to the parent process' stderr unless stdio is specified
-env Object Environment key-value pairs
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-timeout Number In milliseconds the maximum amount of time the process is allowed to run. (Default: undefined)
-killSignal String The signal value to be used when the spawned process will be killed. (Default: 'SIGTERM')
-maxBuffer Number largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed
-encoding String The encoding used for all stdio inputs and outputs. (Default: 'buffer')
-return: Buffer|String The stdout from the command
-execFileSync will not return until the child process has fully closed. When a timeout has been encountered and killSignal is sent, the method won't return until the process has completely exited. That is to say, if the process handles the SIGTERM signal and doesn't exit, your process will wait until the child process has exited.
+ - __return: Object__
+  - pid Number 子进程的PID
+  - output Array `stdio`输出结果的数组
+  - stdout Buffer|String 子进程`stdout`的内容
+  - stderr Buffer|String 子进程`stderr`的内容
+  - status Number 子进程的退出码
+  - signal String 被用于杀死自进程的信号
+  - error Error 若子进程运行失败或超时，它将会是对应的错误对象
 
-If the process times out, or has a non-zero exit code, this method will throw. The Error object will contain the entire result from child_process.spawnSync
+`spawnSync`会在子进程完全结束后才返回。当运行超时或被传递`killSignal`时，这个方法会等到进程完全退出才返回。也就是说，如果子进程处理了`SIGTERM`信号并且没有退出，你的父进程会继续阻塞。
 
-child_process.execSync(command[, options])#
+#### child_process.execFileSync(command[, args][, options])#
 
-command String The command to run
-options Object
-cwd String Current working directory of the child process
-input String|Buffer The value which will be passed as stdin to the spawned process
-supplying this value will override stdio[0]
-stdio Array Child's stdio configuration. (Default: 'pipe')
-stderr by default will be output to the parent process' stderr unless stdio is specified
-env Object Environment key-value pairs
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-timeout Number In milliseconds the maximum amount of time the process is allowed to run. (Default: undefined)
-killSignal String The signal value to be used when the spawned process will be killed. (Default: 'SIGTERM')
-maxBuffer Number largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed
-encoding String The encoding used for all stdio inputs and outputs. (Default: 'buffer')
-return: Buffer|String The stdout from the command
-execSync will not return until the child process has fully closed. When a timeout has been encountered and killSignal is sent, the method won't return until the process has completely exited. That is to say, if the process handles the SIGTERM signal and doesn't exit, your process will wait until the child process has exited.
+ - command String 将要运行的命令
+ - args Array 字符串参数数组
 
-If the process times out, or has a non-zero exit code, this method will throw. The Error object will contain the entire result from child_process.spawnSync
+ - __options Object__
+  - cwd String 子进程的当前工作目录
+  - input String|Buffer 将要被作为`stdin`传入被创建的进程的值，提供这个值将会覆盖`stdio[0]`
+  - stdio Array 子进程的`stdio`配置（默认: 'pipe'），`stderr`默认得将会输出到父进程的`stderr`，除非指定了`stdio`
+  - env Object 环境变量键值对
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+  - timeout Number 毫秒数，子进程允许运行的最长时间（默认：`undefined`）
+  - killSignal 结束信号（默认：'SIGTERM'）
+  - maxBuffer Number 在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死
+  - encoding String 被用于所有`stdio`输入和输出的编码（默认：'buffer'）
+
+ - return: Buffer|String 此命令的`stdout`
+
+`execFileSync`会在子进程完全结束后才返回。当运行超时或被传递`killSignal`时，这个方法会等到进程完全退出才返回。也就是说，如果子进程处理了`SIGTERM`信号并且没有退出，你的父进程会继续阻塞。
+
+如果子进程超时或有一个非零的状态码，这个方法会抛出一个错误。这个错误对象与`child_process.spawnSync`的错误对象相同。
+
+#### child_process.execSync(command[, options])#
+
+ - command 将要运行的命令
+
+ - __options Object__
+  - cwd String 子进程的当前工作目录
+  - input String|Buffer 将要被作为`stdin`传入被创建的进程的值，提供这个值将会覆盖`stdio[0]`
+  - stdio Array 子进程的`stdio`配置（默认: 'pipe'），`stderr`默认得将会输出到父进程的`stderr`，除非指定了`stdio`
+  - env Object 环境变量键值对
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+  - timeout Number 毫秒数，子进程允许运行的最长时间（默认：`undefined`）
+  - killSignal String 结束信号（默认：'SIGTERM'）
+  - maxBuffer Number  在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死
+  - encoding String 被用于所有`stdio`输入和输出的编码（默认：'buffer'）
+
+ - return: Buffer|String 此命令的`stdout`
+
+`execSync`会在子进程完全结束后才返回。当运行超时或被传递`killSignal`时，这个方法会等到进程完全退出才返回。也就是说，如果子进程处理了`SIGTERM`信号并且没有退出，你的父进程会继续阻塞。
+
+如果子进程超时或有一个非零的状态码，这个方法会抛出一个错误。这个错误对象与`child_process.spawnSync`的错误对象相同。
