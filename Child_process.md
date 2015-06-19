@@ -277,13 +277,15 @@ process.on('message', function(m, socket) {
 
  - command String 将要运行的命令
  - args Array 字符串参数数组
- - options Object
- - cwd String 子进程的当前工作目录
- - env Object 环境变量键值对
- - stdio Array|String 子进程的stdio配置
- - detached Boolean 这个子进程将会变成进程组的领导
- - uid Number 设置用户进程的ID
- - gid Number 设置进程组的ID
+
+ __options Object__
+  - cwd String 子进程的当前工作目录
+  - env Object 环境变量键值对
+  - stdio Array|String 子进程的stdio配置
+  - detached Boolean 这个子进程将会变成进程组的领导
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+
  - return: ChildProcess object
 
 利用给定的命令以及参数执行一个新的进程，如果没有参数数组，那么`args`将默认是一个空数组。
@@ -436,6 +438,7 @@ spawn('prg', [], { stdio: ['pipe', null, null, null, 'pipe'] });
 #### child_process.exec(command[, options], callback)#
 
  - command String 将要运行的命令，参数使用空格隔开
+
  __options Object__
   - cwd String 子进程的当前工作目录
   - env Object 环境变量键值对
@@ -446,10 +449,12 @@ spawn('prg', [], { stdio: ['pipe', null, null, null, 'pipe'] });
   - killSignal String 结束信号（默认：'SIGTERM'）
   - uid Number 设置用户进程的ID
   - gid Number 设置进程组的ID
+
 __callback Function__
   - error Error
   - stdout Buffer
   - stderr Buffer
+
 - Return: ChildProcess object
 
 在Shell中运行一个命令，并缓存命令的输出。
@@ -468,16 +473,19 @@ child = exec('cat *.js bad_file | wc -l',
 });
 ```
 
-The callback gets the arguments (error, stdout, stderr). On success, error will be null. On error, error will be an instance of Error and error.code will be the exit code of the child process, and error.signal will be set to the signal that terminated the process.
+回调函数的参数是`error`，`stdout`，`stderr`。在成功时，`error`将会是`null`。在发生错误时，`error`将会是一个`Error`实例，`error.code`将会是子进程的退出码，`error.signal`将会被设置为结束进程的信号。
 
-There is a second optional argument to specify several options. The default options are
+第二个可选的参数用于指定一些配置，默认值为：
 
+```js
 { encoding: 'utf8',
   timeout: 0,
   maxBuffer: 200*1024,
   killSignal: 'SIGTERM',
   cwd: null,
   env: null }
+```
+
 If timeout is greater than 0, then it will kill the child process if it runs longer than timeout milliseconds. The child process is killed with killSignal (default: 'SIGTERM'). maxBuffer specifies the largest amount of data (in bytes) allowed on stdout or stderr - if this value is exceeded then the child process is killed.
 
 Note: Unlike the exec() POSIX system call, child_process.exec() does not replace the existing process and uses a shell to execute the command.
