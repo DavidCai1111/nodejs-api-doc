@@ -55,37 +55,42 @@
 #### child.stdin#
 
  - Stream object
-A Writable Stream that represents the child process's stdin. If the child is waiting to read all its input, it will not continue until this stream has been closed via end().
 
-If the child was not spawned with stdio[0] set to 'pipe', then this will not be set.
+一个代表了子进程的`stdin`的可写流。通过`end()`方法关闭此流可以终止子进程。
 
-child.stdin is shorthand for child.stdio[0]. Both properties will refer to the same object, or null.
+如果子进程通过`spawn`创建时`stdio`没有被设置为`pipe`，那么它将不会被创建。
 
-child.stdout#
+`child.stdin`为`child.stdio`中对应元素的快捷引用。它们要么都指向同一个对象，要么都为null。
 
-Stream object
-A Readable Stream that represents the child process's stdout.
+#### child.stdout#
 
-If the child was not spawned with stdio[1] set to 'pipe', then this will not be set.
+ - Stream object
 
-child.stdout is shorthand for child.stdio[1]. Both properties will refer to the same object, or null.
+一个代表了子进程的`stdout`的可读流。
 
-child.stderr#
+如果子进程通过`spawn`创建时`stdio`没有被设置为`pipe`，那么它将不会被创建。
 
-Stream object
-A Readable Stream that represents the child process's stderr.
+`child.stdout`为`child.stdio`中对应元素的快捷引用。它们要么都指向同一个对象，要么都为null。
 
-If the child was not spawned with stdio[2] set to 'pipe', then this will not be set.
+#### child.stderr#
 
-child.stderr is shorthand for child.stdio[2]. Both properties will refer to the same object, or null.
+ - Stream object
 
-child.stdio#
+一个代表了子进程的`stderr`的可读流。
 
-Array
-A sparse array of pipes to the child process, corresponding with positions in the stdio option to spawn that have been set to 'pipe'. Note that streams 0-2 are also available as ChildProcess.stdin, ChildProcess.stdout, and ChildProcess.stderr, respectively.
+如果子进程通过`spawn`创建时`stdio`没有被设置为`pipe`，那么它将不会被创建。
 
-In the following example, only the child's fd 1 is setup as a pipe, so only the parent's child.stdio[1] is a stream, all other values in the array are null.
+`child.stderr`为`child.stdio`中对应元素的快捷引用。它们要么都指向同一个对象，要么都为null。
 
+#### child.stdio#
+
+ - Array
+
+一个包含了子进程的管道的稀疏数组，元素的位置对应着利用`spawn`创建子进程时`stdio`配置参数里被设置为`pipe`的位置。注意索引为0-2的流分别与`ChildProcess.stdin`， `ChildProcess.stdout`和`ChildProcess.stderr`引用的是相同的对象。
+
+在下面的例子中，在`stdio`参数中只有索引为1的元素被设置为了`pipe`，所以父进程中只有`child.stdio[1]`是一个流，其他的元素都为`null`。
+
+```js
 var assert = require('assert');
 var fs = require('fs');
 var child_process = require('child_process');
@@ -106,28 +111,35 @@ assert.equal(child.stdio[1], child.stdout);
 
 assert.equal(child.stdio[2], null);
 assert.equal(child.stdio[2], child.stderr);
-child.pid#
+```
 
-Integer
-The PID of the child process.
+#### child.pid#
 
-Example:
+ - Integer
 
+子进程的`PID`。
+
+例子：
+
+```js
 var spawn = require('child_process').spawn,
     grep  = spawn('grep', ['ssh']);
 
 console.log('Spawned child pid: ' + grep.pid);
 grep.stdin.end();
-child.connected#
+```
 
-Boolean Set to false after .disconnect is called
-If .connected is false, it is no longer possible to send messages.
+#### child.connected#
 
-child.kill([signal])#
+ - Boolean 在`.disconnect`方法被调用后将会被设置为`false`。如果`.connected`属性为`false`，那么将不能再向子进程发送信息。
 
-signal String
-Send a signal to the child process. If no argument is given, the process will be sent 'SIGTERM'. See signal(7) for a list of available signals.
+#### child.kill([signal])#
 
+ - signal String
+
+给子进程传递一个信号。如果没有指定任何参数，那么将发送`'SIGTERM'`给子进程。更多可用的信号请参阅`signal(7)`。
+
+```js
 var spawn = require('child_process').spawn,
     grep  = spawn('grep', ['ssh']);
 
@@ -137,20 +149,24 @@ grep.on('close', function (code, signal) {
 
 // send SIGHUP to process
 grep.kill('SIGHUP');
-May emit an 'error' event when the signal cannot be delivered. Sending a signal to a child process that has already exited is not an error but may have unforeseen consequences: if the PID (the process ID) has been reassigned to another process, the signal will be delivered to that process instead. What happens next is anyone's guess.
+```
 
-Note that while the function is called kill, the signal delivered to the child process may not actually kill it. kill really just sends a signal to a process.
+在信号不能被送达时，可能会产生一个`error`事件。给一个已经终止的子进程发送一个信号不会发生错误，但可以操作不可预料的后果：如果该子进程的`PID`已经被重新分配给了另一个进程，那么这个信号会被传递到另一个进程中。大家可以猜想这将会发生什么样的情况。
 
-See kill(2)
+注意这个函数仅仅是名字叫kill，给子进程发送的信号可能不是去关闭它的。这个函数仅仅只是给子进程发送一个信号。
 
-child.send(message[, sendHandle])#
+参阅`kill(2)`。
 
-message Object
-sendHandle Handle object
-When using child_process.fork() you can write to the child using child.send(message, [sendHandle]) and messages are received by a 'message' event on the child.
+#### child.send(message[, sendHandle])#
 
-For example:
+ - message Object
+ - sendHandle Handle object
 
+当使用`child_process.fork()`时，你可以使用`child.send(message, [sendHandle])`向子进程发送信息，子进程里会触发`message`事件当收到信息时。
+
+例子：
+
+```js
 var cp = require('child_process');
 
 var n = cp.fork(__dirname + '/sub.js');
@@ -160,27 +176,31 @@ n.on('message', function(m) {
 });
 
 n.send({ hello: 'world' });
-And then the child script, 'sub.js' might look like this:
+```
 
+子进程代码, `sub.js`可能看起来类似这样:
+
+```js
 process.on('message', function(m) {
   console.log('CHILD got message:', m);
 });
 
 process.send({ foo: 'bar' });
-In the child the process object will have a send() method, and process will emit objects each time it receives a message on its channel.
+```
 
-Please note that the send() method on both the parent and child are synchronous - sending large chunks of data is not advised (pipes can be used instead, see child_process.spawn).
+在子进程中，`process`对象将有一个`send()`方法，在它的信道上收到一个信息时，信息将以对象的形式返回。
 
-There is a special case when sending a {cmd: 'NODE_foo'} message. All messages containing a NODE_ prefix in its cmd property will not be emitted in the message event, since they are internal messages used by io.js core. Messages containing the prefix are emitted in the internalMessage event. Avoid using this feature; it is subject to change without notice.
+请注意父进程，子进程中的`send()`方法都是同步的，所以发送大量数据是不被建议的（可以使用管道代替，参阅`child_process.spawn`）。
 
-The sendHandle option to child.send() is for sending a TCP server or socket object to another process. The child will receive the object as its second argument to the message event.
+发送`{cmd: 'NODE_foo'}`信息时是一个特殊情况。所有的在`cmd`属性中包含了`NODE_`前缀的信息都不会触发`message`事件，因为这是`io.js`内核使用的内部信息。包含这个前缀的信息都会触发`internalMessage`事件。请避免使用这个事件，它在改变的时候不会收到通知。
 
-Emits an 'error' event if the message cannot be sent, for example because the child process has already exited.
+`child.send()`的`sendHandle`参数时用来给另一个进程发送一个`TCP服务器`或一个`socket`的。将之作为第二个参数传入，子进程将在`message`事件中会收到这个对象。
 
-Example: sending server object#
+如果信息不能被发送的话将会触发一个`error`事件，比如子进程已经退出了。
 
-Here is an example of sending a server:
+例子：发送一个`server`对象
 
+```js
 var child = require('child_process').fork('child.js');
 
 // Open up the server object and send the handle.
@@ -191,8 +211,11 @@ server.on('connection', function (socket) {
 server.listen(1337, function() {
   child.send('server', server);
 });
-And the child would the receive the server object as:
+```
 
+子进程将会收到`server`对象：
+
+```js
 process.on('message', function(m, server) {
   if (m === 'server') {
     server.on('connection', function (socket) {
@@ -200,14 +223,17 @@ process.on('message', function(m, server) {
     });
   }
 });
-Note that the server is now shared between the parent and child, this means that some connections will be handled by the parent and some by the child.
+```
 
-For dgram servers the workflow is exactly the same. Here you listen on a message event instead of connection and use server.bind instead of server.listen. (Currently only supported on UNIX platforms.)
+注意这个`server`现在已经被父进程和子进程所共享，这意味着链接将可能被父进程处理也可能被子进程处理。
 
-Example: sending socket object#
+对于`dgram`服务器，流程也是完全一样的。使用`message`事件而不是`connection`事件，使用`server.bind`问不是`server.listen`（目前只支持`UNIX`平台）。
 
-Here is an example of sending a socket. It will spawn two children and handle connections with the remote address 74.125.127.100 as VIP by sending the socket to a "special" child process. Other sockets will go to a "normal" process.
+例子：发送一个`socket`对象
 
+以下是发送一个`socket`的例子。创建了两个子进程。并且将地址为`74.125.127.100`的链接通过将`socket`发送给"special"子进程来视作VIP。其他的`socket`则被发送给"normal"子进程。
+
+```js
 var normal = require('child_process').fork('child.js', ['normal']);
 var special = require('child_process').fork('child.js', ['special']);
 
@@ -224,51 +250,60 @@ server.on('connection', function (socket) {
   normal.send('socket', socket);
 });
 server.listen(1337);
-The child.js could look like this:
 
+`child.js`:
+```js
 process.on('message', function(m, socket) {
   if (m === 'socket') {
     socket.end('You were handled as a ' + process.argv[2] + ' person');
   }
 });
-Note that once a single socket has been sent to a child the parent can no longer keep track of when the socket is destroyed. To indicate this condition the .connections property becomes null. It is also recommended not to use .maxConnections in this condition.
+```
 
-child.disconnect()#
+注意一旦一个单独的`socket`被发送给了子进程，那么父进程将不能追踪到这个`socket`被删除的时间，这个情况下`.connections`属性将会成为`null`。在这个情况下同样也不推荐使用`.maxConnections`属性。
 
-Close the IPC channel between parent and child, allowing the child to exit gracefully once there are no other connections keeping it alive. After calling this method the .connected flag will be set to false in both the parent and child, and it is no longer possible to send messages.
+#### child.disconnect()#
 
-The 'disconnect' event will be emitted when there are no messages in the process of being received, most likely immediately.
+关闭父进程与子进程间的IPC信道，它让子进程非常优雅地退出，因为已经活跃的信道了。在调用了这个方法后，父进程和子进程的`.connected`标签都会被设置为`false`，将不能再发送信息。
 
-Note that you can also call process.disconnect() in the child process when the child process has any open IPC channels with the parent (i.e fork()).
+`disconnect`事件在进程不再有消息接收时触发。
 
-Asynchronous Process Creation#
-These methods follow the common async programming patterns (accepting a callback or returning an EventEmitter).
+注意，当子进程中有与父进程通信的IPC信道时，你也可以在子进程中调用`process.disconnect()`。
 
-child_process.spawn(command[, args][, options])#
+### 异步进程的创建#
+以下方法遵循普遍的异步编程模式（接受一个回调函数或返回一个`EventEmitter`）。
 
-command String The command to run
-args Array List of string arguments
-options Object
-cwd String Current working directory of the child process
-env Object Environment key-value pairs
-stdio Array|String Child's stdio configuration. (See below)
-detached Boolean The child will be a process group leader. (See below)
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-return: ChildProcess object
-Launches a new process with the given command, with command line arguments in args. If omitted, args defaults to an empty Array.
+#### child_process.spawn(command[, args][, options])#
 
-The third argument is used to specify additional options, with these defaults:
+ - command String 将要运行的命令
+ - args Array 字符串参数数组
+ - options Object
+ - cwd String 子进程的当前工作目录
+ - env Object 环境变量键值对
+ - stdio Array|String 子进程的stdio配置
+ - detached Boolean 这个子进程将会变成进程组的领导
+ - uid Number 设置用户进程的ID
+ - gid Number 设置进程组的ID
+ - return: ChildProcess object
 
+利用给定的命令以及参数执行一个新的进程，如果没有参数数组，那么`args`将默认是一个空数组。
+
+第三个参数时用来指定以为额外的配置，以下是它的默认值：
+
+```js
 { cwd: undefined,
   env: process.env
 }
-Use cwd to specify the working directory from which the process is spawned. If not given, the default is to inherit the current working directory.
+```
 
-Use env to specify environment variables that will be visible to the new process, the default is process.env.
+使用`cwd`来指定子进程的工作目录。如果没有指定，默认值是当前父进程的工作目录。
+
+使用`env`来指定子进程中可用的环境变量，默认值是`process.env`。
 
 Example of running ls -lh /usr, capturing stdout, stderr, and the exit code:
+一个运行`ls -lh /usr`，获取`stdout`，`stderr`和退出码得例子：
 
+```js
 var spawn = require('child_process').spawn,
     ls    = spawn('ls', ['-lh', '/usr']);
 
@@ -283,8 +318,11 @@ ls.stderr.on('data', function (data) {
 ls.on('close', function (code) {
   console.log('child process exited with code ' + code);
 });
-Example: A very elaborate way to run 'ps ax | grep ssh'
+```
 
+例子：一个非常精巧的运行`ps ax | grep ssh`的方式
+
+```js
 var spawn = require('child_process').spawn,
     ps    = spawn('ps', ['ax']),
     grep  = spawn('grep', ['ssh']);
@@ -317,31 +355,45 @@ grep.on('close', function (code) {
     console.log('grep process exited with code ' + code);
   }
 });
-Example of checking for failed exec:
+```
 
+一个检查执行失败的例子：
+
+```js
 var spawn = require('child_process').spawn,
     child = spawn('bad_command');
 
 child.on('error', function (err) {
   console.log('Failed to start child process.');
 });
-options.stdio#
+```
 
-As a shorthand, the stdio argument may be one of the following strings:
+##### options.stdio
 
-'pipe' - ['pipe', 'pipe', 'pipe'], this is the default value
+作为快捷方式，`stdio`的值可以是一下字符串之一：
+
+'pipe' - ['pipe', 'pipe', 'pipe'], 这是默认值
 'ignore' - ['ignore', 'ignore', 'ignore']
-'inherit' - [process.stdin, process.stdout, process.stderr] or [0,1,2]
-Otherwise, the 'stdio' option to child_process.spawn() is an array where each index corresponds to a fd in the child. The value is one of the following:
+'inherit' - [process.stdin, process.stdout, process.stderr]或[0,1,2]
 
-'pipe' - Create a pipe between the child process and the parent process. The parent end of the pipe is exposed to the parent as a property on the child_process object as ChildProcess.stdio[fd]. Pipes created for fds 0 - 2 are also available as ChildProcess.stdin, ChildProcess.stdout and ChildProcess.stderr, respectively.
-'ipc' - Create an IPC channel for passing messages/file descriptors between parent and child. A ChildProcess may have at most one IPC stdio file descriptor. Setting this option enables the ChildProcess.send() method. If the child writes JSON messages to this file descriptor, then this will trigger ChildProcess.on('message'). If the child is an io.js program, then the presence of an IPC channel will enable process.send() and process.on('message').
-'ignore' - Do not set this file descriptor in the child. Note that io.js will always open fd 0 - 2 for the processes it spawns. When any of these is ignored io.js will open /dev/null and attach it to the child's fd.
-Stream object - Share a readable or writable stream that refers to a tty, file, socket, or a pipe with the child process. The stream's underlying file descriptor is duplicated in the child process to the fd that corresponds to the index in the stdio array. Note that the stream must have an underlying descriptor (file streams do not until the 'open' event has occurred).
-Positive integer - The integer value is interpreted as a file descriptor that is is currently open in the parent process. It is shared with the child process, similar to how Stream objects can be shared.
-null, undefined - Use default value. For stdio fds 0, 1 and 2 (in other words, stdin, stdout, and stderr) a pipe is created. For fd 3 and up, the default is 'ignore'.
-Example:
+否则，`child_process.spawn()`的`stdio`参数时一个数组，数组中的每一个索引的对应子进程中的一个文件标识符。可以是下列值之一：
 
+'pipe' - 创建一个子进程与父进程之间的管道，管道的父进程端已父进程的`child_process`对象的属性（`ChildProcess.stdio[fd]`）暴露给父进程。为文件表示（fds）0 - 2 创建的管道也可以通过`ChildProcess.stdin`，`ChildProcess.stdout`和`ChildProcess.stderr`分别访问。
+
+'ipc' - 创建一个子进程和父进程间 传输信息/文件描述符 的IPC信道。一个子进程最多可能有一个IPC stdio 文件描述符。设置该选项将激活`ChildProcess.send()`方法。如果子进程向此文件描述符中写入JSON数据，则会触发`
+ChildProcess.on('message')`。如果子进程是一个`io.js`程序，那么IPC信道的存在将会激活`process.send()`和`process.on('message')`。
+
+'ignore' - 不在子进程中设置文件描述符。注意`io.js`总是会为通过`spawn`创建的子进程打开文件描述符(fd) 0 - 2。如果这其中任意一项被设置为了`ignore`，`io.js`会打开`/dev/null`并将其附给子进程对应的文件描述符（fd）。
+
+Stream object - 与子进程共享一个与tty，文件，socket，或管道相关的可读/可写流。该流底层（underlying）的文件标识在子进程中被复制给stdio数组索引对应的文件描述符（fd）。
+
+Positive integer - 该整形值被解释为父进程中打开的文件标识符。他与子进程共享，和Stream被共享的方式相似。
+
+null, undefined - 使用默认值。For 对于stdio fds 0,1,2（或者说`stdin`,`stdout`和`stderr`），pipe管道被建立。对于fd 3及往后，默认为`ignore`。
+
+例子：
+
+```js
 var spawn = require('child_process').spawn;
 
 // Child will use parent's stdios
@@ -353,14 +405,17 @@ spawn('prg', [], { stdio: ['pipe', 'pipe', process.stderr] });
 // Open an extra fd=4, to interact with programs present a
 // startd-style interface.
 spawn('prg', [], { stdio: ['pipe', null, null, null, 'pipe'] });
-options.detached#
+```
 
-If the detached option is set, the child process will be made the leader of a new process group. This makes it possible for the child to continue running after the parent exits.
+##### options.detached
 
-By default, the parent will wait for the detached child to exit. To prevent the parent from waiting for a given child, use the child.unref() method, and the parent's event loop will not include the child in its reference count.
+如果`detached`选项被设置，子进程将成为新进程组的领导。这使得在父进程退出后，子进程继续执行成为可能。
 
-Example of detaching a long-running process and redirecting its output to a file:
+默认情况下，父进程会等待脱离了的子进程退出。要阻止父进程等待一个给出的子进程，请使用`child.unref()`方法，则父进程的事件循环的计数中将不包含这个子进程。
 
+一个脱离的长时间运行的进程，以及将它的输出重定向到文件中的例子：
+
+```js
  var fs = require('fs'),
      spawn = require('child_process').spawn,
      out = fs.openSync('./out.log', 'a'),
@@ -372,30 +427,34 @@ Example of detaching a long-running process and redirecting its output to a file
  });
 
  child.unref();
-When using the detached option to start a long-running process, the process will not stay running in the background unless it is provided with a stdio configuration that is not connected to the parent. If the parent's stdio is inherited, the child will remain attached to the controlling terminal.
+```
 
-See also: child_process.exec() and child_process.fork()
+当使用`detached`选项创建一个长时间运行的进程时，进程不会保持运行除非向它提供了一个不连接到父进程的`stdio`的配置。如果继承了父进程的`stdio`，那么子进程将会继续附着在控制终端。
 
-child_process.exec(command[, options], callback)#
+参阅： `child_process.exec()` 和 `child_process.fork()`
 
-command String The command to run, with space-separated arguments
-options Object
-cwd String Current working directory of the child process
-env Object Environment key-value pairs
-encoding String (Default: 'utf8')
-shell String Shell to execute the command with (Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows, The shell should understand the -c switch on UNIX or /s /c on Windows. On Windows, command line parsing should be compatible with cmd.exe.)
-timeout Number (Default: 0)
-maxBuffer Number largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed (Default: 200*1024)
-killSignal String (Default: 'SIGTERM')
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-callback Function called with the output when process terminates
-error Error
-stdout Buffer
-stderr Buffer
-Return: ChildProcess object
-Runs a command in a shell and buffers the output.
+#### child_process.exec(command[, options], callback)#
 
+ - command String 将要运行的命令，参数使用空格隔开
+ __options Object__
+  - cwd String 子进程的当前工作目录
+  - env Object 环境变量键值对
+  - encoding 字符编码（默认： 'utf8'）
+  - shell String 将要执行命令的Shell（默认: 在UNIX中为`/bin/sh`， 在Windows中为`cmd.exe`， Shell应当能识别 `-c`开关在UNIX中，或 `/s /c` 在Windows中。 在Windows中，命令行解析应当能兼容`cmd.exe`）
+  - timeout 超时时间（默认： 0）
+  - maxBuffer Number 在stdout或stderr中允许存在的最大缓冲（二进制），如果超出那么子进程将会被杀死 （默认: 200*1024）
+  - killSignal String 结束信号（默认：'SIGTERM'）
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+__callback Function__
+  - error Error
+  - stdout Buffer
+  - stderr Buffer
+- Return: ChildProcess object
+
+在Shell中运行一个命令，并缓存命令的输出。
+
+```js
 var exec = require('child_process').exec,
     child;
 
@@ -407,6 +466,8 @@ child = exec('cat *.js bad_file | wc -l',
       console.log('exec error: ' + error);
     }
 });
+```
+
 The callback gets the arguments (error, stdout, stderr). On success, error will be null. On error, error will be an instance of Error and error.code will be the exit code of the child process, and error.signal will be set to the signal that terminated the process.
 
 There is a second optional argument to specify several options. The default options are
