@@ -540,7 +540,6 @@ Return: ChildProcess object
 ### 同步进程创建
 以下这些方法是同步的，意味着它们会阻塞事件循环。直到被创建的进程退出前，代码都将停止执行。
 
-Blocking calls like these are mostly useful for simplifying general purpose scripting tasks and for simplifying the loading/processing of application configuration at startup.
 这些同步方法对简化大多数脚本任务都十分有用，并对简化应用配置的加载/执行也之分有用。
 
 #### child_process.spawnSync(command[, args][, options])
