@@ -479,8 +479,8 @@ socket.bytesWritten#
 #### net.isIP(input)#
 测试`input`是否是一个IP地址。如果是不合法字符串时，会返回`0`。如果是IPv4地址则返回`4`，是IPv6地址则返回`6`。
 
-net.isIPv4(input)#
+#### net.isIPv4(input)#
 如果`input`是一个IPv4地址则返回`true`，否则返回`false`。
 
-net.isIPv6(input)#
+#### net.isIPv6(input)#
 如果`input`是一个IPv6地址则返回`true`，否则返回`false`。
