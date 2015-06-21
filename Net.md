@@ -42,14 +42,12 @@ server.listen(8124, function() { //'listening' listener
 telnet localhost 8124
 ```
 
-To listen on the socket /tmp/echo.sock the third line from the last would just be changed to
 想要监听`socket``/tmp/echo.sock`，只需改变倒数第三行：
 
 ```js
 server.listen('/tmp/echo.sock', function() { //'listening' listener
 ```
 
-Use nc to connect to a UNIX domain socket server:
 使用`nc`连接一个UNIX domain socket服务器：
 
 ```
@@ -58,14 +56,16 @@ nc -U /tmp/echo.sock
 
 #### net.connect(options[, connectionListener])#
 #### net.createConnection(options[, connectionListener])#
-A factory function, which returns a new 'net.Socket' and automatically connects with the supplied options.
 
-The options are passed to both the 'net.Socket' constructor and the 'socket.connect' method.
+工厂函数，返回一个新的`net.Socket`实例，并且自动使用提供的`options`进行连接。
 
-The connectListener parameter will be added as a listener for the 'connect' event once.
+`options`会被同时传递给`net.Socket`构造函数和`socket.connect`方法。
 
-Here is an example of a client of the previously described echo server:
+参数`connectListener`将会被立即添加为`connect`事件的监听器。
 
+下面是一个上文应答服务器的客户端的例子：
+
+```js
 var net = require('net');
 var client = net.connect({port: 8124},
     function() { //'connect' listener
@@ -79,36 +79,44 @@ client.on('data', function(data) {
 client.on('end', function() {
   console.log('disconnected from server');
 });
-To connect on the socket /tmp/echo.sock the second line would just be changed to
+```
 
+要连接`socket``/tmp/echo.sock`只需要改变第二行为：
+
+```js
 var client = net.connect({path: '/tmp/echo.sock'});
-net.connect(port[, host][, connectListener])#
-net.createConnection(port[, host][, connectListener])#
-A factory function, which returns a new 'net.Socket' and automatically connects to the supplied port and host.
+```
 
-If host is omitted, 'localhost' will be assumed.
+#### net.connect(port[, host][, connectListener])#
+#### net.createConnection(port[, host][, connectListener])#
 
-The connectListener parameter will be added as a listener for the 'connect' event once.
+工厂函数，返回一个新的`net.Socket`实例，并且自动使用指定的端口(port)和主机(host)进行连接。
 
-net.connect(path[, connectListener])#
-net.createConnection(path[, connectListener])#
-A factory function, which returns a new unix 'net.Socket' and automatically connects to the supplied path.
+如果`host`被省略，默认为`localhost`。
 
-The connectListener parameter will be added as a listener for the 'connect' event once.
+参数`connectListener`将会被立即添加为`connect`事件的监听器。
 
-Class: net.Server#
-This class is used to create a TCP or local server.
+#### net.connect(path[, connectListener])#
+#### net.createConnection(path[, connectListener])#
 
-server.listen(port[, hostname][, backlog][, callback])#
+工厂函数，返回一个新的unix`net.Socket`实例，并且自动使用提供的路径(path)进行连接。
 
-Begin accepting connections on the specified port and hostname. If the hostname is omitted, the server will accept connections on any IPv6 address (::) when IPv6 is available, or any IPv4 address (0.0.0.0) otherwise. A port value of zero will assign a random port.
+参数`connectListener`将会被立即添加为`connect`事件的监听器。
 
-Backlog is the maximum length of the queue of pending connections. The actual length will be determined by your OS through sysctl settings such as tcp_max_syn_backlog and somaxconn on linux. The default value of this parameter is 511 (not 512).
+#### Class: net.Server#
+这个类用于创建一个TCP或本地服务器。
 
-This function is asynchronous. When the server has been bound, 'listening' event will be emitted. The last parameter callback will be added as an listener for the 'listening' event.
+#### server.listen(port[, hostname][, backlog][, callback])#
 
-One issue some users run into is getting EADDRINUSE errors. This means that another server is already running on the requested port. One way of handling this would be to wait a second and then try again. This can be done with
+开始从指定端口和主机名接收连接。如果省略主机名，那么如果IPv6可用，服务器会接受从任何IPv6地址（::）来的链接，否则为任何IPv4地址（0.0.0.0）。如果端口为0那么将会为其设置一个随机端口。
 
+积压量`backlog`是连接等待队列的最大长度。实际长度由你的操作系统的`sysctl`设置决定（如linux中的`tcp_max_syn_backlog`和`somaxconn`）。这个参数的默认值是511（不是512）。
+
+这个函数式异步的。当服务器绑定了指定端口后，`listening`事件将会被触发。最后一个参数`callback`将会被添加为`listening`事件的监听器。
+
+有些用户可能遇到的情况是收到`EADDRINUSE`错误。这意味着另一个服务器已经使用了该端口。一个解决的办法是等待一段时间后重试。
+
+```js
 server.on('error', function (e) {
   if (e.code == 'EADDRINUSE') {
     console.log('Address in use, retrying...');
@@ -118,62 +126,75 @@ server.on('error', function (e) {
     }, 1000);
   }
 });
-(Note: All sockets in io.js set SO_REUSEADDR already)
+```
 
-server.listen(path[, callback])#
+（注意，`io.js`中所有的`socket`都已经设置了`SO_REUSEADDR`）
 
-path String
-callback Function
-Start a local socket server listening for connections on the given path.
+#### server.listen(path[, callback])#
 
-This function is asynchronous. When the server has been bound, 'listening' event will be emitted. The last parameter callback will be added as a listener for the 'listening' event.
+ - path String
+ - callback Function
 
-On UNIX, the local domain is usually known as the UNIX domain. The path is a filesystem path name. It is subject to the same naming conventions and permissions checks as would be done on file creation, will be visible in the filesystem, and will persist until unlinked.
+启动一个本地`socket`服务器，监听指定路径（`path`）上的连接。
 
-On Windows, the local domain is implemented using a named pipe. The path must refer to an entry in \\?\pipe\ or \\.\pipe\. Any characters are permitted, but the latter may do some processing of pipe names, such as resolving .. sequences. Despite appearances, the pipe name space is flat. Pipes will not persist, they are removed when the last reference to them is closed. Do not forget javascript string escaping requires paths to be specified with double-backslashes, such as:
+这个函数式异步的。当服务器监听了指定路径后，`listening`事件将会被触发。最后一个参数`callback`将会被添加为`listening`事件的监听器。
 
+在UNIX中，`local domain`经常被称作`UNIX domain`。`path`是一个文件系统路径名。它在被创建时会受相同文件名约定(same naming conventions)的限制并且进行权限检查(permissions checks)。它在文件系统中可见，并且在被删除前持续存在。
+
+在Windows中，`local doamin`使用一个命名管道（named pipe）实现。`path`必须指向`\\?\pipe\`或`\\.\pipe\.`中的一个条目，但是后者可能会做一些命名管道的处理，如处理`..`序列。除去表现，命名管道空间是平坦的（flat）。管道不会持续存在，它们将在最后一个它们的引用关闭后被删除。不要忘记，由于`JavaScript`的字符串转义，你必须在指定`path`时使用双反斜杠：
+
+```js
 net.createServer().listen(
     path.join('\\\\?\\pipe', process.cwd(), 'myctl'))
-server.listen(handle[, callback])#
+```
 
-handle Object
-callback Function
-The handle object can be set to either a server or socket (anything with an underlying _handle member), or a {fd: <n>} object.
+#### server.listen(handle[, callback])#
 
-This will cause the server to accept connections on the specified handle, but it is presumed that the file descriptor or handle has already been bound to a port or domain socket.
+ - handle Object
+ - callback Function
 
-Listening on a file descriptor is not supported on Windows.
+`handle`对象可以被设置为一个服务器或一个`socket`（或者任意以下划线开头的成员`_handle`），或者一个`{fd: <n>}`对象。
 
-This function is asynchronous. When the server has been bound, 'listening' event will be emitted. the last parameter callback will be added as an listener for the 'listening' event.
+这将使得服务器使用指定句柄接受连接，但它假设文件描述符或句柄已经被绑定至指定的端口或域名`socket`。
 
-server.listen(options[, callback])#
+在Windows下不支持监听一个文件描述符。
 
-options Object - Required. Supports the following properties:
-port Number - Optional.
-host String - Optional.
-backlog Number - Optional.
-path String - Optional.
-exclusive Boolean - Optional.
-callback Function - Optional.
-The port, host, and backlog properties of options, as well as the optional callback function, behave as they do on a call to server.listen(port, [host], [backlog], [callback]) . Alternatively, the path option can be used to specify a UNIX socket.
+这个函数式异步的。当服务器已被绑定后，`listening`事件将会被触发。最后一个参数`callback`将会被添加为`listening`事件的监听器。
 
-If exclusive is false (default), then cluster workers will use the same underlying handle, allowing connection handling duties to be shared. When exclusive is true, the handle is not shared, and attempted port sharing results in an error. An example which listens on an exclusive port is shown below.
+#### server.listen(options[, callback])#
 
+ - __options Object__
+  - port Number 可选
+  - host String 可选
+  - backlog Number 可选
+  - path String 可选
+  - exclusive Boolean 可选
+
+ - callback Function 可选
+
+`port`，`host`和`backlog`属性，以及可选的`callback`函数，与`server.listen(port, [host], [backlog], [callback])`中表现一致。`path`可以被指定为一个UNIX `socket`。
+
+如果`exclusive`是`false`（默认），那么工作集群（cluster workers）将会使用相同的底层句柄，处理的连接的职责将会被它们共享。如果`exclusive`是`true`，那么句柄是不被共享的，企图共享将得到一个报错的结果。下面是一个监听独有端口的例子：
+
+```js
 server.listen({
   host: 'localhost',
   port: 80,
   exclusive: true
 });
-server.close([callback])#
+```
 
-Stops the server from accepting new connections and keeps existing connections. This function is asynchronous, the server is finally closed when all connections are ended and the server emits a 'close' event. Optionally, you can pass a callback to listen for the 'close' event. If present, the callback is invoked with any potential error as the first and only argument.
+#### server.close([callback])#
 
-server.address()#
+使服务器停止接收新的连接并且保持已存在的连接。这个函数式异步的，当所有的连接都结束时服务器会最终关闭，并处罚一个`close`事件。可选的，你可以传递一个回调函数来监听`close`事件。如果传递了，那么它的唯一的第一个参数将表示任何可能潜在发生的错误。
 
-Returns the bound address, the address family name and port of the server as reported by the operating system. Useful to find which port was assigned when giving getting an OS-assigned address. Returns an object with three properties, e.g. { port: 12346, family: 'IPv4', address: '127.0.0.1' }
+#### server.address()#
 
-Example:
+返回服务器绑定的地址，协议族名和端口通过操作系统报告。对查找操作系统分配的地址哪个端口被分配非常有用。返回一个有三个属性的对象。如`{ port: 12346, family: 'IPv4', address: '127.0.0.1' }`。
 
+例子：
+
+```js
 var server = net.createServer(function (socket) {
   socket.end("goodbye\n");
 });
@@ -183,268 +204,283 @@ server.listen(function() {
   address = server.address();
   console.log("opened server on %j", address);
 });
-Don't call server.address() until the 'listening' event has been emitted.
+```
 
-server.unref()#
+在`listening`事件触发前，不要调用`server.address()`方法。
 
-Calling unref on a server will allow the program to exit if this is the only active server in the event system. If the server is already unrefd calling unref again will have no effect.
+#### server.unref()#
 
-Returns server.
+调用一个`server`对象的`unref`方法将允许如果它是事件系统中唯一活跃的服务器，程序将会退出。如果服务器已经被调用过这个方法，那么再次调用这个方法将不会有任何效果。
 
-server.ref()#
+返回`server`对象。
 
-Opposite of unref, calling ref on a previously unrefd server will not let the program exit if it's the only server left (the default behavior). If the server is refd calling ref again will have no effect.
+#### server.ref()#
 
-Returns server.
+与`unref`相反，在一个已经被调用`unref`方法的`server`中调用`ref`方法，那么如果它是唯一活跃的服务器时，程序将不会退出（默认）。如果服务器已经被调用过这个方法，那么再次调用这个方法将不会有任何效果。
 
-server.maxConnections#
+返回`server`对象。
 
-Set this property to reject connections when the server's connection count gets high.
+#### server.maxConnections#
 
-It is not recommended to use this option once a socket has been sent to a child with child_process.fork().
+设置了这个属性后，服务器的连接数达到时将会开始拒绝连接。
 
-server.connections#
+一旦`socket`被使用`child_process.fork()`传递给了子进程，这个属性就不被推荐去设置。
 
-This function is deprecated; please use server.getConnections() instead. The number of concurrent connections on the server.
+#### server.connections#
 
-This becomes null when sending a socket to a child with child_process.fork(). To poll forks and get current number of active connections use asynchronous server.getConnections instead.
+这个函数已经被弃用。请使用`server.getConnections()`替代。
 
-server.getConnections(callback)#
+服务器的当前连接数。
 
-Asynchronously get the number of concurrent connections on the server. Works when sockets were sent to forks.
+当使用`child_process.fork()`传递一个`socket`给子进程时，这个属性将变成`null`。想要得到正确的结果请使用`server.getConnections`。
 
-Callback should take two arguments err and count.
+#### server.getConnections(callback)#
 
-net.Server is an EventEmitter with the following events:
+异步地去获取服务器的当前连接数，在`socket`被传递给子进程时仍然可用。
 
-Event: 'listening'#
+回调函数的两个参数是`err`和`count`。
 
-Emitted when the server has been bound after calling server.listen.
+### `net.Server`是一个具有以下事件的`EventEmitter`：
 
-Event: 'connection'#
+#### Event: 'listening'#
 
-Socket object The connection object
-Emitted when a new connection is made. socket is an instance of net.Socket.
+当调用`server.listen`后，服务器已被绑定时触发。
 
-Event: 'close'#
+#### Event: 'connection'#
 
-Emitted when the server closes. Note that if connections exist, this event is not emitted until all connections are ended.
+ - Socket object 连接对象
 
-Event: 'error'#
+当新的连接产生时触发。`socket`是一个`net.Socket`实例。
 
-Error Object
-Emitted when an error occurs. The 'close' event will be called directly following this event. See example in discussion of server.listen.
+#### Event: 'close'#
 
-Class: net.Socket#
-This object is an abstraction of a TCP or local socket. net.Socket instances implement a duplex Stream interface. They can be created by the user and used as a client (with connect()) or they can be created by io.js and passed to the user through the 'connection' event of a server.
+当服务器关闭时触发。注意如果服务器中仍有连接存在，那么这个事件会直到所有的连接都关闭后才触发。
 
-new net.Socket([options])#
+#### Event: 'error'#
 
-Construct a new socket object.
+ - Error Object
 
-options is an object with the following defaults:
+当发生错误时触发。`close`事件将会在它之后立即触发。参阅`server.listen`。
 
+#### Class: net.Socket#
+
+这个对象是一个TCP或本地`socket`的抽象。`net.Socket`实例实现了双工流（duplex Stream）接口。它可以被使用者创建，并且被作为客户端（配合`connect()`）使用。或者也可以被`io.js`创建，并且通过服务器的`connection`事件传递给使用者。
+
+#### new net.Socket([options])#
+
+创建一个新的`socket`对象。
+
+`options`是一个有以下默认值的对象：
+
+```js
 { fd: null
   allowHalfOpen: false,
   readable: false,
   writable: false
 }
-fd allows you to specify the existing file descriptor of socket. Set readable and/or writable to true to allow reads and/or writes on this socket (NOTE: Works only when fd is passed). About allowHalfOpen, refer to createServer() and 'end' event.
+```
 
-socket.connect(options[, connectListener])#
+`fd`允许你使用一个指定的已存在的`socket`文件描述符。设置`readable` 和/或 `writable`为`true`将允许从这个`socket`中读 和/或 写（注意，仅在传递了`passed`时可用）。关于`allowHalfOpen`，参阅`createServer()`和`end`事件。
 
-Opens the connection for a given socket.
+#### socket.connect(options[, connectListener])#
 
-For TCP sockets, options argument should be an object which specifies:
+从给定的`socket`打开一个连接。
 
-port: Port the client should connect to (Required).
+对于TCP`socket`，`options`参数需是一个包含以下属性的对象：
 
-host: Host the client should connect to. Defaults to 'localhost'.
+ - port: 客户端需要连接的端口（必选）。
 
-localAddress: Local interface to bind to for network connections.
+ - host: 客户端需要连接的主机（默认：'localhost'）
 
-localPort: Local port to bind to for network connections.
+ - localAddress: 将要绑定的本地接口，为了网络连接。
 
-family : Version of IP stack. Defaults to 4.
+ - localPort: 将要绑定的本地端口，为了网络连接。
 
-lookup : Custom lookup function. Defaults to dns.lookup.
+ - family : IP协议族版本，默认为`4`。
 
-For local domain sockets, options argument should be an object which specifies:
+ - lookup : 自定义查找函数。默认为`dns.lookup`。
 
-path: Path the client should connect to (Required).
-Normally this method is not needed, as net.createConnection opens the socket. Use this only if you are implementing a custom Socket.
+对于本地domain `socket`，`options`参数需是一个包含以下属性的对象：
 
-This function is asynchronous. When the 'connect' event is emitted the socket is established. If there is a problem connecting, the 'connect' event will not be emitted, the 'error' event will be emitted with the exception.
+ - path: 客户端需要连接的路径（必选）。
 
-The connectListener parameter will be added as an listener for the 'connect' event.
+通常这个方法是不需要的，因为通过`net.createConnection`打开`socket`。只有在你自定义了`socket`时才使用它。
 
-socket.connect(port[, host][, connectListener])#
+这个函数式异步的，当`connect`事件触发时，这个`socket`就被建立了。如果在连接的过程有问题，那么`connect`事件将不会触发，`error`将会带着这个异常触发。
 
-socket.connect(path[, connectListener])#
+`connectListener`参数会被自动添加为`connect`事件的监听器。
 
-As socket.connect(options[, connectListener]), with options either as either {port: port, host: host} or {path: path}.
+#### socket.connect(port[, host][, connectListener])#
 
-socket.bufferSize#
+#### socket.connect(path[, connectListener])#
 
-net.Socket has the property that socket.write() always works. This is to help users get up and running quickly. The computer cannot always keep up with the amount of data that is written to a socket - the network connection simply might be too slow. io.js will internally queue up the data written to a socket and send it out over the wire when it is possible. (Internally it is polling on the socket's file descriptor for being writable).
+参阅`socket.connect(options[, connectListener])`。
 
-The consequence of this internal buffering is that memory may grow. This property shows the number of characters currently buffered to be written. (Number of characters is approximately equal to the number of bytes to be written, but the buffer may contain strings, and the strings are lazily encoded, so the exact number of bytes is not known.)
+#### socket.bufferSize#
 
-Users who experience large or growing bufferSize should attempt to "throttle" the data flows in their program with pause() and resume().
+`net.Socket`的属性，用于`socket.write()`。它可以帮助用户获取更快的运行速度。计算机不能一直保持大量数据被写入`socket`的状态，网络连接可以很慢。`io.js`在内部会排队等候数据被写入`socekt`并确保传输连接上的数据完好。 (内部实现为：轮询`socekt`的文件描述符等待它为可写)。
 
-socket.setEncoding([encoding])#
+内部缓存的可能结果是内存使用会增长。这个属性展示了缓存中还有多少待写入的字符（字符的数目约等于要被写入的字节数，但是缓冲区可能包含字符串，而字符串是惰性编码的，所以确切的字节数是未知的）。
 
-Set the encoding for the socket as a Readable Stream. See stream.setEncoding() for more information.
+遇到数值很大或增长很快的`bufferSize`时，应当尝试使用`pause()`和`resume()`来控制。
 
-socket.write(data[, encoding][, callback])#
+#### socket.setEncoding([encoding])#
 
-Sends data on the socket. The second parameter specifies the encoding in the case of a string--it defaults to UTF8 encoding.
+设置`socket`的编码作为一个可读流。详情参阅`stream.setEncoding()`。
 
-Returns true if the entire data was flushed successfully to the kernel buffer. Returns false if all or part of the data was queued in user memory. 'drain' will be emitted when the buffer is again free.
+#### socket.write(data[, encoding][, callback])#
 
-The optional callback parameter will be executed when the data is finally written out - this may not be immediately.
+在套接字上发送数据。第二个参数指定了字符串的编码，默认为UTF8。
 
-socket.end([data][, encoding])#
+如果所有数据成功被刷新至了内核缓冲区，则返回`true`。如果所有或部分数据仍然在用户内存中排队，则返回`false`。`drain`事件将会被触发当`buffer`再次为空时。
 
-Half-closes the socket. i.e., it sends a FIN packet. It is possible the server will still send some data.
+当数据最终被写入时，`callback`回调函数将会被执行，但可能不会马上执行。
 
-If data is specified, it is equivalent to calling socket.write(data, encoding) followed by socket.end().
+#### socket.end([data][, encoding])#
 
-socket.destroy()#
+半关闭一个`socket`。比如，它发送一个`FIN`报文。可能服务器仍然在发送一些数据。
 
-Ensures that no more I/O activity happens on this socket. Only necessary in case of errors (parse error or so).
+如果`data`参数被指定，那么等同于先调用`socket.write(data, encoding)`，再调用`socket.end()`。
 
-socket.pause()#
+#### socket.destroy()#
 
-Pauses the reading of data. That is, 'data' events will not be emitted. Useful to throttle back an upload.
+确保这个`socket`上没有I/O活动发生。只在发生错误情况才需要（如处理错误）。
 
-socket.resume()#
+#### socket.pause()#
 
-Resumes reading after a call to pause().
+暂停数据读取。`data`事件将不会再触发。对于控制上传非常有用。
 
-socket.setTimeout(timeout[, callback])#
+#### socket.resume()#
 
-Sets the socket to timeout after timeout milliseconds of inactivity on the socket. By default net.Socket do not have a timeout.
+用于在调用`pause()`后，恢复数据读取。
 
-When an idle timeout is triggered the socket will receive a 'timeout' event but the connection will not be severed. The user must manually end() or destroy() the socket.
+#### socket.setTimeout(timeout[, callback])#
 
-If timeout is 0, then the existing idle timeout is disabled.
+如果`socket`在`timeout`毫秒中没有活动后，设置其为超时。默认情况下，`net.Socket`没有超时。
 
-The optional callback parameter will be added as a one time listener for the 'timeout' event.
+当超时发生，`socket`会收到一个`timeout`事件，但是连接将不会被断开。用户必须手动地调用`end()`或`destroy()`方法。
 
-Returns socket.
+如果`timeout`是`0`，那么现有的超时将会被禁用。
 
-socket.setNoDelay([noDelay])#
+可选的`callback`参数就会被自动添加为`timeout`事件的监听器。
 
-Disables the Nagle algorithm. By default TCP connections use the Nagle algorithm, they buffer data before sending it off. Setting true for noDelay will immediately fire off data each time socket.write() is called. noDelay defaults to true.
+返回一个`socket`。
 
-Returns socket.
+#### socket.setNoDelay([noDelay])#
 
-socket.setKeepAlive([enable][, initialDelay])#
+警用纳格算法（Nagle algorithm）。默认情况下TCP连接使用纳格算法，它们的数据在被发送前会被缓存。设置`noDelay`为`true`将会在每次`socket.write()`时立刻发送数据。`noDelay`默认为`true`。
 
-Enable/disable keep-alive functionality, and optionally set the initial delay before the first keepalive probe is sent on an idle socket. enable defaults to false.
+返回一个`socket`。
 
-Set initialDelay (in milliseconds) to set the delay between the last data packet received and the first keepalive probe. Setting 0 for initialDelay will leave the value unchanged from the default (or previous) setting. Defaults to 0.
+#### socket.setKeepAlive([enable][, initialDelay])#
 
-Returns socket.
+启用/警用长连接功能，并且在第一个在闲置`socket`的长连接`probe`被发送前，可选得设置初始延时。`enable`默认为`false`。
 
-socket.address()#
+设定`initialDelay`(毫秒)，来设定在收到的最后一个数据包和第一个长连接`probe`之间的延时。将`initialDelay`设成`0`会让值保持不变(默认值或之前所设的值)。默认为`0`。
 
-Returns the bound address, the address family name and port of the socket as reported by the operating system. Returns an object with three properties, e.g. { port: 12346, family: 'IPv4', address: '127.0.0.1' }
+返回一个`socket`。
 
-socket.unref()#
+#### socket.address()#
 
-Calling unref on a socket will allow the program to exit if this is the only active socket in the event system. If the socket is already unrefd calling unref again will have no effect.
+返回绑定的地址，协议族名和端口通过操作系统报告。对查找操作系统分配的地址哪个端口被分配非常有用。返回一个有三个属性的对象。如`{ port: 12346, family: 'IPv4', address: '127.0.0.1' }`。
 
-Returns socket.
+#### socket.unref()#
 
-socket.ref()#
+调用一个`socket`对象的`unref`方法将允许如果它是事件系统中唯一活跃的`socket`，程序将会退出。如果`socket`已经被调用过这个方法，那么再次调用这个方法将不会有任何效果。
 
-Opposite of unref, calling ref on a previously unrefd socket will not let the program exit if it's the only socket left (the default behavior). If the socket is refd calling ref again will have no effect.
+返回`socket`对象。
 
-Returns socket.
+#### socket.ref()#
 
-socket.remoteAddress#
+与`unref`相反，在一个已经被调用`unref`方法的`socket`中调用`ref`方法，那么如果它是唯一活跃的`socket`时，程序将不会退出（默认）。如果`socket`已经被调用过这个方法，那么再次调用这个方法将不会有任何效果。
 
-The string representation of the remote IP address. For example, '74.125.127.100' or '2001:4860:a005::68'.
+返回`socket`对象。
 
-socket.remoteFamily#
+#### socket.remoteAddress#
 
-The string representation of the remote IP family. 'IPv4' or 'IPv6'.
+远程IP地址字符串。例如，`'74.125.127.100'`或`'2001:4860:a005::68'`。
 
-socket.remotePort#
+#### socket.remoteFamily#
 
-The numeric representation of the remote port. For example, 80 or 21.
+远程IP协议族字符串。例如，`'IPv4'`或`'IPv6'`。
 
-socket.localAddress#
+#### socket.remotePort#
 
-The string representation of the local IP address the remote client is connecting on. For example, if you are listening on '0.0.0.0' and the client connects on '192.168.1.1', the value would be '192.168.1.1'.
+远程端口数值。例如，`80`或`21`。
 
-socket.localPort#
+#### socket.localAddress#
 
-The numeric representation of the local port. For example, 80 or 21.
+远程客户端正连接的本地IP地址字符串。例如，如果你正在监听`'0.0.0.0'`并且客户端连接在`'192.168.1.1'`，其值将为`'192.168.1.1'`。
+
+#### socket.localPort#
+
+本地端口数值。例如，`80`或`21`。
 
 socket.bytesRead#
 
-The amount of received bytes.
+接受的字节数。
 
 socket.bytesWritten#
 
-The amount of bytes sent.
+发送的字节数。
 
-net.Socket instances are EventEmitter with the following events:
+### net.Socket `net.Socket`实例是一个包含以下事件的`EventEmitter`：
 
-Event: 'lookup'#
+#### Event: 'lookup'#
 
-Emitted after resolving the hostname but before connecting. Not applicable to UNIX sockets.
+在解析主机名后，连接主机前触发。对UNIX `socket`不适用。
 
-err {Error | Null} The error object. See dns.lookup().
-address {String} The IP address.
-family {String | Null} The address type. See dns.lookup().
-Event: 'connect'#
+ - err {Error | Null} 错误对象，参阅 `dns.lookup()`
+ - address {String} IP地址
+ - family {String | Null} 地址类型。参阅'dns.lookup()`
 
-Emitted when a socket connection is successfully established. See connect().
+#### Event: 'connect'#
 
-Event: 'data'#
+在`socket`连接成功建立后触发。参阅`connect()`。
 
-Buffer object
-Emitted when data is received. The argument data will be a Buffer or String. Encoding of data is set by socket.setEncoding(). (See the Readable Stream section for more information.)
+#### Event: 'data'#
 
-Note that the data will be lost if there is no listener when a Socket emits a 'data' event.
+ - Buffer object
 
-Event: 'end'#
+在接受到数据后触发。参数将会是一个`Buffer`或一个字符串。数据的编码由`socket.setEncoding()`设置（更多详细信息请查看可读流章节）。
 
-Emitted when the other end of the socket sends a FIN packet.
+注意，当`socket`触发`data`事件时，如果没有监听器存在。那么数据将会丢失。
 
-By default (allowHalfOpen == false) the socket will destroy its file descriptor once it has written out its pending write queue. However, by setting allowHalfOpen == true the socket will not automatically end() its side allowing the user to write arbitrary amounts of data, with the caveat that the user is required to end() their side now.
+#### Event: 'end'#
 
-Event: 'timeout'#
+当另一端的`socket`发送一个`FIN`报文时触发。
 
-Emitted if the socket times out from inactivity. This is only to notify that the socket has been idle. The user must manually close the connection.
+默认情况（`allowHalfOpen == false`）下，一旦一个`socket`的文件描述符被从它的等待写队列（pending write queue）中写出，`socket`会销毁它。但是，当设定`allowHalfOpen == true`后，`socket`不会在它这边自动调用`end()`，允许用户写入任意数量的数据，需要注意的是用户需要在自己这边调用`end()`。
 
-See also: socket.setTimeout()
+#### Event: 'timeout'#
 
-Event: 'drain'#
+当`socket`因不活动而超时时触发。这只是来表示`socket`被限制。用户必须手动关闭连接。
 
-Emitted when the write buffer becomes empty. Can be used to throttle uploads.
+参阅`socket.setTimeout()`。
 
-See also: the return values of socket.write()
+#### Event: 'drain'#
 
-Event: 'error'#
+当写缓冲为空时触发。可以被用来控制上传流量。
 
-Error object
-Emitted when an error occurs. The 'close' event will be called directly following this event.
+参阅`socket.write()`的返回值。
 
-Event: 'close'#
+#### Event: 'error'#
 
-had_error Boolean true if the socket had a transmission error
-Emitted once the socket is fully closed. The argument had_error is a boolean which says if the socket was closed due to a transmission error.
+ - Error object
 
-net.isIP(input)#
-Tests if input is an IP address. Returns 0 for invalid strings, returns 4 for IP version 4 addresses, and returns 6 for IP version 6 addresses.
+当发生错误时触发。`close`事件会紧跟着这个事件触发。
+
+#### Event: 'close'#
+
+ - had_error 如果`socket`有一个传输错误时为`true`
+
+当`socket`完全关闭时触发。参数`had_error`是一个表示`socket`是否是因为传输错误而关闭的布尔值。
+
+#### net.isIP(input)#
+测试`input`是否是一个IP地址。如果是不合法字符串时，会返回`0`。如果是IPv4地址则返回`4`，是IPv6地址则返回`6`。
 
 net.isIPv4(input)#
-Returns true if input is a version 4 IP address, otherwise returns false.
+如果`input`是一个IPv4地址则返回`true`，否则返回`false`。
 
 net.isIPv6(input)#
-Returns true if input is a version 6 IP address, otherwise returns false.
+如果`input`是一个IPv6地址则返回`true`，否则返回`false`。
