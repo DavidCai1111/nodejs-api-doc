@@ -15,12 +15,13 @@
 }
 ```
 
-If allowHalfOpen is true, then the socket won't automatically send a FIN packet when the other end of the socket sends a FIN packet. The socket becomes non-readable, but still writable. You should call the end() method explicitly. See 'end' event for more information.
+如果`allowHalfOpen`是`true`，那么当另一端的`socket`发送一个`FIN`报文时`socket`并不会自动发送`FIN`报文。`socket`变得不可读，但是可写。你需要明确地调用`end()`方法。详见`end`事件。
 
-If pauseOnConnect is true, then the socket associated with each incoming connection will be paused, and no data will be read from its handle. This allows connections to be passed between processes without any data being read by the original process. To begin reading data from a paused socket, call resume().
+如果`pauseOnConnect`是true，那么`socket`在每一次被连接时会暂停，并且不会读取数据。这允许在进程间被传递的连接不读取任何数据。如果要让一个被暂停的`socket`开始读取数据，调用`resume()`方法。
 
-Here is an example of an echo server which listens for connections on port 8124:
+以下是一个应答服务器的例子，监听8124端口：
 
+```js
 var net = require('net');
 var server = net.createServer(function(c) { //'connection' listener
   console.log('client connected');
@@ -33,17 +34,30 @@ var server = net.createServer(function(c) { //'connection' listener
 server.listen(8124, function() { //'listening' listener
   console.log('server bound');
 });
-Test this by using telnet:
+```
 
+使用`telnet`测试：
+
+```
 telnet localhost 8124
+```
+
 To listen on the socket /tmp/echo.sock the third line from the last would just be changed to
+想要监听`socket``/tmp/echo.sock`，只需改变倒数第三行：
 
+```js
 server.listen('/tmp/echo.sock', function() { //'listening' listener
-Use nc to connect to a UNIX domain socket server:
+```
 
+Use nc to connect to a UNIX domain socket server:
+使用`nc`连接一个UNIX domain socket服务器：
+
+```
 nc -U /tmp/echo.sock
-net.connect(options[, connectionListener])#
-net.createConnection(options[, connectionListener])#
+```
+
+#### net.connect(options[, connectionListener])#
+#### net.createConnection(options[, connectionListener])#
 A factory function, which returns a new 'net.Socket' and automatically connects with the supplied options.
 
 The options are passed to both the 'net.Socket' constructor and the 'socket.connect' method.
