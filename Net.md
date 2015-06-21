@@ -416,11 +416,11 @@ server.listen(function() {
 
 本地端口数值。例如，`80`或`21`。
 
-socket.bytesRead#
+#### socket.bytesRead#
 
 接受的字节数。
 
-socket.bytesWritten#
+#### socket.bytesWritten#
 
 发送的字节数。
 
