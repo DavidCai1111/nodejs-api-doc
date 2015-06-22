@@ -1,27 +1,28 @@
 # Stream#
 
 ### 稳定度: 2 - 稳定
-A stream is an abstract interface implemented by various objects in io.js. For example a request to an HTTP server is a stream, as is stdout. Streams are readable, writable, or both. All streams are instances of EventEmitter
+流是一个被`io.js`内部的许多对象所实现的抽象接口。例如一个发往HTTP服务器的请求是一个留，`stdout`也是一个流。流可以是可读的，可写的或双向的。所有的流都是`EventEmitter`实例。
 
-You can load the Stream base classes by doing require('stream'). There are base classes provided for Readable streams, Writable streams, Duplex streams, and Transform streams.
+你可以通过`require('stream')`来取货`Stream`的基类。其中包括了`Readable`流，`Writable`流，`Duplex`流和`Transform`流的基类。
 
-This document is split up into 3 sections. The first explains the parts of the API that you need to be aware of to use streams in your programs. If you never implement a streaming API yourself, you can stop there.
+此文档分为三个章节。第一章节解释了在你的编程中使用流时需要的API。如果你不需要实现你自己的流式API，你可以在这里停止。
 
-The second section explains the parts of the API that you need to use if you implement your own custom streams yourself. The API is designed to make this easy for you to do.
+第二章节解释了你在构建你自己的流时需要的API，这些API是为了方便你这么做而设计的。
 
-The third section goes into more depth about how streams work, including some of the internal mechanisms and functions that you should probably not modify unless you definitely know what you are doing.
+第三章节深入讲述了流的工作机制，包括一些内部的机制和函数，你不应该去改动它们除非你知道你在做什么。
 
-API for Stream Consumers#
-Streams can be either Readable, Writable, or both (Duplex).
+### 面向流消费者的API
+流可以是可读的，可写的，或双工的。
 
-All streams are EventEmitters, but they also have other custom methods and properties depending on whether they are Readable, Writable, or Duplex.
+所有的流都是`EventEmitters`。但是它们也各自有一些独特的方法和属性，这取决于它们是可读流，可写流或双工流。
 
-If a stream is both Readable and Writable, then it implements all of the methods and events below. So, a Duplex or Transform stream is fully described by this API, though their implementation may be somewhat different.
+如果一个流同时是可读的和可写的，那么表示它实现了以下所有的方法和事件。所以，这些API同时也涵盖`Duplex`或`Transform`流，即使它们的实现可能有些不同。
 
-It is not necessary to implement Stream interfaces in order to consume streams in your programs. If you are implementing streaming interfaces in your own program, please also refer to API for Stream Implementors below.
+在你程序中，为了消费流而去实现流接口不是必须的。如果你确实正在你的程序中实现流接口，请参考下一章节`面向流实现者的API`。
 
-Almost all io.js programs, no matter how simple, use Streams in some way. Here is an example of using Streams in an io.js program:
+几乎所有`io.js`程序，不论多简单，都使用了流。下面是一个在`io.js`是使用流的例子：
 
+```js
 var http = require('http');
 
 var server = http.createServer(function (req, res) {
@@ -62,66 +63,82 @@ server.listen(1337);
 // string
 // $ curl localhost:1337 -d 'not json'
 // error: Unexpected token o
-Class: stream.Readable#
+```
 
-The Readable stream interface is the abstraction for a source of data that you are reading from. In other words, data comes out of a Readable stream.
+#### Class: stream.Readable#
 
-A Readable stream will not start emitting data until you indicate that you are ready to receive it.
+可读流接口是一个你可以从之读取数据的数据源的抽象。换句话说，数据从可读流而来。
 
-Readable streams have two "modes": a flowing mode and a paused mode. When in flowing mode, data is read from the underlying system and provided to your program as fast as possible. In paused mode, you must explicitly call stream.read() to get chunks of data out. Streams start out in paused mode.
+除非你指示已经准备好接受数据，否则可读流不会开始发生数据。
 
-Note: If no data event handlers are attached, and there are no pipe() destinations, and the stream is switched into flowing mode, then data will be lost.
+可读流有两个“模式”：流动模式和暂停模式。当在流动模式时，数据由底层系统读出，并且会尽快地提供给你的程序。当在暂停模式时，你必须调用`stream.read()`方法来获取数据块。流默认是暂停模式。
 
-You can switch to flowing mode by doing any of the following:
+注意：如果`data`事件没有被绑定监听器，并且没有导流（pipe）目标，并且流被切换到了流动模式，那么数据将会被丢失。
 
-Adding a 'data' event handler to listen for data.
-Calling the resume() method to explicitly open the flow.
-Calling the pipe() method to send the data to a Writable.
-You can switch back to paused mode by doing either of the following:
+你可以通过下面任意一个做法切换到流动模式：
 
-If there are no pipe destinations, by calling the pause() method.
-If there are pipe destinations, by removing any 'data' event handlers, and removing all pipe destinations by calling the unpipe() method.
-Note that, for backwards compatibility reasons, removing 'data' event handlers will not automatically pause the stream. Also, if there are piped destinations, then calling pause() will not guarantee that the stream will remain paused once those destinations drain and ask for more data.
+ - 添加一个`data`事件的监听器来监听数据。
 
-Examples of readable streams include:
+ - 调用`resume()`方法来明确开启流动模式。
 
-http responses, on the client
-http requests, on the server
-fs read streams
-zlib streams
-crypto streams
-tcp sockets
-child process stdout and stderr
-process.stdin
-Event: 'readable'#
+ - 调用`pipe()`方法将数据导入一个可写流。
 
-When a chunk of data can be read from the stream, it will emit a 'readable' event.
+你可以同意下面任意一种方法切换回暂停模式：
 
-In some cases, listening for a 'readable' event will cause some data to be read into the internal buffer from the underlying system, if it hadn't already.
+ - 如果没有导流（pipe）目标，调用`pause()`方法。
 
+ - 如果有导流（pipe）目标，移除所有的`data`事件监听器，并且通过`unpipe()`方法移除所有导流目标。
+
+注意，由于为了向后兼任的原因，移除`data`事件的监听器将不会自动暂停流。同样的，如果有导流目标，调用`pause()`方法将不会保证目标流排空并请求更多数据时保持暂停。
+
+一些内置的可读流例子：
+
+ - 客户端的HTTP请求
+ - 服务端的HTTP响应
+ - 文件系统读取流
+ - `zlib`流
+ - `crypto`流
+ - tcp sockets
+ - 子进程的stdout和stderr
+ - `process.stdin`
+
+#### Event: 'readable'#
+
+当一个数据块能可以从流中被读出时，会触发一个`readable`事件。
+
+某些情况下，监听一个`readable`事件会导致一些将要被读出的数据从底层系统进入内部缓存，如果它没有准备好。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.on('readable', function() {
   // there is some data to read now
 });
-Once the internal buffer is drained, a readable event will fire again when more data is available.
+```
 
-Event: 'data'#
+当内部缓存被排空时，一旦有更多数据，`readable`事件会再次触发。
 
-chunk Buffer | String The chunk of data.
-Attaching a data event listener to a stream that has not been explicitly paused will switch the stream into flowing mode. Data will then be passed as soon as it is available.
+#### Event: 'data'#
 
-If you just want to get all the data out of the stream as fast as possible, this is the best way to do so.
+ - chunk Buffer | String 数据块
+ 
+为一个没有被暂停的流添加一个`data`事件的监听器会使其切换到流动模式。之后数据会被尽快得传递给用户。
 
+如果你只是想尽快得从流中取得所有数据，这是最好的方式。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.on('data', function(chunk) {
   console.log('got %d bytes of data', chunk.length);
 });
-Event: 'end'#
+```
 
-This event fires when there will be no more data to read.
+#### Event: 'end'#
 
-Note that the end event will not fire unless the data is completely consumed. This can be done by switching into flowing mode, or by calling read() repeatedly until you get to the end.
+当没有更多可读的数据时这个事件会被触发。
 
+注意，除非数据被完全消费，`end`事件才会触发。这可以通过切换到流动模式，或重复调用`read()`方法。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.on('data', function(chunk) {
   console.log('got %d bytes of data', chunk.length);
@@ -129,27 +146,33 @@ readable.on('data', function(chunk) {
 readable.on('end', function() {
   console.log('there will be no more data.');
 });
-Event: 'close'#
+```
 
-Emitted when the underlying resource (for example, the backing file descriptor) has been closed. Not all streams will emit this.
+#### Event: 'close'#
 
-Event: 'error'#
+当底层资源（如源头的文件描述符）被关闭时触发。不是所有的流都会触发这个事件。
 
-Error Object
-Emitted if there was an error receiving data.
+#### Event: 'error'#
 
-readable.read([size])#
+ - Error Object
 
-size Number Optional argument to specify how much data to read.
-Return String | Buffer | null
-The read() method pulls some data out of the internal buffer and returns it. If there is no data available, then it will return null.
+当接受数据时有错误发生，会触发此事件。
 
-If you pass in a size argument, then it will return that many bytes. If size bytes are not available, then it will return null.
+#### readable.read([size])#
 
-If you do not specify a size argument, then it will return all the data in the internal buffer.
+ - size Number 可选，指定读取数据的数量
+ - Return String | Buffer | null
 
-This method should only be called in paused mode. In flowing mode, this method is called automatically until the internal buffer is drained.
 
+`read()`方法从内部缓存中取出数据并返回它。如果没有可用数据，那么将返回`null`。
+
+如果你传递了一个`size`参数，那么它将返回指定字节的数据。如果`size`参数的字节数不可用，那么将返回`null`。
+
+如果你不指定`size`参数，那么将会返回内部缓存中的所有数据。
+
+这个方法只能在暂定模式中被调用。在流动模式下，这个方法会被自动地重复调用，知道内部缓存被排空。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.on('readable', function() {
   var chunk;
@@ -157,39 +180,51 @@ readable.on('readable', function() {
     console.log('got %d bytes of data', chunk.length);
   }
 });
-If this method returns a data chunk, then it will also trigger the emission of a 'data' event.
+```
 
-readable.setEncoding(encoding)#
+如果这个方法返回一个数据块，那么它也会触发`data`事件。
 
-encoding String The encoding to use.
-Return: this
-Call this function to cause the stream to return strings of the specified encoding instead of Buffer objects. For example, if you do readable.setEncoding('utf8'), then the output data will be interpreted as UTF-8 data, and returned as strings. If you do readable.setEncoding('hex'), then the data will be encoded in hexadecimal string format.
+#### readable.setEncoding(encoding)#
 
-This properly handles multi-byte characters that would otherwise be potentially mangled if you simply pulled the Buffers directly and called buf.toString(encoding) on them. If you want to read the data as strings, always use this method.
+ - encoding String 使用的编码
+ - Return: this
+ 
+调用这个函数会导致流返回指定编码的字符串而不是`Buffer`对象。例如，如果你调用`readable.setEncoding('utf8')`，那么输出的数据将被解释为UTF-8数据，并且作为字符串返回。如果你调用了`readable.setEncoding('hex')`，那么数据将被使用十六进制字符串的格式编码。
 
+该方法可以正确地处理多字节字符。如果你只是简单地直接取出缓存并且对它们调用`buf.toString(encoding)`，将会导致错位。如果你想使用字符串读取数据，请使用这个方法。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.setEncoding('utf8');
 readable.on('data', function(chunk) {
   assert.equal(typeof chunk, 'string');
   console.log('got %d characters of string data', chunk.length);
 });
-readable.resume()#
+```
 
-Return: this
-This method will cause the readable stream to resume emitting data events.
+#### readable.resume()#
 
-This method will switch the stream into flowing mode. If you do not want to consume the data from a stream, but you do want to get to its end event, you can call readable.resume() to open the flow of data.
+ - Return: this
+ 
+这个方法将会让可读流继续触发`data`事件。
 
+这个方法将会使流切换至流动模式。如果你不想消费流中的数据，但你想监听它的`end`事件，你可以通过调用`readable.resume()`来打开数据流。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.resume();
 readable.on('end', function() {
   console.log('got to the end, but did not read anything');
 });
-readable.pause()#
+```
 
-Return: this
-This method will cause a stream in flowing mode to stop emitting data events, switching out of flowing mode. Any data that becomes available will remain in the internal buffer.
+#### readable.pause()#
 
+ - Return: this
+
+这个方法会使一个处于流动模式的流停止触发`data`事件，并切换至暂停模式。所有可用的数据将仍然存在于内部缓存中。
+
+```js
 var readable = getReadableStreamSomehow();
 readable.on('data', function(chunk) {
   console.log('got %d bytes of data', chunk.length);
@@ -200,11 +235,15 @@ readable.on('data', function(chunk) {
     readable.resume();
   }, 1000);
 });
-readable.isPaused()#
+```
 
-Return: Boolean
-This method returns whether or not the readable has been explicitly paused by client code (using readable.pause() without a corresponding readable.resume()).
+#### readable.isPaused()#
 
+ - Return: Boolean
+
+这个方法会返回流是否被客户端代码所暂停（调用`readable.pause()`，并且没有在之后调用`readable.resume()`）。
+
+```js
 var readable = new stream.Readable
 
 readable.isPaused() // === false
@@ -212,47 +251,64 @@ readable.pause()
 readable.isPaused() // === true
 readable.resume()
 readable.isPaused() // === false
-readable.pipe(destination[, options])#
+```
 
-destination Writable Stream The destination for writing data
-options Object Pipe options
-end Boolean End the writer when the reader ends. Default = true
-This method pulls all the data out of a readable stream, and writes it to the supplied destination, automatically managing the flow so that the destination is not overwhelmed by a fast readable stream.
+#### readable.pipe(destination[, options])#
 
-Multiple destinations can be piped to safely.
+ - destination Writable Stream 写入数据的目标
+ - __options Object__
+  - end Boolean 当读取者结束时结束写入者。默认为`true`。
 
+这个方法会取出可读流中所有的数据，并且将之写入指定的目标。这个方法会自动调节流量，所以当快速读取可读流时目标不会溢出。
+
+可以将数据安全地导流至多个目标。
+
+```js
 var readable = getReadableStreamSomehow();
 var writable = fs.createWriteStream('file.txt');
 // All the data from readable goes into 'file.txt'
 readable.pipe(writable);
-This function returns the destination stream, so you can set up pipe chains like so:
+```
 
+这个函数返回目标流，所以你可以链式调用`pipe()`：
+
+```js
 var r = fs.createReadStream('file.txt');
 var z = zlib.createGzip();
 var w = fs.createWriteStream('file.txt.gz');
 r.pipe(z).pipe(w);
-For example, emulating the Unix cat command:
+```
 
+例子，模仿UNIX的`cat`命令：
+
+```js
 process.stdin.pipe(process.stdout);
-By default end() is called on the destination when the source stream emits end, so that destination is no longer writable. Pass { end: false } as options to keep the destination stream open.
+```
 
-This keeps writer open so that "Goodbye" can be written at the end.
+默认情况下，当源流触发`end`事件时，目标流会被调用`end()`方法，然后目标就不再是可写的了。将传递`{ end: false }`作为`options`参数，将保持目标流开启。
 
+例子，保持被写入的流开启，所以“Goodbye”可以在末端被写入：
+
+```js
 reader.pipe(writer, { end: false });
 reader.on('end', function() {
   writer.end('Goodbye\n');
 });
-Note that process.stderr and process.stdout are never closed until the process exits, regardless of the specified options.
+```
 
-readable.unpipe([destination])#
+注意，不论指定任何`options`参数，`process.stderr`和`process.stdout`在程序退出前永远不会被关闭。
 
-destination Writable Stream Optional specific stream to unpipe
-This method will remove the hooks set up for a previous pipe() call.
+#### readable.unpipe([destination])#
 
-If the destination is not specified, then all pipes are removed.
+- destination Writable Stream 可选，指定解除导流的流
 
-If the destination is specified, but no pipe is set up for it, then this is a no-op.
+这方法会移除之前调用`pipe()`方法所设置的钩子。
 
+如果没有指定目标，那么所有的导流都会被移除。
+
+如果指定了目标，但是并没有为目标设置导流，那么什么都不会发生。
+
+```js
 var readable = getReadableStreamSomehow();
 var writable = fs.createWriteStream('file.txt');
 // All the data from readable goes into 'file.txt',
@@ -264,13 +320,17 @@ setTimeout(function() {
   console.log('manually close the file stream');
   writable.end();
 }, 1000);
-readable.unshift(chunk)#
+```
 
-chunk Buffer | String Chunk of data to unshift onto the read queue
-This is useful in certain cases where a stream is being consumed by a parser, which needs to "un-consume" some data that it has optimistically pulled out of the source, so that the stream can be passed on to some other party.
+#### readable.unshift(chunk)#
 
-If you find that you must often call stream.unshift(chunk) in your programs, consider implementing a Transform stream instead. (See API for Stream Implementors, below.)
+ - chunk Buffer | String 要插回读取队列开头的数据块。
 
+该方法在许多场景中都很有用，比如一个流正在被一个解析器消费，解析器可能需要将某些刚拉取出的数据“逆消费”回来源，以便流能将它传递给其它消费者。
+
+如果你发现你必须经常在你的程序中调用`stream.unshift(chunk)`，你应该考虑实现一个`Transform`流（参阅下文的面向流实现者的API）。
+
+```js
 // Pull off a header delimited by \n\n
 // use unshift() if we get too much
 // Call the callback with (error, header, stream)
@@ -303,17 +363,21 @@ function parseHeader(stream, callback) {
     }
   }
 }
-readable.wrap(stream)#
+```
 
-stream Stream An "old style" readable stream
-Versions of Node.js prior to v0.10 had streams that did not implement the entire Streams API as it is today. (See "Compatibility" below for more information.)
+#### readable.wrap(stream)#
 
-If you are using an older io.js library that emits 'data' events and has a pause() method that is advisory only, then you can use the wrap() method to create a Readable stream that uses the old stream as its data source.
+ - stream Stream 一个“旧式”可读流
 
-You will very rarely ever need to call this function, but it exists as a convenience for interacting with old io.js programs and libraries.
+`Node.js` v0.10 以及之前版本的流没有完全包含如今的所有的流API（更多的信息请参阅下文的“兼容性”）。
 
-For example:
+如果你正在使用一个老旧的`io.js`库，它触发`data`时间并且有一个仅作查询用途的`pause()`方法，那么你可以调用`wrap()`方法来创建一个使用“旧式”流作为数据源的可读流。
 
+你几乎不会用到这个函数，它的存在仅是为了老旧的`io.js`程序和库交互。
+
+例子：
+
+```js
 var OldReader = require('./old-api-module.js').OldReader;
 var oreader = new OldReader;
 var Readable = require('stream').Readable;
@@ -322,21 +386,24 @@ var myReader = new Readable().wrap(oreader);
 myReader.on('readable', function() {
   myReader.read(); // etc.
 });
-Class: stream.Writable#
+```
 
-The Writable stream interface is an abstraction for a destination that you are writing data to.
+#### Class: stream.Writable#
 
-Examples of writable streams include:
+可写流接口是一个你可以向其写入数据的目标的抽象。
 
-http requests, on the client
-http responses, on the server
-fs write streams
-zlib streams
-crypto streams
-tcp sockets
-child process stdin
-process.stdout, process.stderr
-writable.write(chunk[, encoding][, callback])#
+一些内部的可写流例子：
+
+ - 客户端的http请求
+ - 服务端的htto响应
+ - 文件系统写入流
+ - `zlib`流
+ - `crypto`流
+ - tcp `socket`
+ - 子进程`stdin`
+ - `process.stdout`，`process.stderr`
+ 
+#### writable.write(chunk[, encoding][, callback])#
 
 chunk String | Buffer The data to write
 encoding String The encoding, if chunk is a String
