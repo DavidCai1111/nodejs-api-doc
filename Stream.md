@@ -395,7 +395,7 @@ myReader.on('readable', function() {
 一些内部的可写流例子：
 
  - 客户端的http请求
- - 服务端的htto响应
+ - 服务端的http响应
  - 文件系统写入流
  - `zlib`流
  - `crypto`流
@@ -405,20 +405,23 @@ myReader.on('readable', function() {
  
 #### writable.write(chunk[, encoding][, callback])#
 
-chunk String | Buffer The data to write
-encoding String The encoding, if chunk is a String
-callback Function Callback for when this chunk of data is flushed
-Returns: Boolean True if the data was handled completely.
-This method writes some data to the underlying system, and calls the supplied callback once the data has been fully handled.
+ - chunk String | Buffer 要写入的数据
+ - encoding String 编码，如果数据块是字符串
+ - callback Function 当数据块写入完毕后调用的回调函数
+ - Returns: Boolean 如果被全部处理则返回`true`
 
-The return value indicates if you should continue writing right now. If the data had to be buffered internally, then it will return false. Otherwise, it will return true.
+该方法向底层系统写入数据，并且当数据被全部处理后调用指定的回调函数。
 
-This return value is strictly advisory. You MAY continue to write, even if it returns false. However, writes will be buffered in memory, so it is best not to do this excessively. Instead, wait for the drain event before writing more data.
+返回值指示了你是否可以立刻写入数据。如果数据需要被内部缓存，会返回`false`。否则返回`true`。
 
-Event: 'drain'#
+返回值经供参考。即使返回`false`，你仍可以继续写入数据。但是，写入的数据将会被缓存在内存里，所以最好不要这样做。应该在写入更多数据前等待`drain`事件。
+
+#### Event: 'drain'#
 
 If a writable.write(chunk) call returns false, then the drain event will indicate when it is appropriate to begin writing more data to the stream.
+如果一个`writable.write(chunk)`调用返回了`false`，那么`drain`事件会指示出可以继续向流写入数据的时机。
 
+```js
 // Write the data to the supplied writable stream 1MM times.
 // Be attentive to back-pressure.
 function writeOneMillionTimes(writer, data, encoding, callback) {
@@ -444,39 +447,47 @@ function writeOneMillionTimes(writer, data, encoding, callback) {
     }
   }
 }
-writable.cork()#
+```
 
-Forces buffering of all writes.
+#### writable.cork()#
 
-Buffered data will be flushed either at .uncork() or at .end() call.
+强制滞留所有写入。
 
-writable.uncork()#
+滞留的数据会在调用`.uncork()`或`.end()`方法后被写入。
 
-Flush all data, buffered since .cork() call.
+#### writable.uncork()#
 
-writable.setDefaultEncoding(encoding)#
+写入在调用`.cork()`方法所有被滞留的数据。
 
-encoding String The new default encoding
-Sets the default encoding for a writable stream.
+#### writable.setDefaultEncoding(encoding)#
 
-writable.end([chunk][, encoding][, callback])#
+ - encoding String 新的默认编码
 
-chunk String | Buffer Optional data to write
-encoding String The encoding, if chunk is a String
-callback Function Optional callback for when the stream is finished
-Call this method when no more data will be written to the stream. If supplied, the callback is attached as a listener on the finish event.
+设置一个可写流的默认编码。
 
-Calling write() after calling end() will raise an error.
+#### writable.end([chunk][, encoding][, callback])#
 
+ - chunk String | Buffer 可选，写入的数据
+ - encoding String 编码，如果数据块是字符串
+ - callback Function 可选，回调函数
+
+当没有更多可写的数据时，调用这个方法。如果指定了回调函数，那么会被添加为`finish`事件的监听器。
+
+在调用了`end()`后调用`write()`会导致一个错误。
+
+```js
 // write 'hello, ' and then end with 'world!'
 var file = fs.createWriteStream('example.txt');
 file.write('hello, ');
 file.end('world!');
 // writing more now is not allowed!
-Event: 'finish'#
+```
 
-When the end() method has been called, and all data has been flushed to the underlying system, this event is emitted.
+#### Event: 'finish'#
 
+当调用了`end()`方法，并且所有的数据都被写入了底层系统，这个事件会被触发。
+
+```js
 var writer = getWritableStreamSomehow();
 for (var i = 0; i < 100; i ++) {
   writer.write('hello, #' + i + '!\n');
@@ -485,11 +496,15 @@ writer.end('this is the end\n');
 writer.on('finish', function() {
   console.error('all writes are now complete.');
 });
-Event: 'pipe'#
+```
 
-src Readable Stream source stream that is piping to this writable
-This is emitted whenever the pipe() method is called on a readable stream, adding this writable to its set of destinations.
+#### Event: 'pipe'#
 
+ - src Readable Stream 对这个可写流进行导流的源可读流
+
+这个事件将会在可读流被一个可写流使用`pipe()`方法进行导流时触发。
+
+```js
 var writer = getWritableStreamSomehow();
 var reader = getReadableStreamSomehow();
 writer.on('pipe', function(src) {
@@ -497,11 +512,15 @@ writer.on('pipe', function(src) {
   assert.equal(src, reader);
 });
 reader.pipe(writer);
-Event: 'unpipe'#
+```
 
-src Readable Stream The source stream that unpiped this writable
-This is emitted whenever the unpipe() method is called on a readable stream, removing this writable from its set of destinations.
+#### Event: 'unpipe'#
 
+ - src Readable Stream 对这个可写流停止导流的源可读流
+
+当可读流对其调用`unpipe()`方法，在源可读流的目标集合中删除这个可写流，这个事件将会触发。
+
+```js
 var writer = getWritableStreamSomehow();
 var reader = getReadableStreamSomehow();
 writer.on('unpipe', function(src) {
@@ -510,63 +529,63 @@ writer.on('unpipe', function(src) {
 });
 reader.pipe(writer);
 reader.unpipe(writer);
-Event: 'error'#
+```
 
-Error object
-Emitted if there was an error when writing or piping data.
+#### Event: 'error'#
 
-Class: stream.Duplex#
+ - Error object
 
-Duplex streams are streams that implement both the Readable and Writable interfaces. See above for usage.
+在写入数据或导流发生错误时触发。
 
-Examples of Duplex streams include:
+#### Class: stream.Duplex#
 
-tcp sockets
-zlib streams
-crypto streams
-Class: stream.Transform#
+双工是同时实现了可读流与可写流的借口。它的用处请参阅下文。
 
-Transform streams are Duplex streams where the output is in some way computed from the input. They implement both the Readable and Writable interfaces. See above for usage.
+内部双工流的例子：
 
-Examples of Transform streams include:
+ - tcp `socket`
+ - `zlib`流
+ - `crypto`流
+ 
+#### Class: stream.Transform#
 
-zlib streams
-crypto streams
-API for Stream Implementors#
-To implement any sort of stream, the pattern is the same:
+转换流是一种输出由输入计算所得的栓共流。它们同时集成了可读流与可写流的借口。它们的用处请参阅下文。
 
-Extend the appropriate parent class in your own subclass. (The util.inherits method is particularly helpful for this.)
-Call the appropriate parent class constructor in your constructor, to be sure that the internal mechanisms are set up properly.
-Implement one or more specific methods, as detailed below.
-The class to extend and the method(s) to implement depend on the sort of stream class you are writing:
+内部转换流的例子：
 
-Use-case
-Class
-Method(s) to implement
-Reading only
-Readable
-_read
-Writing only
-Writable
-_write, _writev
-Reading and writing
-Duplex
-_read, _write, _writev
-Operate on written data, then read the result
-Transform
-_transform, _flush
-In your implementation code, it is very important to never call the methods described in API for Stream Consumers above. Otherwise, you can potentially cause adverse side effects in programs that consume your streaming interfaces.
+ - `zlib`流
+ - `crypto`流
+ 
+### 面向流实现者的API
 
-Class: stream.Readable#
+实现所有种类的流的模式都是一样的：
 
-stream.Readable is an abstract class designed to be extended with an underlying implementation of the _read(size) method.
+ 1. 为你的子类继承合适的父类（`util.inherits`非常合适于做这个）。
+ 2. 为了保证内部机制被正确初始化，在你的构造函数中调用合适的父类构造函数。
+ 3. 实现一个或多个特定的方法，参阅下文。
 
-Please see above under API for Stream Consumers for how to consume streams in your programs. What follows is an explanation of how to implement Readable streams in your programs.
+被扩展的类和要实现的方法取决于你要编写的流类的类型：
 
-Example: A Counting Stream#
+| 用途      | 类           | 需要实现的方法 |
+| ------------- |:-------------:| -----:|
+| 只读     | Readable | _read |
+| 只写      | Writable      |   _write, _writev |
+| 可读以及可写 | Duplex      |    _read, _write, _writev |
+| 操作被写入数据，然后读出结果 | Transform      |    _transform, _flush |
 
-This is a basic example of a Readable stream. It emits the numerals from 1 to 1,000,000 in ascending order, and then ends.
+在你的实现代码中，非常重要的一点是永远不要调用上文的面向流消费者的API。否则，你在程序中消费你的流接口时可能有潜在的副作用。
 
+#### Class: stream.Readable#
+
+`stream.Readable`是一个被设计为需要实现底层的`_read(size)`方法的抽象类。
+
+请参阅上文的面向流消费者的API来了解如何在程序中消费流。以下解释了如果在你的程序中实现可读流。
+
+例子：一个计数流
+
+这是一个可读流的基础例子。它从1到1，000，000递增数字，然后结束。
+
+```js
 var Readable = require('stream').Readable;
 var util = require('util');
 util.inherits(Counter, Readable);
@@ -587,12 +606,16 @@ Counter.prototype._read = function() {
     this.push(buf);
   }
 };
-Example: SimpleProtocol v1 (Sub-optimal)#
+```
 
-This is similar to the parseHeader function described above, but implemented as a custom stream. Also, note that this implementation does not convert the incoming data to a string.
 
-However, this would be better implemented as a Transform stream. See below for a better implementation.
+例子：简单协议 v1 （次优）
 
+这类似于上文中提到的`parseHeader `函数，但是使用一个自定义流实现。另外，注意这个实现不将流入的数据转换为字符串。
+
+更好地实现是作为一个转换流实现，请参阅下文更好地实现。
+
+```js
 // A parser for a simple data protocol.
 // The "header" is a JSON object, followed by 2 \n characters, and
 // then a message body.
@@ -691,44 +714,50 @@ SimpleProtocol.prototype._read = function(n) {
 // var parser = new SimpleProtocol(source);
 // Now parser is a readable stream that will emit 'header'
 // with the parsed header data.
-new stream.Readable([options])#
+```
 
-options Object
-highWaterMark Number The maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource. Default=16kb, or 16 for objectMode streams
-encoding String If specified, then buffers will be decoded to strings using the specified encoding. Default=null
-objectMode Boolean Whether this stream should behave as a stream of objects. Meaning that stream.read(n) returns a single value instead of a Buffer of size n. Default=false
-In classes that extend the Readable class, make sure to call the Readable constructor so that the buffering settings can be properly initialized.
+#### new stream.Readable([options])#
 
-readable._read(size)#
+ - __options Object__
+  - highWaterMark Number s在停止从底层资源读取之前，在内部缓存中存储的最大字节数。默认为16kb，对于`objectMode`则是16
+  - encoding String 如果被指定，那么缓存将被利用指定编码解码为字符串，默认为`null`
+  - objectMode Boolean 是否该流应该表现如一个对象的流。意思是说`stream.read(n)`返回一个单独的对象而不是一个大小为`n`的`Buffer`，默认为`false`
+  
+在实现了`Readable`类的类中，请确保调用了`Readable`构造函数，这样缓存设置才能被正确的初始化。
 
-size Number Number of bytes to read asynchronously
-Note: Implement this function, but do NOT call it directly.
+#### readable._read(size)#
 
-This function should NOT be called directly. It should be implemented by child classes, and only called by the internal Readable class methods.
+ - size Number 异步读取数据的字节数
+ 
+注意：实现这个函数，而不要直接调用这个函数。
 
-All Readable stream implementations must provide a _read method to fetch data from the underlying resource.
+这个函数不应该被直接调用。它应该被子类实现，并且仅被`Readable`类的内部方法调用。
 
-This method is prefixed with an underscore because it is internal to the class that defines it, and should not be called directly by user programs. However, you are expected to override this method in your own extension classes.
+所有的可读流都必须实现这个方法用来从底层资源中获取数据。
 
-When data is available, put it into the read queue by calling readable.push(chunk). If push returns false, then you should stop reading. When _read is called again, you should start pushing more data.
+这个函数有一个下划线前缀，因为它对于类是内部的，并应该直接被用户的程序调用。你应在你的拓展类里覆盖这个方法。
 
-The size argument is advisory. Implementations where a "read" is a single call that returns data can use this to know how much data to fetch. Implementations where that is not relevant, such as TCP or TLS, may ignore this argument, and simply provide data whenever it becomes available. There is no need, for example to "wait" until size bytes are available before calling stream.push(chunk).
+当数据可用时，调用`readable.push(chunk)`方法将之推入读取队列。如果方法返回`false`，那么你应当停止读取。当`_read`方法再次被调用，你应当推入更多数据。
 
-readable.push(chunk[, encoding])#
+参数`size`仅作查询。“read”调用返回数据的实现可以通过这个参数来知道应当抓取多少数据；其余与之无关的实现，比如TCP或TLS，则可忽略这个参数，并在可用时返回数据。例如，没有必要“等到”`size`个字节可用时才调用`stream.push(chunk)`。
 
-chunk Buffer | null | String Chunk of data to push into the read queue
-encoding String Encoding of String chunks. Must be a valid Buffer encoding, such as 'utf8' or 'ascii'
-return Boolean Whether or not more pushes should be performed
-Note: This function should be called by Readable implementors, NOT by consumers of Readable streams.
+#### readable.push(chunk[, encoding])#
 
-The _read() function will not be called again until at least one push(chunk) call is made.
+ - chunk Buffer | null | String 被推入读取队列的数据块
+ - encoding String 字符串数据块的编码。必须是一个合法的`Buffer`编码，如'utf8'或'ascii'
+ - return Boolean 是否应该继续推入
 
-The Readable class works by putting data into a read queue to be pulled out later by calling the read() method when the 'readable' event fires.
+注意：这个函数应该被`Readable`流的实现者调用，而不是消费者。
 
-The push() method will explicitly insert some data into the read queue. If it is called with null then it will signal the end of the data (EOF).
+`_read()`函数在至少调用一次`push(chunk)`方法前，不会被再次调用。
 
-This API is designed to be as flexible as possible. For example, you may be wrapping a lower-level source which has some sort of pause/resume mechanism, and a data callback. In those cases, you could wrap the low-level source object by doing something like this:
+`Readable`类通过在`readable`事件触发时，调用`read()`方法将数据推入 之后用于读出数据的读取队列 来工作。
 
+`push()`方法需要明确地向读取队列中插入数据。如果它的参数为`null`，那么它将发送一个数据结束信号（`EOF`）。
+
+这个API被设计为尽可能的灵活。例如，你可能正在包装一个有`pause/resume`机制和一个数据回调函数的低级别源。那那些情况下，你可以通过以下方式包装这些低级别源：
+
+```js
 // source is an object with readStop() and readStart() methods,
 // and an `ondata` member that gets called when it has data, and
 // an `onend` member that gets called when the data is over.
@@ -759,25 +788,29 @@ function SourceWrapper(options) {
 SourceWrapper.prototype._read = function(size) {
   this._source.readStart();
 };
-Class: stream.Writable#
+```
 
-stream.Writable is an abstract class designed to be extended with an underlying implementation of the _write(chunk, encoding, callback) method.
+#### Class: stream.Writable#
 
-Please see above under API for Stream Consumers for how to consume writable streams in your programs. What follows is an explanation of how to implement Writable streams in your programs.
+`stream.Writable`是一个被设计为需要实现底层的`_write(chunk, encoding, callback) `方法的抽象类。
 
-new stream.Writable([options])#
+请参阅上文的面向流消费者的API来了解如何在程序中消费流。以下解释了如果在你的程序中实现可写流。
 
-options Object
-highWaterMark Number Buffer level when write() starts returning false. Default=16kb, or 16 for objectMode streams
-decodeStrings Boolean Whether or not to decode strings into Buffers before passing them to _write(). Default=true
-objectMode Boolean Whether or not the write(anyObj) is a valid operation. If set you can write arbitrary data instead of only Buffer / String data. Default=false
-In classes that extend the Writable class, make sure to call the constructor so that the buffering settings can be properly initialized.
+#### new stream.Writable([options])#
 
-writable._write(chunk, encoding, callback)#
+ - options Object
+ - highWaterMark Number `write()`方法开始返回`false`的缓存级别。默认为16kb，对于`objectMode`流则是`16`
+ - decodeStrings Boolean 是否在传递给`write()`方法前将字符串解码成`Buffer`。默认为`true`。
+ - objectMode Boolean 是否`write(anyObj)`为一个合法操作。如果设置为`true`你可以写入任意数据而不仅是`Buffer`或字符串数据。默认为`false`
+ 
+在实现了`Writable `类的类中，请确保调用了`Writable `构造函数，这样缓存设置才能被正确的初始化。
 
-chunk Buffer | String The chunk to be written. Will always be a buffer unless the decodeStrings option was set to false.
-encoding String If the chunk is a string, then this is the encoding type. If chunk is a buffer, then this is the special value - 'buffer', ignore it in this case.
-callback Function Call this function (optionally with an error argument) when you are done processing the supplied chunk.
+#### writable._write(chunk, encoding, callback)#
+
+ - chunk Buffer | String 将要被写入的数据块。除非`decodeStrings `配置被设置为`false`，否则将一直是一个`buffer`
+ - encoding String 如果数据块是一个字符串，那么这就是编码的类型。如果是一个`buffer`，那么则会忽略它
+ - callback Function 当你处理完给定的数据块后调用这个函数
+
 All Writable stream implementations must provide a _write() method to send data to the underlying resource.
 
 Note: This function MUST NOT be called directly. It should be implemented by child classes, and called by the internal Writable class methods only.
