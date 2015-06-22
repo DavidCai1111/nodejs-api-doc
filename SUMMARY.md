@@ -1,5 +1,6 @@
 * [Assertion Testing](Assertion-Testing.md)
 * [Buffer](Buffer.md)
 * [Child Processes](Child_process.md)
+* [Cluster](Cluster.md)
 * [Net](Net.md)
 * [Stream](Stream.md)
