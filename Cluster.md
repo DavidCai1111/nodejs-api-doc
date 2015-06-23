@@ -50,54 +50,62 @@ if (cluster.isMaster) {
 
 集群模式支持两种分配传入连接的方式。
 
-The first one (and the default one on all platforms except Windows), is the round-robin approach, where the master process listens on a port, accepts new connections and distributes them across the workers in a round-robin fashion, with some built-in smarts to avoid overloading a worker process.
+第一种（并且是除了Windows平台外默认的方式）是循环式。主进程监听一个端口，接受新连接，并且以轮流的方式分配给工作进程，并且以一些内建机制来避免一个工作进程过载。
 
-The second approach is where the master process creates the listen socket and sends it to interested workers. The workers then accept incoming connections directly.
+第二种方式是，主进程建立监听`socket`并且将它发送给感兴趣的工作进程。工作进程直接接受传入的连接。
 
-The second approach should, in theory, give the best performance. In practice however, distribution tends to be very unbalanced due to operating system scheduler vagaries. Loads have been observed where over 70% of all connections ended up in just two processes, out of a total of eight.
+第二种方式理论上有最好的性能。但是在实践中，操作系统的调度不可预测，分配往往十分不平衡。负载曾被观察到8个进程中，超过70%的连接结束于其中的2个进程。
 
-Because server.listen() hands off most of the work to the master process, there are three cases where the behavior between a normal io.js process and a cluster worker differs:
+因为`server.listen()`将大部分工作交给了主进程，所以一个普通的`io.js`进程和一个集群工作进程会在三种情况下有所区别：
 
-server.listen({fd: 7}) Because the message is passed to the master, file descriptor 7 in the parent will be listened on, and the handle passed to the worker, rather than listening to the worker's idea of what the number 7 file descriptor references.
-server.listen(handle) Listening on handles explicitly will cause the worker to use the supplied handle, rather than talk to the master process. If the worker already has the handle, then it's presumed that you know what you are doing.
-server.listen(0) Normally, this will cause servers to listen on a random port. However, in a cluster, each worker will receive the same "random" port each time they do listen(0). In essence, the port is random the first time, but predictable thereafter. If you want to listen on a unique port, generate a port number based on the cluster worker ID.
-There is no routing logic in io.js, or in your program, and no shared state between the workers. Therefore, it is important to design your program such that it does not rely too heavily on in-memory data objects for things like sessions and login.
+ 1. `server.listen({fd: 7})` 因为消息被传递给了主进程，主进程的文件描述符`7`会被监听，并且句柄会被传递给工作进程而不是监听工作进程中文件描述符为`7`的东西。
+ 
+ 2. `server.listen(handle)` 明确地监听句柄会导致工作进程使用给定的句柄，而不是与主进程通信。如果工作进程已经有了此句柄，那么将假设你知道你在做什么。
+ 
+ 3. `server.listen(0)` 通常，这会导致服务器监听一个随机端口。但是，在集群中，每次调用`listen(0)`时，每一个工作进程会收到同样的“随机”端口。也就是说，端口只是在第一次方法被调用时是随机的，但在之后是可预知的。如果你想监听特定的端口，则根据工作进程的PID来生成端口号。
+ 
+由于在`io.js`或你的程序中的工作进程间没有路由逻辑也没有共享的状态。所以，请不要为你的程序设计成依赖太重的内存数据对象，如设计会话和登陆时。
 
-Because workers are all separate processes, they can be killed or re-spawned depending on your program's needs, without affecting other workers. As long as there are some workers still alive, the server will continue to accept connections. io.js does not automatically manage the number of workers for you, however. It is your responsibility to manage the worker pool for your application's needs.
+因为工作进程都是独立的进程，它们可以根据你程序的需要被杀死或被创建，并且并不会影响到其他工作进程。只要有活跃的工作进程，那么服务器就会继续接收连接。但是`io.js`不会自动地为你管理工作进程数。所以根据你的应用需求来管理工作进程池是你的责任。
 
-cluster.schedulingPolicy#
-The scheduling policy, either cluster.SCHED_RR for round-robin or cluster.SCHED_NONE to leave it to the operating system. This is a global setting and effectively frozen once you spawn the first worker or call cluster.setupMaster(), whatever comes first.
+#### cluster.schedulingPolicy#
+调度策略，选择`cluster.SCHED_RR`来使用循环式，或选择`cluster.SCHED_NONE`来由操作系统处理。这是一个全局设定，并且在你第一次启动了一个工作进程或调用`cluster.setupMaster()`方法后就不可再更改。
 
-SCHED_RR is the default on all operating systems except Windows. Windows will change to SCHED_RR once libuv is able to effectively distribute IOCP handles without incurring a large performance hit.
+`SCHED_RR`是除了Windows外其他操作系统中的默认值。一旦`libuv`能够有效地分配IOCP句柄并且没有巨大的性能损失，那么Windows下的默认值也会变为它。
 
-cluster.schedulingPolicy can also be set through the NODE_CLUSTER_SCHED_POLICY environment variable. Valid values are "rr" and "none".
+`cluster.schedulingPolicy`也可以通过环境变量`NODE_CLUSTER_SCHED_POLICY`来设定。合法值为`rr`和`none`。
 
-cluster.settings#
-Object
-execArgv Array list of string arguments passed to the io.js executable. (Default=process.execArgv)
-exec String file path to worker file. (Default=process.argv[1])
-args Array string arguments passed to worker. (Default=process.argv.slice(2))
-silent Boolean whether or not to send output to parent's stdio. (Default=false)
-uid Number Sets the user identity of the process. (See setuid(2).)
-gid Number Sets the group identity of the process. (See setgid(2).)
-After calling .setupMaster() (or .fork()) this settings object will contain the settings, including the default values.
+#### cluster.settings#
+ - __Object__
+  - execArgv Array 传递给`io.js`执行的字符串参数（默认为`process.execArgv`）
+  - exec String 工作进程文件的路径（默认为`process.argv[1]`）
+  - args Array 传递给工作进程的字符串参数（默认为`process.argv.slice(2)`）
+  - silent Boolean 是否将工作进程的输出传递给父进程的`stdio `（默认为`false`）
+  - uid Number 设置用户进程的ID
+  - gid Number 设置进程组的ID
+  
+在调用`.setupMaster()`（或`.fork()`）方法之后，这个`settings`对象会存放方法的配置，包括默认值。
 
-It is effectively frozen after being set, because .setupMaster() can only be called once.
+因为`.setupMaster()`仅能被调用一次，所以这个对象被设置后便不可更改。
 
-This object is not supposed to be changed or set manually, by you.
+这个对象不应由你来手工更改或设置。
 
-cluster.isMaster#
-Boolean
-True if the process is a master. This is determined by the process.env.NODE_UNIQUE_ID. If process.env.NODE_UNIQUE_ID is undefined, then isMaster is true.
+#### cluster.isMaster#
+ - Boolean
 
-cluster.isWorker#
-Boolean
-True if the process is not a master (it is the negation of cluster.isMaster).
+如果进程是主进程则返回`true`。这由`process.env.NODE_UNIQUE_ID`决定。如果`process.env.NODE_UNIQUE_ID`为`undefined`，那么就返回`true`。
 
-Event: 'fork'#
-worker Worker object
-When a new worker is forked the cluster module will emit a 'fork' event. This can be used to log worker activity, and create your own timeout.
+#### cluster.isWorker#
+ - Boolean
 
+如果进程不是主进程则返回`true`。
+
+#### Event: 'fork'#
+ - worker Worker object
+
+当一个新的工作进程由`cluster`模块所开启时会触发`fork`事件。这能被用来记录工作进程活动日志，或创建自定义的超时。
+
+```js
 var timeouts = [];
 function errorMsg() {
   console.error("Something must be wrong with the connection ...");
@@ -113,75 +121,98 @@ cluster.on('exit', function(worker, code, signal) {
   clearTimeout(timeouts[worker.id]);
   errorMsg();
 });
-Event: 'online'#
-worker Worker object
-After forking a new worker, the worker should respond with an online message. When the master receives an online message it will emit this event. The difference between 'fork' and 'online' is that fork is emitted when the master forks a worker, and 'online' is emitted when the worker is running.
+```
 
+#### Event: 'online'#
+ - worker Worker object
+  
+当创建了一个新的工作线程后，工作线程必须响应一个在线信息。当主进程接收到在线信息后它会触发这个事件。`fork`和`online`事件的区别在于：`fork`是主进程创建了工作进程后触发，`online`是工作进程开始运行时触发。
+
+```js
 cluster.on('online', function(worker) {
   console.log("Yay, the worker responded after it was forked");
 });
-Event: 'listening'#
-worker Worker object
-address Object
-After calling listen() from a worker, when the 'listening' event is emitted on the server, a listening event will also be emitted on cluster in the master.
+```
 
-The event handler is executed with two arguments, the worker contains the worker object and the address object contains the following connection properties: address, port and addressType. This is very useful if the worker is listening on more than one address.
+#### Event: 'listening'#
+ - worker Worker object
+ - address Object
 
+当工作进程调用`listen()`方法。服务器会触发`listening`事件，集群中的主进程也会触发一个`listening`事件。
+
+这个事件的回调函数包含两个参数，第一个`worker`是一个包含工作进程的对象，`address`对象是一个包含以下属性的对象：`address`，`port`和`addressType`。当工作进程监听多个地址时，这非常有用。
+
+```
 cluster.on('listening', function(worker, address) {
   console.log("A worker is now connected to " + address.address + ":" + address.port);
 });
-The addressType is one of:
+```
 
-4 (TCPv4)
-6 (TCPv6)
--1 (unix domain socket)
-"udp4" or "udp6" (UDP v4 or v6)
-Event: 'disconnect'#
-worker Worker object
-Emitted after the worker IPC channel has disconnected. This can occur when a worker exits gracefully, is killed, or is disconnected manually (such as with worker.disconnect()).
+`addressType`是以下中的一个：
 
-There may be a delay between the disconnect and exit events. These events can be used to detect if the process is stuck in a cleanup or if there are long-living connections.
+ - 4 (TCPv4)
+ - 6 (TCPv6)
+ - -1 (unix domain socket)
+ - "udp4" 或 "udp6" (UDP v4 或 v6)
+ 
+#### Event: 'disconnect'#
+ - worker Worker object
 
+当工作进程的IPC信道断开连接时触发。这个事件当工作进程优雅地退出，被杀死，或手工断开连接（如调用`worker.disconnect()`）后触发。
+
+`disconnect`和`exit`事件之间可能存在延迟。这两个事件可以用来侦测是否进程在清理的过程中被阻塞，或者是否存在长连接。
+
+```js
 cluster.on('disconnect', function(worker) {
   console.log('The worker #' + worker.id + ' has disconnected');
 });
-Event: 'exit'#
-worker Worker object
-code Number the exit code, if it exited normally.
-signal String the name of the signal (eg. 'SIGHUP') that caused the process to be killed.
-When any of the workers die the cluster module will emit the 'exit' event.
+```
 
-This can be used to restart the worker by calling .fork() again.
+#### Event: 'exit'#
+ - worker Worker object
+ - code Number 如果正常退出，则为退出码 
+ - signal String 导致进程被杀死的信号的信号名（如'SIGHUP'）
 
+当任何一个工作进程结束时，`cluster`模块会触发一个`exit`事件。
+
+这可以被用来通过再次调用`.fork()`方法重启服务器。
+
+```js
 cluster.on('exit', function(worker, code, signal) {
   console.log('worker %d died (%s). restarting...',
     worker.process.pid, signal || code);
   cluster.fork();
 });
-See child_process event: 'exit'.
+```
 
-Event: 'setup'#
-settings Object
-Emitted every time .setupMaster() is called.
+参阅`child_process`事件：`exit `。
 
-The settings object is the cluster.settings object at the time .setupMaster() was called and is advisory only, since multiple calls to .setupMaster() can be made in a single tick.
+#### Event: 'setup'#
+ - settings Object
 
-If accuracy is important, use cluster.settings.
+每次`.setupMaster()`方法被调用时触发。
 
-cluster.setupMaster([settings])#
-settings Object
-exec String file path to worker file. (Default=process.argv[1])
-args Array string arguments passed to worker. (Default=process.argv.slice(2))
-silent Boolean whether or not to send output to parent's stdio. (Default=false)
-setupMaster is used to change the default 'fork' behavior. Once called, the settings will be present in cluster.settings.
+这个`settings`对象与`.setupMaster()`被调用时`cluster.settings`对象相同，并且仅供查询，因为`.setupMaster()`可能在一次事件循环里被调用多次。
 
-Note that:
+如果保持精确十分重要，请使用`cluster.settings`。
 
-any settings changes only affect future calls to .fork() and have no effect on workers that are already running
-The only attribute of a worker that cannot be set via .setupMaster() is the env passed to .fork()
-the defaults above apply to the first call only, the defaults for later calls is the current value at the time of cluster.setupMaster() is called
-Example:
+#### cluster.setupMaster([settings])#
+ - __settings Object__
+  - exec String 工作进程文件的路径（默认为`process.argv[1]`）
+  - args Array 传递给工作进程的参数字符串（默认为`process.argv.slice(2)`）
+  - silent Boolean 是否将工作进程的输出传递给父进程的`stdio`(默认为`false`)
 
+`setupMaster`方法被用来改变默认的`fork`行为。一旦被调用，`settings`参数将被表现为`cluster.settings`。
+
+注意：
+
+ - 任何`settings`的改变仅影响之后的`.fork()`调用，而不影响已经运行中的工作进程
+ - 工作进程中唯一不同通过`.setupMaster()`来设置的属性是传递给`.fork()`方法的`env`参数
+ - 上文中的参数的默认值仅在第一次调用时被应用，之后的调用的默认值是当前`cluster.setupMaster()`被调用时的值。
+
+例子：
+
+```js
 var cluster = require('cluster');
 cluster.setupMaster({
   exec: 'worker.js',
@@ -193,29 +224,35 @@ cluster.setupMaster({
   args: ['--use', 'http']
 });
 cluster.fork(); // http worker
-This can only be called from the master process.
+```
 
-cluster.fork([env])#
-env Object Key/value pairs to add to worker process environment.
-return Worker object
-Spawn a new worker process.
+这只能被主进程调用。
 
-This can only be called from the master process.
+#### cluster.fork([env])#
+ - env Object 将添加到工作进程环境变量的键值对
+ - return Worker object
 
-cluster.disconnect([callback])#
-callback Function called when all workers are disconnected and handles are closed
-Calls .disconnect() on each worker in cluster.workers.
+创建一个新的工作进程。
 
-When they are disconnected all internal handles will be closed, allowing the master process to die gracefully if no other event is waiting.
+这只能被主进程调用。
 
-The method takes an optional callback argument which will be called when finished.
+#### cluster.disconnect([callback])#
+ - callback Function 当所有的工作进程断开连接并且所有句柄关闭后调用
 
-This can only be called from the master process.
+在`cluster.workers`中的每一个工作进程中调用`.disconnect()`。
 
-cluster.worker#
-Object
-A reference to the current worker object. Not available in the master process.
+当所有进程断开连接，所有内部的句柄都将关闭，如果没有其他的事件处于等待，将允许主进程优雅地退出。
 
+这个方法接受一个可选的将会在结束时触发的回调函数参数。
+
+这只能被主进程调用。
+
+#### cluster.worker#
+ - Object
+
+当前工作进程对象的引用。对于主进程不可用。
+
+```js
 var cluster = require('cluster');
 
 if (cluster.isMaster) {
@@ -225,12 +262,16 @@ if (cluster.isMaster) {
 } else if (cluster.isWorker) {
   console.log('I am worker #' + cluster.worker.id);
 }
-cluster.workers#
-Object
-A hash that stores the active worker objects, keyed by id field. Makes it easy to loop through all the workers. It is only available in the master process.
+```
 
-A worker is removed from cluster.workers after the worker has disconnected and exited. The order between these two events cannot be determined in advance. However, it is guaranteed that the removal from the cluster.workers list happens before last 'disconnect' or 'exit' event is emitted.
+#### cluster.workers#
+ - Object
 
+一个储存了所有活跃的工作进程对象的哈希表，以`id`字段为主键。这使得遍历所有工作进程变得容易。仅在主进程中可用。
+
+当工作进程断开连接或退出时，它会从`cluster.workers`中移除。这个两个事件的触发顺序不能被提前决定。但是，能保证的是，从`cluster.workers`移除一定发生在这两个事件触发之后。
+
+```js
 // Go through all workers
 function eachWorker(callback) {
   for (var id in cluster.workers) {
@@ -240,37 +281,47 @@ function eachWorker(callback) {
 eachWorker(function(worker) {
   worker.send('big announcement to all workers');
 });
-Should you wish to reference a worker over a communication channel, using the worker's unique id is the easiest way to find the worker.
+```
 
+想要跨越通信信道来得到一个工作进程的引用时，使用工作进程的唯一`id`能简单找到工作进程。
+
+```js
 socket.on('data', function(id) {
   var worker = cluster.workers[id];
 });
-Class: Worker#
-A Worker object contains all public information and method about a worker. In the master it can be obtained using cluster.workers. In a worker it can be obtained using cluster.worker.
+```
 
-worker.id#
+#### Class: Worker#
 
-String
-Each new worker is given its own unique id, this id is stored in the id.
+`Worker`对象包含了一个工作进程所有的公开信息和方法。在主进程中它可以通过`cluster.workers`取得。在工作进程中它可以通过`cluster.worker`取得。
 
-While a worker is alive, this is the key that indexes it in cluster.workers
+#### worker.id#
 
-worker.process#
+ - String
 
-ChildProcess object
-All workers are created using child_process.fork(), the returned object from this function is stored as .process. In a worker, the global process is stored.
+每一个新的工作进程都被给予一个独一无二的id，这个id被存储在此`id`属性中。
 
-See: Child Process module
+当一个工作进程活跃时，这是它被索引在`cluster.workers`中的主键。
 
-Note that workers will call process.exit(0) if the 'disconnect' event occurs on process and .suicide is not true. This protects against accidental disconnection.
+#### worker.process#
 
-worker.suicide#
+ - ChildProcess object
+ 
+所有的工作进程都通过`child_process.fork()`被创建，返回的对象被作为`.process`属性存储。在一个工作进程中，全局的`process`被存储。
 
-Boolean
-Set by calling .kill() or .disconnect(), until then it is undefined.
+参阅`Child Process module`
 
-The boolean worker.suicide lets you distinguish between voluntary and accidental exit, the master may choose not to respawn a worker based on this value.
+注意，如果在进程中`disconnect`事件触发并且`.suicide`属性不为`true`，那么进程会调用`process.exit(0)`。这防止了意外的断开连接。
 
+#### worker.suicide#
+
+ - Boolean
+
+通过调用`.kill()`或`.disconnect()`设置，在这之前他为`undefined`。
+
+布尔值`worker.suicide`使你可以区别自发和意外的退出，主进程可以通过这个值来决定使用重新创建一个工作进程。
+
+```js
 cluster.on('exit', function(worker, code, signal) {
   if (worker.suicide === true) {
     console.log('Oh, it was just suicide\' – no need to worry').
@@ -279,18 +330,22 @@ cluster.on('exit', function(worker, code, signal) {
 
 // kill worker
 worker.kill();
-worker.send(message[, sendHandle])#
+```
 
-message Object
-sendHandle Handle object
-Send a message to a worker or master, optionally with a handle.
+#### worker.send(message[, sendHandle])#
 
-In the master this sends a message to a specific worker. It is identical to child.send().
+ - message Object
+ - sendHandle Handle object
 
-In a worker this sends a message to the master. It is identical to process.send().
+给工作进程或主进程发生一个信息，可选得添加一个句柄。
 
-This example will echo back all messages from the master:
+在主进程中它将给特定的工作进程发送一个信息。它指向`child.send()`。
 
+在工作进程中它将给主进程发送一个信息。它指向`process.send()`。
+
+下面的例子将来自主进程的所有信息返回：
+
+```js
 if (cluster.isMaster) {
   var worker = cluster.fork();
   worker.send('hi there');
@@ -300,33 +355,37 @@ if (cluster.isMaster) {
     process.send(msg);
   });
 }
-worker.kill([signal='SIGTERM'])#
+```
 
-signal String Name of the kill signal to send to the worker process.
-This function will kill the worker. In the master, it does this by disconnecting the worker.process, and once disconnected, killing with signal. In the worker, it does it by disconnecting the channel, and then exiting with code 0.
+#### worker.kill([signal='SIGTERM'])#
 
-Causes .suicide to be set.
+ - signal String 传递给工作进程的结束信号名
 
-This method is aliased as worker.destroy() for backwards compatibility.
+这个函数将会杀死工作进程。在主进程中，它通过断开`worker.process`做到，并且一旦断开，使用`signal`杀死进程。在工作进程中，它通过断开信道做到，然后使用退出码`0`退出。
 
-Note that in a worker, process.kill() exists, but it is not this function, it is kill.
+会导致`.suicide`被设置。
 
-worker.disconnect()#
+为了向后兼任，这个方法的别名是`worker.destroy()`。
 
-In a worker, this function will close all servers, wait for the 'close' event on those servers, and then disconnect the IPC channel.
+注意在工作进程中，`process.kill()`存在，但它不是这个函数。是`process.kill(pid[, signal])`。
 
-In the master, an internal message is sent to the worker causing it to call .disconnect() on itself.
+#### worker.disconnect()#
 
-Causes .suicide to be set.
+在工作进程中，这个函数会关闭所有的服务器，等待这些服务器上的`close`事件，然后断开IPC信道。
 
-Note that after a server is closed, it will no longer accept new connections, but connections may be accepted by any other listening worker. Existing connections will be allowed to close as usual. When no more connections exist, see server.close(), the IPC channel to the worker will close allowing it to die gracefully.
+在主进程中，一个内部信息会被传递给工作进程，至使它们自行调用`.disconnect()`。
 
-The above applies only to server connections, client connections are not automatically closed by workers, and disconnect does not wait for them to close before exiting.
+会导致`.suicide`被设置。
 
-Note that in a worker, process.disconnect exists, but it is not this function, it is disconnect.
+注意在一个服务器被关闭后，它将不会再接受新连接，但是连接可能被其他正在监听的工作进程所接收。已存在的连接将会被允许向往常一样退出。当没有更多的连接存在时，工作进程的IPC信道会关闭并使之优雅地退出，参阅`server.close()`。
 
-Because long living server connections may block workers from disconnecting, it may be useful to send a message, so application specific actions may be taken to close them. It also may be useful to implement a timeout, killing a worker if the disconnect event has not been emitted after some time.
+以上说明仅应用于服务器连接，客户端连接将不会自动由工作进程关闭，并且在退出前，不会等到连接退出。
 
+注意在工作进程中，`process.disconnect`存在，但它不是这个函数。是`child.disconnect()`。
+
+由于长连接可能会阻塞工作进程的退出，这时传递一个动作信息非常有用，应用来根据信息指定的动作来关闭它们。超时机制是上述的有用实现，在`disconnect`事件在指定时长后没有触发时，杀死工作进程。
+
+```js
 if (cluster.isMaster) {
   var worker = cluster.fork();
   var timeout;
@@ -357,23 +416,27 @@ if (cluster.isMaster) {
     }
   });
 }
-worker.isDead()#
+```
 
-This function returns true if the worker's process has terminated (either because of exiting or being signaled). Otherwise, it returns false.
+#### worker.isDead()#
 
-worker.isConnected()#
+如果工作进程已经被关闭，则返回`true`。
 
-This function returns true if the worker is connected to its master via its IPC channel, false otherwise. A worker is connected to its master after it's been created. It is disconnected after the disconnect event is emitted.
+#### worker.isConnected()#
 
-Event: 'message'#
+如果工作进程通过它的IPC信道连接到主进程，则返回`true`。一个工作进程在被创建后连接到它的主进程。在`disconnect`事件触发后它会断开连接。
 
-message Object
-This event is the same as the one provided by child_process.fork().
+#### Event: 'message'#
 
-In a worker you can also use process.on('message').
+ - message Object
 
-As an example, here is a cluster that keeps count of the number of requests in the master process using the message system:
+这个事件与`child_process.fork()`所提供的事件完全相同。
 
+在工作进程中你也可以使用`process.on('message')`。
+
+例子，这里有一个集群，使用消息系统在主进程中统计请求的数量：
+
+```js
 var cluster = require('cluster');
 var http = require('http');
 
@@ -413,38 +476,52 @@ if (cluster.isMaster) {
     process.send({ cmd: 'notifyRequest' });
   }).listen(8000);
 }
-Event: 'online'#
+```
 
-Similar to the cluster.on('online') event, but specific to this worker.
+#### Event: 'online'#
 
+与`cluster.on('online')`事件相似，但指向了特定的工作进程。
+
+```js
 cluster.fork().on('online', function() {
   // Worker is online
 });
-It is not emitted in the worker.
+```
 
-Event: 'listening'#
+这不是在工作进程中触发的。
 
-address Object
-Similar to the cluster.on('listening') event, but specific to this worker.
+#### Event: 'listening'#
 
+ - address Object
+
+与`cluster.on('listening')`事件相似，但指向了特定的工作进程。
+
+```js
 cluster.fork().on('listening', function(address) {
   // Worker is listening
 });
-It is not emitted in the worker.
+```
 
-Event: 'disconnect'#
+这不是在工作进程中触发的。
 
-Similar to the cluster.on('disconnect') event, but specfic to this worker.
+#### Event: 'disconnect'#
 
+与`cluster.on('disconnect')`事件相似，但指向了特定的工作进程。
+
+```js
 cluster.fork().on('disconnect', function() {
   // Worker has disconnected
 });
-Event: 'exit'#
+```
 
-code Number the exit code, if it exited normally.
-signal String the name of the signal (eg. 'SIGHUP') that caused the process to be killed.
-Similar to the cluster.on('exit') event, but specific to this worker.
+#### Event: 'exit'#
 
+ - code Number 如果正常退出，则为退出码
+ - signal String 导致进程被杀死的信号名（如`'SIGHUP'`）
+
+与`cluster.on('exit')`事件相似，但指向了特定的工作进程。
+
+```js
 var worker = cluster.fork();
 worker.on('exit', function(code, signal) {
   if( signal ) {
@@ -455,8 +532,10 @@ worker.on('exit', function(code, signal) {
     console.log("worker success!");
   }
 });
-Event: 'error'#
+```
 
-This event is the same as the one provided by child_process.fork().
+#### Event: 'error'#
 
-In a worker you can also use process.on('error').
+这个事件与`child_process.fork()`所提供的事件完全相同。
+
+在工作进程中你也可以使用`process.on('error')`。
