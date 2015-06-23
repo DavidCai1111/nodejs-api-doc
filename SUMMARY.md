@@ -2,5 +2,6 @@
 * [Buffer](Buffer.md)
 * [Child Processes](Child_process.md)
 * [Cluster](Cluster.md)
+* [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Stream](Stream.md)
