@@ -3,6 +3,7 @@
 * [Child Processes](Child_process.md)
 * [Cluster](Cluster.md)
 * [Console](Console.md)
+* [Crypto](Crypto,md)
 * [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Process](Process.md)
