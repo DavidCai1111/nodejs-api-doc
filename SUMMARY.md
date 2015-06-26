@@ -6,6 +6,7 @@
 * [Crypto](Crypto.md)
 * [Debugger](Debugger.md)
 * [DNS](DNS.md)
+* [Errors](Errors.md)
 * [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Process](Process.md)
