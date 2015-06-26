@@ -4,6 +4,7 @@
 * [Cluster](Cluster.md)
 * [Console](Console.md)
 * [Crypto](Crypto.md)
+* [Debugger](Debugger.md)
 * [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Process](Process.md)
