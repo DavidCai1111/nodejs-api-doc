@@ -6,7 +6,7 @@
 
 `crypto`模块提供了一种封装安全证书的方法，用来作为安全HTTPS网络和HTTP链接的一部分。
 
-它同样也通过了一个OpenSSL hash，hamc，cipher，decipher，sign和vierify方法包装的集合。
+它也提供了一个OpenSSL `hash`，`hamc`，`cipher`，`decipher`，`sign`和`vierify`方法的包装集合。
 
 #### crypto.setEngine(engine[, flags])#
 
