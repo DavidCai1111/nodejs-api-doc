@@ -1,75 +1,93 @@
 # Crypto#
 
 ### 稳定度: 2 - 稳定
-Use require('crypto') to access this module.
 
-The crypto module offers a way of encapsulating secure credentials to be used as part of a secure HTTPS net or http connection.
+使用`require('crypto')`来获取这个模块。
 
-It also offers a set of wrappers for OpenSSL's hash, hmac, cipher, decipher, sign and verify methods.
+`crypto`模块提供了一种封装安全证书的方法，用来作为安全HTTPS网络和HTTP链接的一部分。
 
-crypto.setEngine(engine[, flags])#
-Load and set engine for some/all OpenSSL functions (selected by flags).
+它同样也通过了一个OpenSSL hash，hamc，cipher，decipher，sign和vierify方法包装的集合。
 
-engine could be either an id or a path to the engine's shared library.
+#### crypto.setEngine(engine[, flags])#
 
-flags is optional and has ENGINE_METHOD_ALL value by default. It could take one of or mix of following flags (defined in constants module):
+加载和设置 一些/所有 OpenSSL功能引擎（由标记选择）。
 
-ENGINE_METHOD_RSA
-ENGINE_METHOD_DSA
-ENGINE_METHOD_DH
-ENGINE_METHOD_RAND
-ENGINE_METHOD_ECDH
-ENGINE_METHOD_ECDSA
-ENGINE_METHOD_CIPHERS
-ENGINE_METHOD_DIGESTS
-ENGINE_METHOD_STORE
-ENGINE_METHOD_PKEY_METH
-ENGINE_METHOD_PKEY_ASN1_METH
-ENGINE_METHOD_ALL
-ENGINE_METHOD_NONE
-crypto.getCiphers()#
-Returns an array with the names of the supported ciphers.
+引擎可以通过id或 引擎共享库的路径 来选择。
 
-Example:
+`flags`是可选的，并且有一个`ENGINE_METHOD_ALL`默认值。可以选一个或多个以下的标记（在常量模块中定义）。
 
+ - ENGINE_METHOD_RSA
+ - ENGINE_METHOD_DSA
+ - ENGINE_METHOD_DH
+ - ENGINE_METHOD_RAND
+ - ENGINE_METHOD_ECDH
+ - ENGINE_METHOD_ECDSA
+ - ENGINE_METHOD_CIPHERS
+ - ENGINE_METHOD_DIGESTS
+ - ENGINE_METHOD_STORE
+ - ENGINE_METHOD_PKEY_METH
+ - ENGINE_METHOD_PKEY_ASN1_METH
+ - ENGINE_METHOD_ALL
+ - ENGINE_METHOD_NONE
+
+#### crypto.getCiphers()#
+
+返回一个支持的加密算法的名字数组。
+
+例子：
+
+```js
 var ciphers = crypto.getCiphers();
 console.log(ciphers); // ['aes-128-cbc', 'aes-128-ccm', ...]
-crypto.getHashes()#
-Returns an array with the names of the supported hash algorithms.
+```
 
-Example:
+#### crypto.getHashes()#
 
+返回一个支持的哈希算法的名字数组。
+
+例子：
+
+```js
 var hashes = crypto.getHashes();
 console.log(hashes); // ['sha', 'sha1', 'sha1WithRSAEncryption', ...]
-crypto.getCurves()#
-Returns an array with the names of the supported elliptic curves.
+```
 
-Example:
+#### crypto.getCurves()#
 
+返回一个支持的椭圆加密算法的名字数组。
+
+例子：
+
+```js
 var curves = crypto.getCurves();
 console.log(curves); // ['secp256k1', 'secp384r1', ...]
-crypto.createCredentials(details)#
-Stability: 0 - Deprecated. Use tls.createSecureContext instead.
-Creates a credentials object, with the optional details being a dictionary with keys:
+```
 
-pfx : A string or buffer holding the PFX or PKCS12 encoded private key, certificate and CA certificates
-key : A string holding the PEM encoded private key
-passphrase : A string of passphrase for the private key or pfx
-cert : A string holding the PEM encoded certificate
-ca : Either a string or list of strings of PEM encoded CA certificates to trust.
-crl : Either a string or list of strings of PEM encoded CRLs (Certificate Revocation List)
-ciphers: A string describing the ciphers to use or exclude. Consult http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT for details on the format.
-If no 'ca' details are given, then io.js will use the default publicly trusted list of CAs as given in
+#### crypto.createCredentials(details)#
 
-http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt.
+ >稳定度: 0 - 弃用。使用`tls.createSecureContext`代替。
+ 
+创建一个加密凭证对象，接受一个可选的带键字典`details`：
 
-crypto.createHash(algorithm)#
-Creates and returns a hash object, a cryptographic hash with the given algorithm which can be used to generate hash digests.
+ - pfx : 一个带着`PFX`或`PKCS12`加密的私钥，加密凭证和CA证书的字符串或`buffer`。
+ - key : 一个带着`PEM`加密私钥的字符串。
+ - passphrase : 一个私钥或`pfx`密码字符串。
+ - cert : 一个带着`PEM`加密凭证的字符串。
+ - ca : 一个用来信任的`PEM`加密CA证书的字符串或字符串列表。
+ - crl : 一个`PEM`加密`CRL`的字符串或字符串列表。
+ - ciphers: 一个描述需要使用或排除的加密算法的字符串。更多加密算法的格式细节参阅`http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT`
 
-algorithm is dependent on the available algorithms supported by the version of OpenSSL on the platform. Examples are 'sha1', 'md5', 'sha256', 'sha512', etc. On recent releases, openssl list-message-digest-algorithms will display the available digest algorithms.
+如果没有指定`ca`，那么`io.js`将会使用`http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt.`提供的默认公共可信任`CA`列表。
 
-Example: this program that takes the sha1 sum of a file
+#### crypto.createHash(algorithm)#
 
+创建并返回一个哈希对象，一个指定算法的加密哈希用来生成哈希摘要。
+
+`algorithm `依赖于平台上的OpenSSL版本所支持的算法。例如`'sha1'`，`'md5'`，`'sha256'`，`'sha512'`等等。`openssl list-message-digest-algorithms`命令会展示可用的摘要算法。
+
+例子：这个程序计算出一个文件的sha1摘要：
+
+```js
 var filename = process.argv[2];
 var crypto = require('crypto');
 var fs = require('fs');
@@ -85,243 +103,264 @@ s.on('end', function() {
   var d = shasum.digest('hex');
   console.log(d + '  ' + filename);
 });
-Class: Hash#
-The class for creating hash digests of data.
+```
 
-It is a stream that is both readable and writable. The written data is used to compute the hash. Once the writable side of the stream is ended, use the read() method to get the computed hash digest. The legacy update and digest methods are also supported.
+#### Class: Hash#
 
-Returned by crypto.createHash.
+这个类用来创建数据哈希摘要。
 
-hash.update(data[, input_encoding])#
+这是一个同时可读与可写的流。写入的数据用来计算哈希。一旦当流的可写端终止，使用`read()`来获取计算所得哈希摘要。遗留的`update`和`digest`方法同样被支持。
 
-Updates the hash content with the given data, the encoding of which is given in input_encoding and can be 'utf8', 'ascii' or 'binary'. If no encoding is provided and the input is a string an encoding of 'binary' is enforced. If data is a Buffer then input_encoding is ignored.
+通过`crypto.createHash`返回。
 
-This can be called many times with new data as it is streamed.
+#### hash.update(data[, input_encoding])#
 
-hash.digest([encoding])#
+使用给定的`data`更新哈希内容，通过`input_encoding`指定的编码可以是`'utf8'`，`'ascii'`或`'binary'`。如果没有提供编码，并且输入是一个字符串，那么将会指定编码为`'binary'`。如果`data`是一个`Buffer`那么`input_encoding`会被忽略。
 
-Calculates the digest of all of the passed data to be hashed. The encoding can be 'hex', 'binary' or 'base64'. If no encoding is provided, then a buffer is returned.
+它是流式数据，所以这个方法可以被调用多次。
 
-Note: hash object can not be used after digest() method has been called.
+#### hash.digest([encoding])#
 
-crypto.createHmac(algorithm, key)#
-Creates and returns a hmac object, a cryptographic hmac with the given algorithm and key.
+计算所有的被传递的数据的摘要。`encoding `可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定编码，那么一个`buffer`被返回。
 
-It is a stream that is both readable and writable. The written data is used to compute the hmac. Once the writable side of the stream is ended, use the read() method to get the computed digest. The legacy update and digest methods are also supported.
+注意：当调用了`digest()`方法之后，哈希对象不能再被使用了。
 
-algorithm is dependent on the available algorithms supported by OpenSSL - see createHash above. key is the hmac key to be used.
+#### crypto.createHmac(algorithm, key)#
 
-Class: Hmac#
-Class for creating cryptographic hmac content.
+创建并返回一个hmac对象，即通过给定的算法和密钥生成的加密图谱（cryptographic）。
 
-Returned by crypto.createHmac.
+这是一个既可读又可写的流。写入的数据被用来计算hamc。一旦当流的可写端终止，使用`read()`方法来获取计算所得摘要值。遗留的`update`和`digest`方法同样被支持。
 
-hmac.update(data)#
+`algorithm `依赖于平台上的OpenSSL版本所支持的算法。参阅上文`createHash`。`key`是要使用的hmac密钥。
 
-Update the hmac content with the given data. This can be called many times with new data as it is streamed.
+#### Class: Hmac#
 
-hmac.digest([encoding])#
+用于创建hmac加密图谱（cryptographic）的类。
 
-Calculates the digest of all of the passed data to the hmac. The encoding can be 'hex', 'binary' or 'base64'. If no encoding is provided, then a buffer is returned.
+通过`crypto.createHmac`返回。
 
-Note: hmac object can not be used after digest() method has been called.
+#### hmac.update(data)#
 
-crypto.createCipher(algorithm, password)#
-Creates and returns a cipher object, with the given algorithm and password.
+只用指定的`data`更新hmac内容。因为它是流式数据，所以这个方法可以被调用多次。
 
-algorithm is dependent on OpenSSL, examples are 'aes192', etc. On recent releases, openssl list-cipher-algorithms will display the available cipher algorithms. password is used to derive key and IV, which must be a 'binary' encoded string or a buffer.
+#### hmac.digest([encoding])#
 
-It is a stream that is both readable and writable. The written data is used to compute the hash. Once the writable side of the stream is ended, use the read() method to get the enciphered contents. The legacy update and final methods are also supported.
+计算所有的被传递的数据的hmac摘要。`encoding `可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定编码，那么一个`buffer`被返回。
 
-Note: createCipher derives keys with the OpenSSL function EVP_BytesToKey with the digest algorithm set to MD5, one iteration, and no salt. The lack of salt allows dictionary attacks as the same password always creates the same key. The low iteration count and non-cryptographically secure hash algorithm allow passwords to be tested very rapidly.
+注意：当调用了`digest()`方法之后，hmac对象不能再被使用了。
 
-In line with OpenSSL's recommendation to use pbkdf2 instead of EVP_BytesToKey it is recommended you derive a key and iv yourself with crypto.pbkdf2 and to then use createCipheriv() to create the cipher stream.
+#### crypto.createCipher(algorithm, password)#
 
-crypto.createCipheriv(algorithm, key, iv)#
-Creates and returns a cipher object, with the given algorithm, key and iv.
+创建和返回一个`cipher`对象，指定指定的算法和密码。
 
-algorithm is the same as the argument to createCipher(). key is the raw key used by the algorithm. iv is an initialization vector.
+算法依赖于OpenSSL，如果`'aes192'`，等等。在最近的发行版中，`openssl list-cipher-algorithms`命令会展示可用的`cipher`算法。密码被用来获取密钥和IV，必须是一个`'binary'`编码的字符串或`buffer`。
 
-key and iv must be 'binary' encoded strings or buffers.
+这是一个既可读又可写的流。写入的数据被用来计算哈希。一旦当流的可写端终止，使用`read()`方法来获取通过`cipher`计算所得的内容。遗留的`update`和`digest`方法同样被支持。
 
-Class: Cipher#
-Class for encrypting data.
+注意：`createCipher`通过 无盐`MD5`一次迭代所得的摘要 来调用 `OpenSSL函数`EVP_BytesToKey` 来派生密钥。无盐意味允许字典攻击，即同样的密码经常可以用来创建同样的密钥。一次迭代并且无加密图谱安全（non-cryptographically secure）以为着允许密码被快速测试。
 
-Returned by crypto.createCipher and crypto.createCipheriv.
+OpenSSL建议使用`pbkdf2`替代`EVP_BytesToKey`，推荐你通过`crypto.pbkdf2`然后调用`createCipheriv()`创建一个`cipher`流来派生一个密钥和iv。
 
-Cipher objects are streams that are both readable and writable. The written plain text data is used to produce the encrypted data on the readable side. The legacy update and final methods are also supported.
+#### crypto.createCipheriv(algorithm, key, iv)#
 
-cipher.update(data[, input_encoding][, output_encoding])#
+创建和返回一个`cipher`对象，指定指定的算法，密钥和iv。
 
-Updates the cipher with data, the encoding of which is given in input_encoding and can be 'utf8', 'ascii' or 'binary'. If no encoding is provided, then a buffer is expected. If data is a Buffer then input_encoding is ignored.
+`algorithm`参数与`createCipher()`相同。`key`是被算法使用的源密钥（raw key）。iv是初始化矢量（initialization vector）。
 
-The output_encoding specifies the output format of the enciphered data, and can be 'binary', 'base64' or 'hex'. If no encoding is provided, then a buffer is returned.
+`key`和`iv`必须是`'binary'`编码的字符串或`buffer`。
 
-Returns the enciphered contents, and can be called many times with new data as it is streamed.
+#### Class: Cipher#
 
-cipher.final([output_encoding])#
+创建一个加密数据。
 
-Returns any remaining enciphered contents, with output_encoding being one of: 'binary', 'base64' or 'hex'. If no encoding is provided, then a buffer is returned.
+由`crypto.createCipher`和`crypto.createCipheriv`返回。
 
-Note: cipher object can not be used after final() method has been called.
+这是一个既可读又可写的流。写入的文本数据被用来在可读端生产被加密的数据。遗留的`update`和`final`方法同样被支持。
 
-cipher.setAutoPadding(auto_padding=true)#
+#### cipher.update(data[, input_encoding][, output_encoding])#
 
-You can disable automatic padding of the input data to block size. If auto_padding is false, the length of the entire input data must be a multiple of the cipher's block size or final will fail. Useful for non-standard padding, e.g. using 0x0 instead of PKCS padding. You must call this before cipher.final.
+通过`data`更新`cipher`，`input_encoding`中指定的编码可以是`'utf8'`，`'ascii'`或`'binary'`。如果没有提供编码，那么希望接受到一个`buffer`。如果数据是一个`Buffer`，那么`input_encoding`将被忽略。
 
-cipher.getAuthTag()#
+`output_encoding`指定了加密数据的输出格式，可以是`'binary'`，`'base64'`或`'hex'`。如果没有指定编码，那么一个`buffer`会被返回。
 
-For authenticated encryption modes (currently supported: GCM), this method returns a Buffer that represents the authentication tag that has been computed from the given data. Should be called after encryption has been completed using the final method!
+返回一个加密内容，并且因为它是流式数据，所以可以被调用多次。
 
-cipher.setAAD(buffer)#
+#### cipher.final([output_encoding])#
 
-For authenticated encryption modes (currently supported: GCM), this method sets the value used for the additional authenticated data (AAD) input parameter.
+返回所有的剩余的加密内容，`output_encoding`可以是`'binary'`，`'base64'`或`'hex'`。如果没有指定编码，那么一个`buffer`会被返回。
 
-crypto.createDecipher(algorithm, password)#
-Creates and returns a decipher object, with the given algorithm and key. This is the mirror of the createCipher() above.
+注意：当调用了`final()`方法之后，cipher对象不能再被使用了。
 
-crypto.createDecipheriv(algorithm, key, iv)#
-Creates and returns a decipher object, with the given algorithm, key and iv. This is the mirror of the createCipheriv() above.
+#### cipher.setAutoPadding(auto_padding=true)#
 
-Class: Decipher#
-Class for decrypting data.
+你可以禁用自动填充输入数据至块大小。如果`auto_padding`为`false`，那么整个输入数据的长度必须`cipher`的块大小的整数倍，否则会失败。这对非标准填充非常有用，如使用0x0替代PKCS填充。你必须在`cipher.final`之前调用它。
 
-Returned by crypto.createDecipher and crypto.createDecipheriv.
+#### cipher.getAuthTag()#
 
-Decipher objects are streams that are both readable and writable. The written enciphered data is used to produce the plain-text data on the the readable side. The legacy update and final methods are also supported.
+对于已认证加密模式（当前支持：GCM），这个方法返回一个从给定数据计算所得的代表了认证标签的`Buffer`。必须在`final`方法被调用后调用。
 
-decipher.update(data[, input_encoding][, output_encoding])#
+#### cipher.setAAD(buffer)#
 
-Updates the decipher with data, which is encoded in 'binary', 'base64' or 'hex'. If no encoding is provided, then a buffer is expected. If data is a Buffer then input_encoding is ignored.
+对于已认证加密模式（当前支持：GCM），这个方法设置被用于额外已认证数据（AAD）输入参数的值。
 
-The output_decoding specifies in what format to return the deciphered plaintext: 'binary', 'ascii' or 'utf8'. If no encoding is provided, then a buffer is returned.
+#### crypto.createDecipher(algorithm, password)#
 
-decipher.final([output_encoding])#
+使用给定算法和密钥，创建并返回一个解密器对象。这是上文`createCipher()`的一个镜像。
 
-Returns any remaining plaintext which is deciphered, with output_encoding being one of: 'binary', 'ascii' or 'utf8'. If no encoding is provided, then a buffer is returned.
+#### crypto.createDecipheriv(algorithm, key, iv)#
 
-Note: decipher object can not be used after final() method has been called.
+使用给定算法，密钥和iv，创建并返回一个解密器对象。这是上文`createCipheriv()`的一个镜像。
 
-decipher.setAutoPadding(auto_padding=true)#
+#### Class: Decipher#
 
-You can disable auto padding if the data has been encrypted without standard block padding to prevent decipher.final from checking and removing it. Can only work if the input data's length is a multiple of the ciphers block size. You must call this before streaming data to decipher.update.
+解密数据类。
 
-decipher.setAuthTag(buffer)#
+通过`crypto.createDecipher`和`crypto.createDecipheriv`返回。
 
-For authenticated encryption modes (currently supported: GCM), this method must be used to pass in the received authentication tag. If no tag is provided or if the ciphertext has been tampered with, final will throw, thus indicating that the ciphertext should be discarded due to failed authentication.
+这是一个既可读又可写的流。写入的被加密的数据被用来在可读端生产文本数据。遗留的`update`和`final`方法同样被支持。
 
-decipher.setAAD(buffer)#
+#### decipher.update(data[, input_encoding][, output_encoding])#
 
-For authenticated encryption modes (currently supported: GCM), this method sets the value used for the additional authenticated data (AAD) input parameter.
+通过`data`更新`decipher`，编码可以是`'binary'`，`'base64'`或`'hex'`。如果没有提供编码，那么希望接受到一个`buffer`。如果数据是一个`Buffer`，那么`input_encoding`将被忽略。
 
-crypto.createSign(algorithm)#
-Creates and returns a signing object, with the given algorithm. On recent OpenSSL releases, openssl list-public-key-algorithms will display the available signing algorithms. Examples are 'RSA-SHA256'.
+`output_encoding`指定了解密数据的输出格式，可以是`'binary'`，`'ascii'`或`'utf8'`。如果没有指定编码，那么一个`buffer`会被返回。
 
-Class: Sign#
-Class for generating signatures.
+#### decipher.final([output_encoding])#
 
-Returned by crypto.createSign.
+返回所有的剩余的文本数据，`output_encoding`可以是`'binary'`，`'ascii'`或`'utf8'`。如果没有指定编码，那么一个`buffer`会被返回。
 
-Sign objects are writable streams. The written data is used to generate the signature. Once all of the data has been written, the sign method will return the signature. The legacy update method is also supported.
+注意：当调用了`final()`方法之后，decipher对象不能再被使用了。
 
-sign.update(data)#
+#### decipher.setAutoPadding(auto_padding=true)#
 
-Updates the sign object with data. This can be called many times with new data as it is streamed.
+如数据没有使用标准块填充阻止`decipher.final`检查和删除它来加密，你可以禁用自动填充。那么整个输入数据的长度必须`cipher`的块大小的整数倍，否则会失败。你必须在将数据导流至`decipher.update`前调用它。
 
-sign.sign(private_key[, output_format])#
+#### decipher.setAuthTag(buffer)#
 
-Calculates the signature on all the updated data passed through the sign.
+对于已认证加密模式（当前支持：GCM），这个方法必须被传递，用来接受认证标签。如果没有提供标签或密文被干扰，最终会抛出一个错误。
 
-private_key can be an object or a string. If private_key is a string, it is treated as the key with no passphrase.
+#### decipher.setAAD(buffer)#
 
-private_key:
+对于已认证加密模式（当前支持：GCM），这个方法设置被用于额外已认证数据（AAD）输入参数的值。
 
-key : A string holding the PEM encoded private key
-passphrase : A string of passphrase for the private key
-Returns the signature in output_format which can be 'binary', 'hex' or 'base64'. If no encoding is provided, then a buffer is returned.
+#### crypto.createSign(algorithm)#
 
-Note: sign object can not be used after sign() method has been called.
+使用指定的算法，创建并返回一个数字签名类。在最近的OpenSSL发行版中，`openssl list-public-key-algorithms`会列出所有支持的数字签名算法。例如`'RSA-SHA256'`。
 
-crypto.createVerify(algorithm)#
-Creates and returns a verification object, with the given algorithm. This is the mirror of the signing object above.
+#### Class: Sign#
 
-Class: Verify#
-Class for verifying signatures.
+用于生成数字签名的类。
 
-Returned by crypto.createVerify.
+通过`crypto.createSign`返回。
 
-Verify objects are writable streams. The written data is used to validate against the supplied signature. Once all of the data has been written, the verify method will return true if the supplied signature is valid. The legacy update method is also supported.
+`Sign`对象是一个可写流。写入的数据用来生成数字签名。一旦所有的数据被写入，`sign`方法会返回一个数字签名。遗留的`update`方法也支持。
 
-verifier.update(data)#
+#### sign.update(data)#
 
-Updates the verifier object with data. This can be called many times with new data as it is streamed.
+使用`data`更新`sign`对象。因为它是流式的所以这个方法可以被调用多次。
 
-verifier.verify(object, signature[, signature_format])#
+#### sign.sign(private_key[, output_format])#
 
-Verifies the signed data by using the object and signature. object is a string containing a PEM encoded object, which can be one of RSA public key, DSA public key, or X.509 certificate. signature is the previously calculated signature for the data, in the signature_format which can be 'binary', 'hex' or 'base64'. If no encoding is specified, then a buffer is expected.
+根据所有通过`update`方法传入的数据计算数字签名。
 
-Returns true or false depending on the validity of the signature for the data and public key.
+`private_key`可以是一个对象或一个字符串，如果`private_key`是一个字符串，那么它被当做没有密码的密钥。
 
-Note: verifier object can not be used after verify() method has been called.
+__private_key__:
+ - key : 包含`PEM`编码私钥的字符串。
+ - passphrase : 一个私钥密码的字符串。
+ 
+返回的数字签名编码由`output_format`决定，可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定编码，会返回一个`buffer`。
 
-crypto.createDiffieHellman(prime_length[, generator])#
-Creates a Diffie-Hellman key exchange object and generates a prime of prime_length bits and using an optional specific numeric generator. If no generator is specified, then 2 is used.
+注意，在调用了`sign()`后，`sign`对象不能再使用了。
 
-crypto.createDiffieHellman(prime[, prime_encoding][, generator][, generator_encoding])#
-Creates a Diffie-Hellman key exchange object using the supplied prime and an optional specific generator. generator can be a number, string, or Buffer. If no generator is specified, then 2 is used. prime_encoding and generator_encoding can be 'binary', 'hex', or 'base64'. If no prime_encoding is specified, then a Buffer is expected for prime. If no generator_encoding is specified, then a Buffer is expected for generator.
+#### crypto.createVerify(algorithm)#
 
-Class: DiffieHellman#
-The class for creating Diffie-Hellman key exchanges.
+使用给定的算法，创建并返回一个验证器对象。这个对象是`sign`对象的镜像。
 
-Returned by crypto.createDiffieHellman.
+#### Class: Verify#
 
-diffieHellman.verifyError#
+用来验证数字签名的类。
 
-A bit field containing any warnings and/or errors as a result of a check performed during initialization. The following values are valid for this property (defined in constants module):
+由`crypto.createVerify`返回。
 
-DH_CHECK_P_NOT_SAFE_PRIME
-DH_CHECK_P_NOT_PRIME
-DH_UNABLE_TO_CHECK_GENERATOR
-DH_NOT_SUITABLE_GENERATOR
-diffieHellman.generateKeys([encoding])#
+`Verify`对象是一个可写流。写入的数据用来验证提供的数字签名。一旦所有的数据被写入，`verify`方法会返回`true`如果提供的数字签名有效。遗留的`update`方法也支持。
 
-Generates private and public Diffie-Hellman key values, and returns the public key in the specified encoding. This key should be transferred to the other party. Encoding can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+#### verifier.update(data)#
 
-diffieHellman.computeSecret(other_public_key[, input_encoding][, output_encoding])#
+使用`data`更新`verifier `对象。因为它是流式的所以这个方法可以被调用多次。
 
-Computes the shared secret using other_public_key as the other party's public key and returns the computed shared secret. Supplied key is interpreted using specified input_encoding, and secret is encoded using specified output_encoding. Encodings can be 'binary', 'hex', or 'base64'. If the input encoding is not provided, then a buffer is expected.
+#### verifier.verify(object, signature[, signature_format])#
 
-If no output encoding is given, then a buffer is returned.
+通过使用`object`和`signature`验证被签名的数据。`object`是一个包含了PEM编码对象的字符串，这个对象可以是RSA公钥，DSA公钥或X.509证书。`signature `是先前计算出来的数字签名，`signature_format`可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定编码，那么希望收到一个`buffer`。
 
-diffieHellman.getPrime([encoding])#
+返回值是`true`或`false`根据数字签名对于数据和公钥的有效性。
 
-Returns the Diffie-Hellman prime in the specified encoding, which can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+注意，在调用了`verify()`后，`verifier`对象不能再使用了。
 
-diffieHellman.getGenerator([encoding])#
+#### crypto.createDiffieHellman(prime_length[, generator])#
 
-Returns the Diffie-Hellman generator in the specified encoding, which can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+创建一个迪菲－赫尔曼密钥交换对象（Diffie-Hellman key exchange object），并且根据`prime_length`生成一个质数，可以指定一个可选的数字生成器。如果没有指定生成器，将使用`2`。
 
-diffieHellman.getPublicKey([encoding])#
+#### crypto.createDiffieHellman(prime[, prime_encoding][, generator][, generator_encoding])#
 
-Returns the Diffie-Hellman public key in the specified encoding, which can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+通过给定的质数，和可选的生成器，创建一个迪菲－赫尔曼密钥交换对象（Diffie-Hellman key exchange object）。`generator`可以是一个数字，字符串或`Buffer`。如果没有指定生成器，将使用`2`。`prime_encoding`和`generator_encoding`可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定`prime_encoding`，那么希望`prime`是一个`Buffer`。如果没有指定`generator_encoding`，那么希望`generator`是一个`Buffer`。
 
-diffieHellman.getPrivateKey([encoding])#
+#### Class: DiffieHellman#
 
-Returns the Diffie-Hellman private key in the specified encoding, which can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+叫来创建迪菲－赫尔曼密钥交换的类。
 
-diffieHellman.setPublicKey(public_key[, encoding])#
+通过`crypto.createDiffieHellman`返回。
 
-Sets the Diffie-Hellman public key. Key encoding can be 'binary', 'hex' or 'base64'. If no encoding is provided, then a buffer is expected.
+#### diffieHellman.verifyError#
 
-diffieHellman.setPrivateKey(private_key[, encoding])#
+一个包含了所有警告和/或错误的位域，作为检查初始化时的执行结果。以下是这个属性的合法属性（被常量模块定义）：
 
-Sets the Diffie-Hellman private key. Key encoding can be 'binary', 'hex' or 'base64'. If no encoding is provided, then a buffer is expected.
+ - DH_CHECK_P_NOT_SAFE_PRIME
+ - DH_CHECK_P_NOT_PRIME
+ - DH_UNABLE_TO_CHECK_GENERATOR
+ - DH_NOT_SUITABLE_GENERATOR
 
-crypto.getDiffieHellman(group_name)#
-Creates a predefined Diffie-Hellman key exchange object. The supported groups are: 'modp1', 'modp2', 'modp5' (defined in RFC 2412) and 'modp14', 'modp15', 'modp16', 'modp17', 'modp18' (defined in RFC 3526). The returned object mimics the interface of objects created by crypto.createDiffieHellman() above, but will not allow to change the keys (with diffieHellman.setPublicKey() for example). The advantage of using this routine is that the parties don't have to generate nor exchange group modulus beforehand, saving both processor and communication time.
+#### diffieHellman.generateKeys([encoding])#
 
-Example (obtaining a shared secret):
+生成一个 私和公 迪菲－赫尔曼 密钥值，并且返回一个指定编码的公钥。这个密钥可以被转移给第三方。编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
 
+#### diffieHellman.computeSecret(other_public_key[, input_encoding][, output_encoding])#
+
+使用`other_public_key`作为第三方密钥来计算共享秘密（shared secret），并且返回计算结果。提供的密钥会以`input_encoding`来解读，并且秘密以`output_encoding`来编码。编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
+
+如果没有指定`output_encoding`，那么会返回一个`buffer`。
+
+#### diffieHellman.getPrime([encoding])#
+
+根据指定编码返回一个迪菲－赫尔曼质数，编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
+
+#### diffieHellman.getGenerator([encoding])#
+
+根据指定编码返回一个迪菲－赫尔曼生成器，编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
+
+#### diffieHellman.getPublicKey([encoding])#
+
+根据指定编码返回一个迪菲－赫尔曼公钥，编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
+
+#### diffieHellman.getPrivateKey([encoding])#
+
+根据指定编码返回一个迪菲－赫尔曼私钥，编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
+
+#### diffieHellman.setPublicKey(public_key[, encoding])#
+
+设置迪菲－赫尔曼公钥，密钥编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么期望接收一个`buffer`。
+
+#### diffieHellman.setPrivateKey(private_key[, encoding])#
+
+设置迪菲－赫尔曼私钥，密钥编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么期望接收一个`buffer`。
+
+#### crypto.getDiffieHellman(group_name)#
+
+创建一个预定义的迪菲－赫尔曼密钥交换对象。支持的群组有：'modp1', 'modp2', 'modp5' (由RFC 2412定义) 和 'modp14', 'modp15', 'modp16', 'modp17', 'modp18' (由RFC 3526定义)。返回的对象模仿`crypto.createDiffieHellman()`创建的对象的借口，但是不允许交换密钥（如通过`diffieHellman.setPublicKey()`）。执行这套流程的好处是双方不需要事先生成或交换组余数，节省了处理和通信时间。
+
+例子（获取一个共享秘密）：
+
+```js
 var crypto = require('crypto');
 var alice = crypto.getDiffieHellman('modp5');
 var bob = crypto.getDiffieHellman('modp5');
@@ -334,50 +373,55 @@ var bob_secret = bob.computeSecret(alice.getPublicKey(), null, 'hex');
 
 /* alice_secret and bob_secret should be the same */
 console.log(alice_secret == bob_secret);
-crypto.createECDH(curve_name)#
-Creates an Elliptic Curve (EC) Diffie-Hellman key exchange object using a predefined curve specified by the curve_name string. Use getCurves() to obtain a list of available curve names. On recent releases, openssl ecparam -list_curves will also display the name and description of each available elliptic curve.
+```
 
-Class: ECDH#
-The class for creating EC Diffie-Hellman key exchanges.
+#### crypto.createECDH(curve_name)#
 
-Returned by crypto.createECDH.
+使用由`curve_name`指定的预定义椭圆，创建一个椭圆曲线（EC）迪菲－赫尔曼密钥交换对象。使用`getCurves()`来获取可用的椭圆名列表。在最近的发行版中，`openssl ecparam -list_curves`命令也会展示可用的椭圆曲线的名字和简述。
 
-ECDH.generateKeys([encoding[, format]])#
+#### Class: ECDH#
 
-Generates private and public EC Diffie-Hellman key values, and returns the public key in the specified format and encoding. This key should be transferred to the other party.
+用于EC迪菲－赫尔曼密钥交换的类。
 
-Format specifies point encoding and can be 'compressed', 'uncompressed', or 'hybrid'. If no format is provided - the point will be returned in 'uncompressed' format.
+由`crypto.createECDH`返回。
 
-Encoding can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+#### ECDH.generateKeys([encoding[, format]])#
 
-ECDH.computeSecret(other_public_key[, input_encoding][, output_encoding])#
+生成一个 私/公 EC迪菲－赫尔曼密钥值，并且返回指定格式和编码的公钥。这个密钥可以被转移给第三方。
 
-Computes the shared secret using other_public_key as the other party's public key and returns the computed shared secret. Supplied key is interpreted using specified input_encoding, and secret is encoded using specified output_encoding. Encodings can be 'binary', 'hex', or 'base64'. If the input encoding is not provided, then a buffer is expected.
+`format`指定点的编码，可以是`'compressed'`，`'uncompressed'`或`'hybrid'`。如果没有指定，那么点将是`'uncompressed'`格式。
 
-If no output encoding is given, then a buffer is returned.
+编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
 
-ECDH.getPublicKey([encoding[, format]])#
+#### ECDH.computeSecret(other_public_key[, input_encoding][, output_encoding])#
 
-Returns the EC Diffie-Hellman public key in the specified encoding and format.
+使用`other_public_key`作为第三方密钥来计算共享秘密（shared secret），并且返回计算结果。提供的密钥会以`input_encoding`来解读，并且秘密以`output_encoding`来编码。编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
 
-Format specifies point encoding and can be 'compressed', 'uncompressed', or 'hybrid'. If no format is provided - the point will be returned in 'uncompressed' format.
+如果没有指定`output_encoding`，那么会返回一个`buffer`。
 
-Encoding can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+#### ECDH.getPublicKey([encoding[, format]])#
 
-ECDH.getPrivateKey([encoding])#
+返回指定编码和格式的EC迪菲－赫尔曼公钥。
 
-Returns the EC Diffie-Hellman private key in the specified encoding, which can be 'binary', 'hex', or 'base64'. If no encoding is provided, then a buffer is returned.
+`format`指定点的编码，可以是`'compressed'`，`'uncompressed'`或`'hybrid'`。如果没有指定，那么点将是`'uncompressed'`格式。
 
-ECDH.setPublicKey(public_key[, encoding])#
+编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
 
-Sets the EC Diffie-Hellman public key. Key encoding can be 'binary', 'hex' or 'base64'. If no encoding is provided, then a buffer is expected.
+#### ECDH.getPrivateKey([encoding])#
 
-ECDH.setPrivateKey(private_key[, encoding])#
+返回指定编码的EC迪菲－赫尔曼私钥，编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么会返回一个`buffer`。
 
-Sets the EC Diffie-Hellman private key. Key encoding can be 'binary', 'hex' or 'base64'. If no encoding is provided, then a buffer is expected.
+#### ECDH.setPublicKey(public_key[, encoding])#
 
-Example (obtaining a shared secret):
+设置EC迪菲－赫尔曼公钥。密钥编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么期望接收一个`buffer`。
 
+#### ECDH.setPrivateKey(private_key[, encoding])#
+
+设置EC迪菲－赫尔曼私钥。密钥编码可以是`'binary'`，`'hex'`或`'base64'`。如果没有提供编码，那么期望接收一个`buffer`。
+
+例子（获取一个共享秘密）：
+
+```js
 var crypto = require('crypto');
 var alice = crypto.createECDH('secp256k1');
 var bob = crypto.createECDH('secp256k1');
@@ -390,24 +434,33 @@ var bob_secret = bob.computeSecret(alice.getPublicKey(), null, 'hex');
 
 /* alice_secret and bob_secret should be the same */
 console.log(alice_secret == bob_secret);
-crypto.pbkdf2(password, salt, iterations, keylen[, digest], callback)#
-Asynchronous PBKDF2 function. Applies the selected HMAC digest function (default: SHA1) to derive a key of the requested length from the password, salt and number of iterations. The callback gets two arguments: (err, derivedKey).
+```
 
-Example:
+#### crypto.pbkdf2(password, salt, iterations, keylen[, digest], callback)#
 
+异步PBKDF2函数。提供被选择的HAMC摘要函数（默认为SHA1）来获取一个请求长度的密码密钥，盐和迭代数。回调函数有两个参数：（`err`，`derivedKey`）。
+
+例子：
+
+```js
 crypto.pbkdf2('secret', 'salt', 4096, 512, 'sha256', function(err, key) {
   if (err)
     throw err;
   console.log(key.toString('hex'));  // 'c5e478d...1469e50'
 });
-You can get a list of supported digest functions with crypto.getHashes().
+```
 
-crypto.pbkdf2Sync(password, salt, iterations, keylen[, digest])#
-Synchronous PBKDF2 function. Returns derivedKey or throws error.
+可用通过`crypto.getHashes()`获取支持的摘要函数列表。
 
-crypto.randomBytes(size[, callback])#
-Generates cryptographically strong pseudo-random data. Usage:
+#### crypto.pbkdf2Sync(password, salt, iterations, keylen[, digest])
 
+同步PBKDF2函数。返回`derivedKey`或抛出错误。
+
+#### crypto.randomBytes(size[, callback])#
+
+生成有密码图谱一般健壮的伪随机数据，用处：
+
+```js
 // async
 crypto.randomBytes(256, function(ex, buf) {
   if (ex) throw ex;
@@ -422,73 +475,82 @@ try {
   // handle error
   // most likely, entropy sources are drained
 }
-NOTE: This will block if there is insufficient entropy, although it should normally never take longer than a few milliseconds. The only time when this may conceivably block is right after boot, when the whole system is still low on entropy.
+```
 
-Class: Certificate#
-The class used for working with signed public key & challenges. The most common usage for this series of functions is when dealing with the <keygen> element. http://www.openssl.org/docs/apps/spkac.html
+注意：如果熵不足，那么它会阻塞。尽管它从不话费超过几毫秒。唯一可以想到的阻塞是情况是，当整个系统的熵还是很低时，在其之后启动。
 
-Returned by crypto.Certificate.
+#### Class: Certificate#
 
-Certificate.verifySpkac(spkac)#
+这个类用来处理已签名公钥 & 挑战（challenges）。最常用的是它的一系列处理`<keygen>`元素的函数。`http://www.openssl.org/docs/apps/spkac.html`。
 
-Returns true of false based on the validity of the SPKAC.
+通过`crypto.Certificate`返回。
 
-Certificate.exportChallenge(spkac)#
+#### Certificate.verifySpkac(spkac)#
 
-Exports the encoded public key from the supplied SPKAC.
+返回`ture`或`false`，依赖于SPKAC的有效性。
 
-Certificate.exportPublicKey(spkac)#
+#### Certificate.exportChallenge(spkac)#
 
-Exports the encoded challenge associated with the SPKAC.
+导出编码好的公钥从指定的SPKAC。
 
-crypto.publicEncrypt(public_key, buffer)#
-Encrypts buffer with public_key. Only RSA is currently supported.
+#### Certificate.exportPublicKey(spkac)#
 
-public_key can be an object or a string. If public_key is a string, it is treated as the key with no passphrase and will use RSA_PKCS1_OAEP_PADDING. Since RSA public keys may be derived from private keys you may pass a private key to this method.
+导出编码好的挑战（challenge）从指定的SPKAC。
 
-public_key:
+#### crypto.publicEncrypt(public_key, buffer)#
 
-key : A string holding the PEM encoded private key
-passphrase : An optional string of passphrase for the private key
-padding : An optional padding value, one of the following:
-constants.RSA_NO_PADDING
-constants.RSA_PKCS1_PADDING
-constants.RSA_PKCS1_OAEP_PADDING
-NOTE: All paddings are defined in constants module.
+使用`public_key`加密`buffer`。目前只支持RSA。
 
-crypto.publicDecrypt(public_key, buffer)#
-See above for details. Has the same API as crypto.publicEncrypt. Default padding is RSA_PKCS1_PADDING.
+`public_key`可是是一个对象或一个字符串。如果`public_key`是一个字符串，它会被视作没有密码的密钥并且将使用`RSA_PKCS1_OAEP_PADDING`。因为`RSA`公钥可以用来从你传递给这个方法的密钥来获取。
 
-crypto.privateDecrypt(private_key, buffer)#
-Decrypts buffer with private_key.
+__public_key__:
+ - key : 一个包含PEM加密的私钥字符串
+ - passphrase : 一个可选的私钥密码字符串
+ - __padding__ : 一个可选的填充值，以下值之一：
+  - constants.RSA_NO_PADDING
+  - constants.RSA_PKCS1_PADDING
+  - constants.RSA_PKCS1_OAEP_PADDING
 
-private_key can be an object or a string. If private_key is a string, it is treated as the key with no passphrase and will use RSA_PKCS1_OAEP_PADDING.
+注意：所有的填充值都被常量模块所定义。
 
-private_key:
+#### crypto.publicDecrypt(public_key, buffer)#
 
-key : A string holding the PEM encoded private key
-passphrase : An optional string of passphrase for the private key
-padding : An optional padding value, one of the following:
-constants.RSA_NO_PADDING
-constants.RSA_PKCS1_PADDING
-constants.RSA_PKCS1_OAEP_PADDING
-NOTE: All paddings are defined in constants module.
+详情参阅上文。与`crypto.publicEncrypt`有相同API。默认填充值是`RSA_PKCS1_PADDING`。
 
-crypto.privateEncrypt(private_key, buffer)#
-See above for details. Has the same API as crypto.privateDecrypt. Default padding is RSA_PKCS1_PADDING.
+#### crypto.privateDecrypt(private_key, buffer)#
 
-crypto.DEFAULT_ENCODING#
-The default encoding to use for functions that can take either strings or buffers. The default value is 'buffer', which makes it default to using Buffer objects. This is here to make the crypto module more easily compatible with legacy programs that expected 'binary' to be the default encoding.
+使用`private_key`解密`buffer`。
 
-Note that new programs will probably expect buffers, so only use this as a temporary measure.
+`private_key`可以是一个对象或一个字符串。如果`private_key`是一个字符串，它会当做没有密码的密钥，并且使用`RSA_PKCS1_OAEP_PADDING`。
 
-Recent API Changes#
-The Crypto module was added to Node.js before there was the concept of a unified Stream API, and before there were Buffer objects for handling binary data.
+__public_key__:
+ - key : 一个包含PEM加密的私钥字符串
+ - passphrase : 一个可选的私钥密码字符串
+ - __padding__ : 一个可选的填充值，以下值之一：
+  - constants.RSA_NO_PADDING
+  - constants.RSA_PKCS1_PADDING
+  - constants.RSA_PKCS1_OAEP_PADDING
 
-As such, the streaming classes don't have the typical methods found on other io.js classes, and many methods accepted and returned Binary-encoded strings by default rather than Buffers. This was changed to use Buffers by default instead.
+注意：所有的填充值都被常量模块所定义。
 
-This is a breaking change for some use cases, but not all.
+#### crypto.privateEncrypt(private_key, buffer)#
 
-For example, if you currently use the default arguments to the Sign class, and then pass the results to the Verify class, without ever inspecting the data, then it will continue to work as before. Where you once got a binary string and then presented the binary string to the Verify object, you'll now get a Buffer, and present the Buffer to the Verify object.
+详情参阅上文。与`crypto.privateDecrypt`有相同API。默认填充值是`RSA_PKCS1_PADDING`。
 
-However, if you were doing things with the string data that will not work properly on Buffers (such as, concatenating them, storing in databases, etc.), or you are passing binary strings to the crypto functions without an encoding argument, then you will need to start providing encoding arguments to specify which encoding you'd like to use. To switch to the previous style of using binary strings by default, set the crypto.DEFAULT_ENCODING field to 'binary'. Note that new programs will probably expect buffers, so only use this as a temporary measure.
+#### crypto.DEFAULT_ENCODING#
+
+默认编码是用于接受字符串或`buffer`的函数。默认值是`'buffer'`，所以默认是使用`Buffer`对象的。这被用来与旧的以`'binary'`为默认编码的程序更好地兼容。
+
+注意新的程序仍可能期望使用`buffer`，所以只将它作为一个临时措施。
+
+#### 近期的API改变
+
+`Crypto`模块在还没有统一的流API概念，以及没有`Buffer`对象来处理二进制数据前就加入了`Node.js`。
+
+因为这样，它的流类没有其他`io.js`类的典型类，而且很多方法默认接受和返回二进制字符串而不是`Buffer`。这些函数将被改成默认接受和返回`Buffer`。
+
+这对于一些但不是所有的使用场景来说是巨大的改变。
+
+例如，如果你现在对`Sign`类使用默认参数，并且传递`Verify`类的结果，不检查数据，那么在以前它将会继续工作。在你曾经得到二进制字符串的地方，你将会得到一个`Buffer`。
+
+但是，如果你正在使用那些使用字符串可以，但使用`Buffer`不能工作的数据（如连接它们，存储进数据库等）。或者对`crypto`函数不传递编码参数来传递二进制字符串。那么以后，你需要提供你想要指定的编码。如果要将默认的使用风格，转换为旧风格的话，将`crypto.DEFAULT_ENCODING`域设置为`'binary'`。注意新的程序仍可能期望接受`buffer`，所以这仅作为一个临时措施。
