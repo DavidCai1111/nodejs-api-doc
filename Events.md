@@ -121,7 +121,7 @@ console.log(util.inspect(server.listeners('connection'))); // [ [Function] ]
  - event String 事件名
  - listener Function 事件监听器函数
 
-这个事件在监听器被添加前触发。当这个事件被触发时，监听器还没有被添加到事件的监听器数组中。在`newListener`事件的回调函数中拿到的事件名时，监听器还没有开始被添加到该事件。
+这个事件在监听器被添加前触发。当这个事件被触发时，监听器还没有被添加到事件的监听器数组中。在`newListener`事件的回调函数中拿到事件名时，监听器还没有开始被添加到该事件。
 
 #### Event: 'removeListener'#
 

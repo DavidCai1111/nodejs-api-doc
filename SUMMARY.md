@@ -8,6 +8,7 @@
 * [DNS](DNS.md)
 * [Errors](Errors.md)
 * [Events](Events.md)
+* [File System](FileSystem.md)
 * [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Process](Process.md)
