@@ -18,4 +18,5 @@
 * [Path](Path.md)
 * [Process](Process.md)
 * [Punycode](Punycode.md)
+* [Query Strings](QueryStrings.md)
 * [Stream](Stream.md)
