@@ -15,5 +15,6 @@
 * [Modules](Modules.md)
 * [Net](Net.md)
 * [OS](OS.md)
+* [Path](Path.md)
 * [Process](Process.md)
 * [Stream](Stream.md)
