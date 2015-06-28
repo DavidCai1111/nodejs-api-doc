@@ -9,6 +9,7 @@
 * [Errors](Errors.md)
 * [Events](Events.md)
 * [File System](FileSystem.md)
+* [Globals](Globals.md)
 * [HTTP](HTTP.md)
 * [Net](Net.md)
 * [Process](Process.md)
