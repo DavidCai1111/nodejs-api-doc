@@ -505,37 +505,40 @@ fs.watchFile('message.text', function (curr, prev) {
 注意：`fs.watch`比`fs.watchFile`和`fs.unwatchFile`更高效。当可能时，请使用`fs.watch`替代它们。
 
 #### fs.watch(filename[, options][, listener])#
-Watch for changes on filename, where filename is either a file or a directory. The returned object is a fs.FSWatcher.
 
-The second argument is optional. The options if provided should be an object. The supported boolean members are persistent and recursive. persistent indicates whether the process should continue to run as long as files are being watched. recursive indicates whether all subdirectories should be watched, or only the current directory. This applies when a directory is specified, and only on supported platforms (See Caveats below).
+监视`filename`的变化，`filename`指向的可以是文件也可以是目录。返回一个`fs.FSWatcher`对象。
 
-The default is { persistent: true, recursive: false }.
+第二个参数是可选的。`options`必须是一个对象。支持的布尔值属性是`persistent`和`recursive`。`persistent`表明了进程是否在文件被监视时继续执行。`recursive`表明了是否子目录也需要被监视，或仅仅监视当前目录。这只在支持的平台（参阅下方`警告`）下传递一个目录时有效。
 
-The listener callback gets two arguments (event, filename). event is either 'rename' or 'change', and filename is the name of the file which triggered the event.
+默认是`{ persistent: true, recursive: false }`。
 
-#### Caveats#
+`listener`回调函数有两个参数（event, filename）。`event`是`'rename'`或`'change'`，`filename`是触发事件的文件名。
 
-The fs.watch API is not 100% consistent across platforms, and is unavailable in some situations.
+##### 警告
 
-The recursive option is currently supported on OS X. Only FSEvents supports this type of file watching so it is unlikely any additional platforms will be added soon.
+`fs.watch` API 不是在所有平台下都表现一致的，并且在一些情况下是不可用的。
 
-#### Availability#
+`recursive`选项目前只支持OS X。只有`FSEvents`支持这种类型的文件监控，所有其他平台并不会很快都被支持。
 
-This feature depends on the underlying operating system providing a way to be notified of filesystem changes.
+##### 可用性
 
-On Linux systems, this uses inotify.
-On BSD systems, this uses kqueue.
-On OS X, this uses kqueue for files and 'FSEvents' for directories.
-On SunOS systems (including Solaris and SmartOS), this uses event ports.
-On Windows systems, this feature depends on ReadDirectoryChangesW.
-If the underlying functionality is not available for some reason, then fs.watch will not be able to function. For example, watching files or directories on network file systems (NFS, SMB, etc.) often doesn't work reliably or at all.
+这个特性依赖于底层操作系统提供的文件变化提示。
 
-You can still use fs.watchFile, which uses stat polling, but it is slower and less reliable.
+ - 在Linux系统下，它使用`inotify`。
+ - 在BSD系统下，它使用`kqueue`。
+ - 在OS X下，对于文件它使用`kqueue`，对于目录它使用`FSEvents`。
+ - 在SunOS系统（包括`Solaris`和`SmartOS`）下，它使用事件端口（event ports）。
+ - 在Windows系统下，这个特性依赖于`ReadDirectoryChangesW`。
 
-#### Filename Argument#
+如果由于一些原因，底层功能不可用，那么`fs.watch`的功能也将不可用。例如，在网络文件系统（NFS，SMB等）中监视文件或目录变化，往往结果不可靠或完全不可用。
 
-Providing filename argument in the callback is not supported on every platform (currently it's only supported on Linux and Windows). Even on supported platforms filename is not always guaranteed to be provided. Therefore, don't assume that filename argument is always provided in the callback, and have some fallback logic if it is null.
+你仍可以使用`fs.watchFile`，它使用了状态轮询。但是性能更差且可靠性更低。
 
+##### Filename 参数#
+
+回调函数中提供的`filename`参数不是在所有平台上都支持的（目前只支持Linux和Windows）。即使是在支持的平台上，`filename`也不是总会被提供。因此，不要假设`filename`参数总会在回调函数中被提供，需要有一些检测它是否为`null`的逻辑。
+
+```js
 fs.watch('somedir', function (event, filename) {
   console.log('event is: ' + event);
   if (filename) {
@@ -544,50 +547,66 @@ fs.watch('somedir', function (event, filename) {
     console.log('filename not provided');
   }
 });
+```
 #### fs.exists(path, callback)#
-fs.exists() is deprecated. For supported alternatives please check out fs.stat or fs.access.
 
-Test whether or not the given path exists by checking with the file system. Then call the callback argument with either true or false. Example:
+`fs.exists()`已被弃用。请使用`fs.stat`或`fs.access`替代。
 
-#### fs.exists('/etc/passwd', function (exists) {
+检查文件系统来测试提供的路径是否存在。然后在回调函数的参数中提供结果`true`或`false`：
+
+```js
+fs.exists('/etc/passwd', function (exists) {
   util.debug(exists ? "it's there" : "no passwd!");
 });
-fs.exists() is an anachronism and exists only for historical reasons. There should almost never be a reason to use it in your own code.
+```
 
-In particular, checking if a file exists before opening it is an anti-pattern that leaves you vulnerable to race conditions: another process may remove the file between the calls to fs.exists() and fs.open(). Just open the file and handle the error when it's not there.
+`fs.exists()`是一个不符合潮流的函数，并且仅因一些历史原因所以仍然错在。在你的代码中，不应有任何原因要继续使用它。
+
+特别的，在打开文件前检查文件是否存在 是一种反模式。因为竞态条件所以让你的代码十分脆弱：其他进程可能`fs.exists()`和`fs.open()`之间删除文件。所以仅仅就去打开一个文件，并且当它不存在时处理错误。
 
 #### fs.existsSync(path)#
-Synchronous version of fs.exists. Returns true if the file exists, false otherwise.
 
-fs.existsSync() is deprecated. For supported alternatives please check out fs.statSync or fs.accessSync.
+同步版本的`fs.exists`。当文件存在，返回`true`，否则返回`false`。
+
+`fs.existsSync()`已被弃用。请使用`fs.statSync`或`fs.accessSync`替代。
 
 #### fs.access(path[, mode], callback)#
-Tests a user's permissions for the file specified by path. mode is an optional integer that specifies the accessibility checks to be performed. The following constants define the possible values of mode. It is possible to create a mask consisting of the bitwise OR of two or more values.
 
-fs.F_OK - File is visible to the calling process. This is useful for determining if a file exists, but says nothing about rwx permissions. Default if no mode is specified.
-fs.R_OK - File can be read by the calling process.
-fs.W_OK - File can be written by the calling process.
-fs.X_OK - File can be executed by the calling process. This has no effect on Windows (will behave like fs.F_OK).
-The final argument, callback, is a callback function that is invoked with a possible error argument. If any of the accessibility checks fail, the error argument will be populated. The following example checks if the file /etc/passwd can be read and written by the current process.
+对于指定的路径，检测用户的权限。`mode`是一个可选的整数，指定了要被执行的可访问性检查。以下是`mode`的一些可用的常量。可以通过“或”运算符（|）连接两个或以上的值。
 
+ - fs.F_OK - 文件对于当前进程可见。这对于检查文件是否存在很有用，但是不提供任何`rwx`权限信息。这是默认值。
+ - fs.R_OK - 文件对于当前进程可读。
+ - fs.W_OK - 文件对于当前进程可写。
+ - fs.X_OK - 文件对于当前进程可执行。这在Windows上无效（将会表现得像`fs.F_OK`一样）。
+
+最后一个参数`callback`，是一个包含了潜在错误参数的回调函数。如果任何一个可访问检查失败了，错误参数就会被提供。以下是一个在当前进程中检查`/etc/passwd`
+可读性和可写性的例子。
+
+```js
 fs.access('/etc/passwd', fs.R_OK | fs.W_OK, function(err) {
   util.debug(err ? 'no access!' : 'can read/write');
 });
-fs.accessSync(path[, mode])#
-Synchronous version of fs.access. This throws if any accessibility checks fail, and does nothing otherwise.
+```
+
+#### fs.accessSync(path[, mode])#
+
+同步版本的`fs.access`。如果任何一个可访问性检查失败了，它会抛出异常。否则什么都不做。
 
 #### Class: fs.Stats#
-Objects returned from fs.stat(), fs.lstat() and fs.fstat() and their synchronous counterparts are of this type.
 
-stats.isFile()
-stats.isDirectory()
-stats.isBlockDevice()
-stats.isCharacterDevice()
-stats.isSymbolicLink() (only valid with fs.lstat())
-stats.isFIFO()
-stats.isSocket()
-For a regular file util.inspect(stats) would return a string very similar to this:
+由`fs.stat()`，`fs.lstat()`，`fs.lstat()`和它们的同步版本函数所返回的对象。
 
+ - stats.isFile()
+ - stats.isDirectory()
+ - stats.isBlockDevice()
+ - stats.isCharacterDevice()
+ - stats.isSymbolicLink() （仅在调用`fs.lstat()`时有效）
+ - stats.isFIFO()
+ - stats.isSocket()
+
+对于一个普通的文件，`util.inspect(stats)`可能会返回：
+
+```js
 { dev: 2114,
   ino: 48064969,
   mode: 33188,
@@ -602,89 +621,110 @@ For a regular file util.inspect(stats) would return a string very similar to thi
   mtime: Mon, 10 Oct 2011 23:24:11 GMT,
   ctime: Mon, 10 Oct 2011 23:24:11 GMT,
   birthtime: Mon, 10 Oct 2011 23:24:11 GMT }
-Please note that atime, mtime, birthtime, and ctime are instances of Date object and to compare the values of these objects you should use appropriate methods. For most general uses getTime() will return the number of milliseconds elapsed since 1 January 1970 00:00:00 UTC and this integer should be sufficient for any comparison, however there are additional methods which can be used for displaying fuzzy information. More details can be found in the MDN JavaScript Reference page.
+```
 
-#### Stat Time Values#
+请注意，`atime`，`mtime`，`birthtime`和`ctime`都是`Date`对象实例，并且你可以通过合适的方法来比较它们的值。普遍的使用方式是，调用`getTime()`来获取unix时间戳并且这个整数可以被用来进行任何比较。但是还有一些可以展示模糊信息的方法。更多的详细信息请参阅`MDN JavaScript Reference`页。
 
-The times in the stat object have the following semantics:
+#### Stat 时间值
 
-atime "Access Time" - Time when file data last accessed. Changed by the mknod(2), utimes(2), and read(2) system calls.
-mtime "Modified Time" - Time when file data last modified. Changed by the mknod(2), utimes(2), and write(2) system calls.
-ctime "Change Time" - Time when file status was last changed (inode data modification). Changed by the chmod(2), chown(2), link(2), mknod(2), rename(2), unlink(2), utimes(2), read(2), and write(2) system calls.
-birthtime "Birth Time" - Time of file creation. Set once when the file is created. On filesystems where birthtime is not available, this field may instead hold either the ctime or 1970-01-01T00:00Z (ie, unix epoch timestamp 0). On Darwin and other FreeBSD variants, also set if the atime is explicitly set to an earlier value than the current birthtime using the utimes(2) system call.
-Prior to io.js v1.0 and Node v0.12, the ctime held the birthtime on Windows systems. Note that as of v0.12, ctime is not "creation time", and on Unix systems, it never was.
+`stat`对象中的各个时间有如下语义：
 
-fs.createReadStream(path[, options])#
-Returns a new ReadStream object (See Readable Stream).
+ - atime "访问时间" - 文件数据最后一次被访问时的时间。由`mknod(2)`，`utimes(2)`和`read(2)`系统调用改变。
+ - mtime "修改时间" - 文件数据最后一次被修改的时间。由`mknod(2)`，`utimes(2)`和`write(2)`系统调用改变。
+ - ctime "改变时间" - 文件状态最后一次被改变（索引节点改变）的时间。由`chmod(2)`，`chown(2)`，`link(2)`，`mknod(2)`，`rename(2)`，`unlink(2)`，`utimes(2)`，`read(2)`和`write(2)`系统调用改变。
+ - birthtime "创建时间" - 文件的创建时间。在文件被创建时设置。在创建时间不可用的的文件系统上，这个值可能会被`ctime`或是`1970-01-01T00:00Z`（unix时间戳0）填充。在Darwin或其他FreeBSD系统变体上，如果使用`utimes(2)`系统调用设置`atime`为一个比当前`birthtime`更早的时间，`birthtime`也会被这样填充。
 
-options is an object or string with the following defaults:
+在`io.js` v1.0 和 Node v0.12 前，Windows系统中`ctime`持有了`birthtime`值。但是在 v0.12 里，`ctime`不再是“创建时间”。在Unix系统中，它从来都不是。
 
+#### fs.createReadStream(path[, options])#
+
+返回一个新的可读流对象（参阅`Readable Stream`）。
+
+`options`是一个有以下默认值的对象或字符串：
+
+```js
 { flags: 'r',
   encoding: null,
   fd: null,
   mode: 0o666,
   autoClose: true
 }
-options can include start and end values to read a range of bytes from the file instead of the entire file. Both start and end are inclusive and start at 0. The encoding can be 'utf8', 'ascii', or 'base64'.
+```
 
-If fd is specified, ReadStream will ignore the path argument and will use the specified file descriptor. This means that no open event will be emitted.
+`options`可以包含`start`和`end`值来读取指定范围的文件数据。`start`和`end`这两个位置本身，也都是被包括的，并且`start`以`0`开始。编码可以是`'utf8'`，`'ascii'`或`'base64'`。
 
-If autoClose is false, then the file descriptor won't be closed, even if there's an error. It is your responsibility to close it and make sure there's no file descriptor leak. If autoClose is set to true (default behavior), on error or end the file descriptor will be closed automatically.
+如果指定了`fd`，可读流将会忽略`path`参数并且将会使用指定的文件描述符。这意味`open`事件不再会触发。
 
-An example to read the last 10 bytes of a file which is 100 bytes long:
+如果`autoClose`为`false`，那么文件描述符将不会被关闭，甚至是有错误发生时。关闭它将是你的责任，并且要确保没有文件描述符泄漏。如果`autoClose`为`true`（默认），那么在发生错误时，或到达文件描述末端时，它会被自动关闭。
 
+从一个100字节的文件中读取最后10字节数据的例子：
+
+```js
 fs.createReadStream('sample.txt', {start: 90, end: 99});
-If options is a string, then it specifies the encoding.
+```
+
+如果`options`是一个字符串，那么它表示指定的编码。
 
 #### Class: fs.ReadStream#
-ReadStream is a Readable Stream.
+
+`ReadStream`是一个可读流。
 
 #### Event: 'open'#
 
-fd Integer file descriptor used by the ReadStream.
-Emitted when the ReadStream's file is opened.
+ - fd Integer 被可读流使用的文件描述符
 
-fs.createWriteStream(path[, options])#
-Returns a new WriteStream object (See Writable Stream).
+当可读流文件被打开时触发。
 
-options is an object or string with the following defaults:
+#### fs.createWriteStream(path[, options])#
 
+返回一个新的可写流对象（参阅`Writable Stream`）。
+
+`options`是一个有以下默认值的对象或字符串：
+
+```js
 { flags: 'w',
   encoding: null,
   fd: null,
   mode: 0o666 }
-options may also include a start option to allow writing data at some position past the beginning of the file. Modifying a file rather than replacing it may require a flags mode of r+ rather than the default mode w. The encoding can be 'utf8', 'ascii', binary, or 'base64'.
+```
 
-Like ReadStream above, if fd is specified, WriteStream will ignore the path argument and will use the specified file descriptor. This means that no open event will be emitted.
+`options`可以包含一个`start`选项来允许从指定位置开始写入数据。修改一个文件而不是替换它，需要一个`r+`标识，而不是默认的`w`。编码可以是`'utf8'`，`'ascii'`，`'binary'`或`'base64'`。
 
-If options is a string, then it specifies the encoding.
+与上文的`ReadStream`类似，如果指定了`fd`，可写流会忽略`path`参数，并且使用指定的文件描述符。这意味`open`事件不再会触发。
+
+如果`options`是一个字符串，那么它表示指定的编码。
 
 #### Class: fs.WriteStream#
-WriteStream is a Writable Stream.
+
+`WriteStream`是一个可写流。
 
 #### Event: 'open'#
 
-fd Integer file descriptor used by the WriteStream.
-Emitted when the WriteStream's file is opened.
+ - fd Integer `WriteStream`使用的文件描述符
+
+当可写流文件被打开时触发。
 
 #### file.bytesWritten#
 
-The number of bytes written so far. Does not include data that is still queued for writing.
+至今为止写入的字节数。不包括仍在写入队列中的数据。
 
 #### Class: fs.FSWatcher#
-Objects returned from fs.watch() are of this type.
+
+由`fs.watch()`返回的对象。
 
 #### watcher.close()#
 
-Stop watching for changes on the given fs.FSWatcher.
+停止在指定的`fs.FSWatcher`上监视文件变化。
 
 #### Event: 'change'#
 
-event String The type of fs change
-filename String The filename that changed (if relevant/available)
-Emitted when something changes in a watched directory or file. See more details in fs.watch.
+ - event String 文件的改变类型
+ - filename String The filename that changed (if relevant/available)被改变的文件（如果有意义/可用的话）
+
+当被监视的目录或文件发生了改变时触发。详情参阅`fs.watch`。
 
 #### Event: 'error'#
 
-error Error object
-Emitted when an error occurs. 
+ - error Error object
+ 
+当错误发生时触发。
