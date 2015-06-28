@@ -12,6 +12,7 @@
 * [Globals](Globals.md)
 * [HTTP](HTTP.md)
 * [HTTPS](HTTPS.md)
+* [Modules](Modules.md)
 * [Net](Net.md)
 * [Process](Process.md)
 * [Stream](Stream.md)
