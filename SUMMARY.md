@@ -20,4 +20,5 @@
 * [Punycode](Punycode.md)
 * [Query Strings](QueryStrings.md)
 * [Readline](Readline.md)
+* [REPL](REPL.md)
 * [Stream](Stream.md)
