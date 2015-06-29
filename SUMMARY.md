@@ -22,4 +22,5 @@
 * [Readline](Readline.md)
 * [REPL](REPL.md)
 * [Stream](Stream.md)
-* [String Decoder](StringDecoder.md)
+* [String Decoder](StringDecoder.md) 
+* [Timers](Timers.md)

@@ -25,4 +25,4 @@ console.log(decoder.write(euro));
 
 #### decoder.end()#
 
-返回遗留在`buffer`中所有末端字节。
+返回遗留在`buffer`中的所有末端字节。
