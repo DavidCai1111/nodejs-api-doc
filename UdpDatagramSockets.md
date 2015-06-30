@@ -4,7 +4,7 @@
 
 数据报`socket`通过`require('dgram')`使用。
 
-主要提示：`dgram.Socket#bind()`的表现在v0.10中被改变，并且现在总是异步的，如果你有像这样的代码： 
+重要提示：`dgram.Socket#bind()`的表现在v0.10中被改变，并且现在总是异步的，如果你有像这样的代码： 
 
 ```js
 var s = dgram.createSocket('udp4');
