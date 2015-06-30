@@ -8,7 +8,7 @@
 var vm = require('vm');
 ```
 
-`JavaScript`会被编译且立刻执行 或 编译，保存，并且稍后执行。
+`JavaScript`代码会被编译且立刻执行 或 编译，保存，并且稍后执行。
 
 #### vm.runInThisContext(code[, options])#
 
