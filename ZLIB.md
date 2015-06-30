@@ -232,7 +232,7 @@ http.createServer(function(request, response) {
 参阅`http://zlib.net/manual.html#Advanced`中`deflateInit2`和`inflateInit2`的描述来获取更多信息。
 
 
-#### Memory Usage Tuning#
+#### 内存使用调优
 
 来自`zlib/zconf.h`，将其修改为`io.js`的用法：
 
