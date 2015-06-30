@@ -54,7 +54,7 @@ querystring.parse('w=%D6%D0%CE%C4&foo=bar', null, null,
 
 #### querystring.escape#
 
-`querystring.stringify`使用转义函数，在需要时可以被覆盖。
+`querystring.stringify`使用的转义函数，在需要时可以被覆盖。
 
 #### querystring.unescape#
 
