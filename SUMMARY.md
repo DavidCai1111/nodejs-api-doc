@@ -28,3 +28,4 @@
 * [TTY](TTY.md)
 * [UDP/Datagram](UdpDatagramSockets.md)
 * [URL](URL.md)
+* [Utilities](Utilities.md)
