@@ -92,11 +92,10 @@ console.log(util.inspect(util, { showHidden: true, depth: null }));
 
 参数值可以提供了它们自己的`inspect(depth, opts)`函数，当被调用时它们会收到当前的递归深度值，以及其他传递给`util.inspect()`的选项。
 
-##### Customizing util.inspect colors#
+##### 自定义`util.inspect`颜色
 
 `util.inspect`的有颜色的输出（如果启用）可以全局的通过`util.inspect.styles`和`util.inspect.colors`对象来自定义。
 
-util.inspect.styles is a map assigning each style a color from util.inspect.colors. Highlighted styles and their default values are: number (yellow) boolean (yellow) string (green) date (magenta) regexp (red) null (bold) undefined (grey) special - only function at this time (cyan) * name (intentionally no styling)
 `util.inspect.styles`是通过`util.inspect.colors`设置每个风格一个颜色的映射。高亮风格和它们的默认值为`number (yellow) boolean (yellow) string (green) date (magenta) regexp (red) null (bold) undefined (grey) special`。这时的唯一方法(cyan) * `name (intentionally no styling)`。
 
 预定义颜色有`white, grey, black, blue, cyan, green, magenta, red 和 yellow`。他们都是`bold `，`italic `，`underline `和`inverse`代码。
@@ -162,8 +161,8 @@ util.isRegExp({})
 ```  
 
 #### util.isDate(object)#
-Returns true if the given "object" is a Date. false otherwise.
-如果`object`是一个对象则返回`true`，否则返回`false`。
+
+如果`object`是一个日期则返回`true`，否则返回`false`。
 
 ```js
 var util = require('util');
