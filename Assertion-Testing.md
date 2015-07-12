@@ -16,7 +16,7 @@
 
 
 #### assert.notEqual(actual, expected[, message])
-判断`actual`与`expected`是否相等，等同于使用`!=`进行比较。
+判断`actual`与`expected`是否不相等，等同于使用`!=`进行比较。
 
 #### assert.deepEqual(actual, expected[, message])
 深度判断相等，通过比较`actual`与`expected`所有原型（prototype）之外的属性是否相等（`==`)来判断二者是否相等。
