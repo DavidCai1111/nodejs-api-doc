@@ -1,4 +1,4 @@
-# io.js API 中文文档
+# Node.js API 中文文档
 
 ### 译者
 
@@ -6,7 +6,7 @@
 
 ### 贡献
 
-[项目 github repo](https://github.com/DavidCai1993/iojs-api-doc)
+[项目 github repo](https://github.com/DavidCai1993/nodejs-api-doc)
 
 欢迎纠错，欢迎发Pull request，同时也欢迎star，欢迎follow。
 
