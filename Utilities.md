@@ -217,6 +217,8 @@ util.isBoolean(false)
 
 #### util.isNull(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是严格的`null`则返回`true`，否则返回`false`。
 
 ```js
@@ -321,6 +323,8 @@ util.isUndefined(null)
 ```
 
 #### util.isObject(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`严格的是一个对象而不是一个函数，则返回`true`，否则返回`false`。
 
