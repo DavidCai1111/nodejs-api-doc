@@ -130,6 +130,8 @@ util.inspect(obj);
 
 #### util.isArray(object)#
 
+> 稳定度: 0 - 弃用
+
 `Array.isArray`的内部别名。
 
 如果`object`是一个数组则返回`true`，否则返回`false`。
@@ -147,6 +149,8 @@ util.isArray({})
 
 #### util.isRegExp(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一个正则表达式则返回`true`，否则返回`false`。
 
 ```js
@@ -161,6 +165,8 @@ util.isRegExp({})
 ```  
 
 #### util.isDate(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是一个日期则返回`true`，否则返回`false`。
 
@@ -177,6 +183,8 @@ util.isDate({})
 
 #### util.isError(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一个错误对象则返回`true`，否则返回`false`。
 
 ```js
@@ -191,6 +199,8 @@ util.isError({ name: 'Error', message: 'an error occurred' })
 ```
 
 #### util.isBoolean(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是一个布尔值则返回`true`，否则返回`false`。
 
@@ -222,6 +232,8 @@ util.isNull(null)
 
 #### util.isNullOrUndefined(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一`null`或`undefined`则返回`true`，否则返回`false`。
 
 ```js
@@ -236,6 +248,8 @@ util.isNullOrUndefined(null)
 ```
 
 #### util.isNumber(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是一个数字则返回`true`，否则返回`false`。
 
@@ -254,6 +268,8 @@ util.isNumber(NaN)
 
 #### util.isString(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一个字符串则返回`true`，否则返回`false`。
 
 ```js
@@ -271,6 +287,8 @@ util.isString(5)
 
 #### util.isSymbol(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一个`Symbol`则返回`true`，否则返回`false`。
 
 ```js
@@ -285,6 +303,8 @@ util.isSymbol(Symbol('foo'))
 ```
 
 #### util.isUndefined(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是`undefined`则返回`true`，否则返回`false`。
 
@@ -319,6 +339,8 @@ util.isObject(function(){})
 
 #### util.isFunction(object)#
 
+> 稳定度: 0 - 弃用
+
 如果`object`是一个函数则返回`true`，否则返回`false`。
 
 ```js
@@ -336,6 +358,8 @@ util.isFunction(Bar)
 ```
 
 #### util.isPrimitive(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是一个基本值则返回`true`，否则返回`false`。
 
@@ -363,6 +387,8 @@ util.isPrimitive(new Date())
 ```
 
 #### util.isBuffer(object)#
+
+> 稳定度: 0 - 弃用
 
 如果`object`是一个`buffer`则返回`true`，否则返回`false`。
 
