@@ -428,7 +428,7 @@ fs.readFile('/etc/passwd', 'utf8', callback);
 例子：
 
 ```js
-fs.writeFile('message.txt', 'Hello io.js', function (err) {
+fs.writeFile('message.txt', 'Hello node.js', function (err) {
   if (err) throw err;
   console.log('It\'s saved!');
 });
@@ -437,7 +437,7 @@ fs.writeFile('message.txt', 'Hello io.js', function (err) {
 如果`options`是一个字符串，那么它将指定编码，例子：
 
 ```js
-fs.writeFile('message.txt', 'Hello io.js', 'utf8', callback);
+fs.writeFile('message.txt', 'Hello node.js', 'utf8', callback);
 ```
 
 #### fs.writeFileSync(filename, data[, options])#
@@ -634,7 +634,7 @@ fs.access('/etc/passwd', fs.R_OK | fs.W_OK, function(err) {
  - ctime "改变时间" - 文件状态最后一次被改变（索引节点改变）的时间。由`chmod(2)`，`chown(2)`，`link(2)`，`mknod(2)`，`rename(2)`，`unlink(2)`，`utimes(2)`，`read(2)`和`write(2)`系统调用改变。
  - birthtime "创建时间" - 文件的创建时间。在文件被创建时设置。在创建时间不可用的的文件系统上，这个值可能会被`ctime`或是`1970-01-01T00:00Z`（unix时间戳0）填充。在Darwin或其他FreeBSD系统变体上，如果使用`utimes(2)`系统调用设置`atime`为一个比当前`birthtime`更早的时间，`birthtime`也会被这样填充。
 
-在`io.js` v1.0 和 Node v0.12 前，Windows系统中`ctime`持有了`birthtime`值。但是在 v0.12 里，`ctime`不再是“创建时间”。在Unix系统中，它从来都不是。
+在`node.js` v1.0 和 Node v0.12 前，Windows系统中`ctime`持有了`birthtime`值。但是在 v0.12 里，`ctime`不再是“创建时间”。在Unix系统中，它从来都不是。
 
 #### fs.createReadStream(path[, options])#
 

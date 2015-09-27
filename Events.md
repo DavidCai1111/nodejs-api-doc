@@ -2,7 +2,7 @@
 
 ### 稳定度: 2 - 稳定
 
-`io.js`中的许多对象触发事件：一个`net.Server`每次被连接时触发事件，一个`fs.readStream`当文件打开时触发事件。所有触发事件的对象都是`events.EventEmitter`的实例。你可以通过`require("events");`来取得这个模块。
+`node.js`中的许多对象触发事件：一个`net.Server`每次被连接时触发事件，一个`fs.readStream`当文件打开时触发事件。所有触发事件的对象都是`events.EventEmitter`的实例。你可以通过`require("events");`来取得这个模块。
 
 通常，事件名以驼峰字符串来命令，但是这不是严格要求的，任何字符串都是可以接受的。
 
@@ -16,7 +16,7 @@
 var EventEmitter = require('events');
 ```
 
-当一个`EventEmitter`实例发生了一个错误，一个典型的做法是触发一个`error`事件。`error`事件在`io.js`中被视为一个特殊的事件，如果没有为其添加监听器，默认的行为是打印堆栈追踪信息并推出程序。
+当一个`EventEmitter`实例发生了一个错误，一个典型的做法是触发一个`error`事件。`error`事件在`node.js`中被视为一个特殊的事件，如果没有为其添加监听器，默认的行为是打印堆栈追踪信息并推出程序。
 
 所有的`EventEmitter`实例，在被添加新的监听器时，都会触发`newListener`事件。当有监听器被移除时，都会触发`removeListener `事件。
 

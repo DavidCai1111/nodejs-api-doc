@@ -1,5 +1,6 @@
 # 执行`JavaScript`
 
+
 ### 稳定度: 2 - 稳定
 
 要获取这个模块，你可以通过：
@@ -155,7 +156,7 @@ console.log(globalVar);
  - displayErrors: 是否在抛出异常前向`stderr`打印任何的错误，并且造成错误的行会被高亮。只会应用于运行中代码的执行错误；创建一个有语法错误的`Script`实例是不可能的，因为构造函数会抛出异常。
 
  - timeout: 在关闭之前，允许代码执行的时间（毫秒）。如果超时，一个错误被会抛出。
- 
+
 #### script.runInContext(contextifiedSandbox[, options])#
 
 与`vm.runInContext `相似，但是是一个预编译的`Script`对象的方法。`script.runInContext `运行脚本被编译完毕的代码，然后返回结果。运行中的代码不能访问本地作用域。

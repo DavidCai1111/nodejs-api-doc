@@ -4,7 +4,7 @@
 
 你必须通过`require('http')`来使用HTTP服务器和客户端。
 
-`io.js`中的HTTP接口被设置来支持许多HTTP协议里原本用起来很困难的特性。特别是大且成块的有编码的消息。这个接口从不缓冲整个请求或响应。用户可以对它们使用流。
+`node.js`中的HTTP接口被设置来支持许多HTTP协议里原本用起来很困难的特性。特别是大且成块的有编码的消息。这个接口从不缓冲整个请求或响应。用户可以对它们使用流。
 
 HTTP消息头可能是一个类似于以下例子的对象：
 
@@ -18,7 +18,7 @@ HTTP消息头可能是一个类似于以下例子的对象：
 
 键是小写的。值没有被修改。
 
-为了全方位的支持所有的HTTP应用。`io.js`的HTTP API是非常底层的。它只处理流以及解释消息。它将消息解释为消息头和消息体，但是不解释实际的消息头和消息体。
+为了全方位的支持所有的HTTP应用。`node.js`的HTTP API是非常底层的。它只处理流以及解释消息。它将消息解释为消息头和消息体，但是不解释实际的消息头和消息体。
 
 被定义的消息头允许以多个`,`字符分割，除了`set-cookie`和`cookie`头，因为它们表示值得数组。如`content-length`这样只有单个值的头被直接将解析，并且成为解析后对象的一个单值。
 
@@ -218,7 +218,7 @@ response.writeHead(200, {
 
 如果你在调用这个方法前调用了`response.write()`或`response.end()`，将会调用这个函数，并且一个`implicit/mutable`头会被计算使用。
 
-注意，`Content-Length`是以字节计，而不是以字符计。上面例子能正常运行时因为字符串`'hello world'`仅包含单字节字符。如果响应体包含了多字节编码的字符，那么必须通过指定的编码来调用`Buffer.byteLength()`来确定字节数。并且`io.js`不会检查`Content-Length`与响应体的字节数是否相等。
+注意，`Content-Length`是以字节计，而不是以字符计。上面例子能正常运行时因为字符串`'hello world'`仅包含单字节字符。如果响应体包含了多字节编码的字符，那么必须通过指定的编码来调用`Buffer.byteLength()`来确定字节数。并且`node.js`不会检查`Content-Length`与响应体的字节数是否相等。
 
 #### response.setTimeout(msecs, callback)#
 
@@ -307,7 +307,7 @@ response.removeHeader("Content-Encoding");
 数据块可以是一个字符串或一个`buffer`。如果数据块是一个字符串，那么第二个参数是它的编码。默认是UTF-8.最后一个回调函数参数会在数据块被冲刷后触发。
 注意：这是一个底层的HTTP报文，高级的多部分报文编码无法使用。
 
-第一次调用`response.write()`时，它会传递缓存的头信息以及第一个报文给客户端。第二次调用时，`io.js`假设你将发送数据流，然后分别发送。这意味着响应式缓冲到第一个报文的数据块中。
+第一次调用`response.write()`时，它会传递缓存的头信息以及第一个报文给客户端。第二次调用时，`node.js`假设你将发送数据流，然后分别发送。这意味着响应式缓冲到第一个报文的数据块中。
 
 如果整个数据都成功得冲刷至内核缓冲，则放回`true`。如果用户内存中有部分或全部的数据在队列中，那么返回`false`。`drain`事件将会在缓冲再次释放时触发。
 
@@ -337,7 +337,7 @@ response.end();
 
 #### http.request(options[, callback])#
 
-`io.js`为每个服务器维护了几个连接，用来产生HTTP请求。这函数允许你透明地发送请求。
+`node.js`为每个服务器维护了几个连接，用来产生HTTP请求。这函数允许你透明地发送请求。
 
 `options`参数可以是一个对象或一个字符串，如果`options`是一个字符串，它将自动得被`url.parse()`翻译。
 
@@ -407,7 +407,7 @@ req.end();
 
 下面有一些特殊的需要主要的请求头：
 
- - 发送`'Connection: keep-alive'`会告知`io.js`保持连直到下一个请求发送。
+ - 发送`'Connection: keep-alive'`会告知`node.js`保持连直到下一个请求发送。
 
  - 发送`'Content-length'`头会禁用默认的数据块编码。
 
@@ -416,7 +416,7 @@ req.end();
  - 发送一个授权头将会覆盖使用`auth`选项来进行基本授权。
 
 #### http.get(options[, callback])#
-由于大多数请求是没有请求体的`GET`请求。`io.js`提供了这个简便的方法。这个方法和`http.request()`方法的唯一区别是它设置请求方法为`GET`且自动调用`req.end()`。
+由于大多数请求是没有请求体的`GET`请求。`node.js`提供了这个简便的方法。这个方法和`http.request()`方法的唯一区别是它设置请求方法为`GET`且自动调用`req.end()`。
 
 例子：
 
@@ -432,9 +432,9 @@ http.get("http://www.google.com/index.html", function(res) {
 
 HTTP Agent是用来把HTTP客户端请求中的`socket`做成池。
 
-HTTP Agent 也把客户端的请求默认为使用`Connection:keep-alive`。如果没有HTTP请求正在等待成为空闲的套接字的话，那么套接字将关闭。这意味着`io.js`的资源池在负载的情况下对`keep-alive`有利，但是仍然不需要开发人员使用KeepAlive来手动关闭HTTP客户端。
+HTTP Agent 也把客户端的请求默认为使用`Connection:keep-alive`。如果没有HTTP请求正在等待成为空闲的套接字的话，那么套接字将关闭。这意味着`node.js`的资源池在负载的情况下对`keep-alive`有利，但是仍然不需要开发人员使用KeepAlive来手动关闭HTTP客户端。
 
-如果你选择使用`HTTP KeepAlive`，那么你可以创建一个标志设为`true`的Agent对象（见下面的构造函数选项）。然后，Agent将会在资源池中保持未被使用的套接字，用于未来使用。它们将会被显式标记，以便于不保持`io.js`进程的运行。但是当KeepAlive agent没有被使用时，显式地`destroy()` KeepAlive agent仍然是个好主意，这样`socket`会被关闭。
+如果你选择使用`HTTP KeepAlive`，那么你可以创建一个标志设为`true`的Agent对象（见下面的构造函数选项）。然后，Agent将会在资源池中保持未被使用的套接字，用于未来使用。它们将会被显式标记，以便于不保持`node.js`进程的运行。但是当KeepAlive agent没有被使用时，显式地`destroy()` KeepAlive agent仍然是个好主意，这样`socket`会被关闭。
 
 当`socket`触发了`close`事件或者特殊的`agentRemove`事件的时候，套接字们从agent的资源池中移除。这意味着如果你打算保持一个HTTP请求长时间开启，并且不希望它保持在资源池中，那么你可以按照下列几行的代码做事：
 
@@ -522,7 +522,7 @@ http.request(options, onResponseCallback);
 
 如果没有添加`response`事件监听器，那么响应会被完全忽略。但是，如果你添加了`response`事件，那么你必须通过调用`response.read()`，添加`data`事件监听器或调用`.resume()`方法等等，来从响应对象中消耗数据。在数据被消费之前，`end`事件不会触发。如果数据没有被读取，它会消耗内存，最后导致`'process out of memory'`错误。
 
-注意：`io.js`不会检查`Content-Length`和被传输的响应体长度是否相同。
+注意：`node.js`不会检查`Content-Length`和被传输的响应体长度是否相同。
 
 这个请求实现了`Writable`流接口。这是一个包含了以下事件的`EventEmitter`：
 
@@ -566,7 +566,7 @@ proxy.on('connect', function(req, cltSocket, head) {
   var srvUrl = url.parse('http://' + req.url);
   var srvSocket = net.connect(srvUrl.port, srvUrl.hostname, function() {
     cltSocket.write('HTTP/1.1 200 Connection Established\r\n' +
-                    'Proxy-agent: io.js-Proxy\r\n' +
+                    'Proxy-agent: node.js-Proxy\r\n' +
                     '\r\n');
     srvSocket.write(head);
     srvSocket.pipe(cltSocket);
@@ -672,7 +672,7 @@ srv.listen(1337, '127.0.0.1', function() {
 
 冲刷请求头。
 
-由于效率原因，`io.js`通常在直到你调用`request.end()`或写入第一个数据块前都会缓冲请求头，然后努力将请求头和数据打包为一个TCP报文。
+由于效率原因，`node.js`通常在直到你调用`request.end()`或写入第一个数据块前都会缓冲请求头，然后努力将请求头和数据打包为一个TCP报文。
 
 这通常是你想要的（它节约了一个TCP往返）。但当第一份数据会等待很久才被发送时不是。`request.flushHeaders()`使你能绕过这个优化并且启动请求。
 

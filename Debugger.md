@@ -2,7 +2,7 @@
 
 ### 稳定度: 2 - 稳定
 
-V8自带了一个强大的调试器，可以从外部通过TCP协议访问。`io.js`为这个调试器内建了一个客户端。要使用它的话，使用`debug`参数启动`io.js`；会出现提示符：
+V8自带了一个强大的调试器，可以从外部通过TCP协议访问。`node.js`为这个调试器内建了一个客户端。要使用它的话，使用`debug`参数启动`node.js`；会出现提示符：
 
 ```SHELL
 % iojs debug myscript.js
@@ -15,7 +15,7 @@ break in /home/indutny/Code/git/indutny/myscript.js:1
 debug>
 ```
 
-`io.js`的调试器客户端并未支持所有的命令，但是简单的步进和调试都是可以的。通过在源代码就放置`debugger;`语句，你可以启用一个断点。
+`node.js`的调试器客户端并未支持所有的命令，但是简单的步进和调试都是可以的。通过在源代码就放置`debugger;`语句，你可以启用一个断点。
 
 例如，假设又一个这样的`myscript.js`：
 
@@ -140,9 +140,9 @@ __Various__
 
 #### 高级使用
 
-V8调试器可以通过 使用`--debug`命令行参数打开`io.js` 或 向一个已存在的`io.js`进程发送`SIGUSR1`信号 来启用。
+V8调试器可以通过 使用`--debug`命令行参数打开`node.js` 或 向一个已存在的`node.js`进程发送`SIGUSR1`信号 来启用。
 
-一旦一个进程被设置为了调试模式，它就可以被连接到`io.js`调试器。可以通过pid或URI来连接，语法为：
+一旦一个进程被设置为了调试模式，它就可以被连接到`node.js`调试器。可以通过pid或URI来连接，语法为：
 
  - iojs debug -p <pid> - 通过pid连接进程
  - iojs debug <URI> - 通过URI（如`localhost:5858`）连接进程

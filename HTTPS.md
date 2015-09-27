@@ -2,7 +2,7 @@
 
 ### 稳定度: 2 - 稳定
 
-HTTPS是建立在TLS/SSL之上的HTTP协议。在`io.js`中，它被作为单独模块实现。
+HTTPS是建立在TLS/SSL之上的HTTP协议。在`node.js`中，它被作为单独模块实现。
 
 #### Class: https.Server#
 

@@ -1,6 +1,6 @@
 # Errors#
 
-`io.js`生成的错误分为两类：`JavaScript`错误和系统错误。所有的错误都继承于`JavaScript`的`Error`类，或就是它的实例。并且都至少提供这个类中可用的属性。
+`node.js`生成的错误分为两类：`JavaScript`错误和系统错误。所有的错误都继承于`JavaScript`的`Error`类，或就是它的实例。并且都至少提供这个类中可用的属性。
 
 当一个操作因为语法错误或语言运行时级别（language-runtime-level）的原因不被允许时，一个`JavaScript error`会被生成并抛出一个异常。如果一个操作因为系统级别（system-level）限制而不被允许时，一个系统错误会被生成。客户端代码接着会根据API传播它的方式来被给予捕获这个错误的机会。
 
@@ -14,7 +14,7 @@ API被调用的风格决定了生成的错误如何回送（handed back），传
 
 一个普通的错误对象。和其他的错误对象不同，`Error`实例不指示任何 为什么错误发生 的原因。`Error`在它们被实例化时，会记录下“堆栈追踪”信息，并且可以会提供一个错误描述。
 
-注意：`io.js`会将系统错误以及`JavaScript`错误都封装为这个类的实例。
+注意：`node.js`会将系统错误以及`JavaScript`错误都封装为这个类的实例。
 
 #### new Error(message)#
 
@@ -72,7 +72,7 @@ makeFaster(); // will throw:
 位置信息将会是以下之一：
 
  - `native`，如果帧代表了向V8内部的一次调用（如在`[].forEach`中）。
- - `plain-filename.js:line:column`，如果帧代表了向`io.js`内部的一次调用。
+ - `plain-filename.js:line:column`，如果帧代表了向`node.js`内部的一次调用。
  - `/absolute/path/to/file.js:line:column`，如果帧代表了向用户程序或其依赖的一次调用。
 
 关键的一点是，代表了堆栈信息的字符串只在需要被使用时生成，它是惰性生成的。
@@ -125,7 +125,7 @@ new MyError().stack
 require('net').connect(-1);  // throws RangeError, port should be > 0 && < 65536
 ```
 
-`io.js`会立刻生成并抛出一个`RangeError`实例 -- 它们是参数验证的一种形式。
+`node.js`会立刻生成并抛出一个`RangeError`实例 -- 它们是参数验证的一种形式。
 
 #### Class: TypeError#
 
@@ -135,7 +135,7 @@ require('net').connect(-1);  // throws RangeError, port should be > 0 && < 65536
 require('url').parse(function() { }); // throws TypeError, since it expected a string
 ```
 
-`io.js`会立刻生成并抛出一个`TypeError`实例 -- 它们是参数验证的一种形式。
+`node.js`会立刻生成并抛出一个`TypeError`实例 -- 它们是参数验证的一种形式。
 
 #### Class: ReferenceError#
 
@@ -173,7 +173,7 @@ try {
 
 #### 异常 vs. 错误
 
-一个`JavaScript`“异常”是一个无效操作或`throw`声明所抛出的结果的值。但是这些值不被要求必须继承于`Error`。所有的由`io.js`或`JavaScript`运行时抛出的异常都必须是`Error`实例。
+一个`JavaScript`“异常”是一个无效操作或`throw`声明所抛出的结果的值。但是这些值不被要求必须继承于`Error`。所有的由`node.js`或`JavaScript`运行时抛出的异常都必须是`Error`实例。
 
 一些异常在`JavaScript`层是无法恢复的。这些异常通常使一个进程挂掉。它们通常无法通过`assert()`检查，或C++层中的`abort()`调用。
 
@@ -181,7 +181,7 @@ try {
 
 系统错误在程序运行时环境的响应中生成。理想情况下，它们代表了程序能够处理的操作错误。它们在系统调用级别生成：一个详尽的错误码列表和它们意义可以通过运行`man 2 intro`或`man 3 errno`在大多数`Unices`中获得；或在线获得。
 
-在`io.js`中，系统错误表现为一个增强的`Error`对象 -- 不是完全的子类，而是一个有额外成员的`error`实例。
+在`node.js`中，系统错误表现为一个增强的`Error`对象 -- 不是完全的子类，而是一个有额外成员的`error`实例。
 
 #### Class: System Error#
 
@@ -197,7 +197,7 @@ try {
 
 #### 常见系统错误
 
-这个列表不详尽，但是列举了许多在写`io.js`的过程中普遍发生的系统错误。详尽的列表可以在这里查阅：`http://man7.org/linux/man-pages/man3/errno.3.html`
+这个列表不详尽，但是列举了许多在写`node.js`的过程中普遍发生的系统错误。详尽的列表可以在这里查阅：`http://man7.org/linux/man-pages/man3/errno.3.html`
 
 #### EPERM: 操作不被允许
 
@@ -227,7 +227,7 @@ try {
 
 达到了系统中允许的文件描述符的最大数量，那么下一个描述符请求，在已存在的最后一个描述符关闭之前，都不能被满足。
 
-通常在并行打开太多文件时触发，特别是在那些将进程可用的文件描述符数量限制得很低的操作系统中（尤其是OS X）。为了改善这个限制，在同一个SHELL中运行`ulimit -n 2048`命令，再运行`io.js`进程。
+通常在并行打开太多文件时触发，特别是在那些将进程可用的文件描述符数量限制得很低的操作系统中（尤其是OS X）。为了改善这个限制，在同一个SHELL中运行`ulimit -n 2048`命令，再运行`node.js`进程。
 
 #### EPIPE: 损坏的管道
 
@@ -256,7 +256,7 @@ try {
 
 ### 错误的传播和捕获
 
-所有的`io.js`API将无效的参数视作异常 -- 也就是说，如果传递了非法的参数，他们会立刻生成并抛出一个`error`作为异常，甚至是异步API也会。
+所有的`node.js`API将无效的参数视作异常 -- 也就是说，如果传递了非法的参数，他们会立刻生成并抛出一个`error`作为异常，甚至是异步API也会。
 
 同步API（像`fs.readFileSync`）将会抛出一个错误。抛出值的行为是将值包装入一个异常。异常可以被使用`try { } catch(err) { }`结果捕获。
 
@@ -321,7 +321,7 @@ connection.on('error', function(err) {
 connection.pipe(process.stdout);
 ```
 
-“当没有没有监听错误时会抛出错误”这个行为不仅限与`io.js`提供的API -- 用户创建的基于流或`event emitters`的API也会如此。例子：
+“当没有没有监听错误时会抛出错误”这个行为不仅限与`node.js`提供的API -- 用户创建的基于流或`event emitters`的API也会如此。例子：
 
 ```js
 var events = require('events');

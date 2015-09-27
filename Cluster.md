@@ -1,8 +1,9 @@
 # Cluster#
 
+
 ### 稳定度: 2 - 稳定
 
-单个的`io.js`实例运行在单线程上。为了享受多核系统的优势，用户需要启动一个`io.js`集群来处理负载。
+单个的`node.js`实例运行在单线程上。为了享受多核系统的优势，用户需要启动一个`node.js`集群来处理负载。
 
 `cluster`模块允许你方便地创建共享服务器端口的子进程：
 
@@ -30,7 +31,7 @@ if (cluster.isMaster) {
 }
 ```
 
-启动`io.js`将会在工作线程中共享8000端口：
+启动`node.js`将会在工作线程中共享8000端口：
 
 ```SHELL
 % NODE_DEBUG=cluster iojs server.js
@@ -56,17 +57,17 @@ if (cluster.isMaster) {
 
 第二种方式理论上有最好的性能。但是在实践中，操作系统的调度不可预测，分配往往十分不平衡。负载曾被观察到8个进程中，超过70%的连接结束于其中的2个进程。
 
-因为`server.listen()`将大部分工作交给了主进程，所以一个普通的`io.js`进程和一个集群工作进程会在三种情况下有所区别：
+因为`server.listen()`将大部分工作交给了主进程，所以一个普通的`node.js`进程和一个集群工作进程会在三种情况下有所区别：
 
  1. `server.listen({fd: 7})` 因为消息被传递给了主进程，主进程的文件描述符`7`会被监听，并且句柄会被传递给工作进程而不是监听工作进程中文件描述符为`7`的东西。
- 
- 2. `server.listen(handle)` 明确地监听句柄，会让工作进程使用给定的句柄，而不是与主进程通信。如果工作进程已经有了此句柄，那么将假设你知道你在做什么。
- 
- 3. `server.listen(0)` 通常，这会导致服务器监听一个随机端口。但是，在集群中，每次调用`listen(0)`时，每一个工作进程会收到同样的“随机”端口。也就是说，端口只是在第一次方法被调用时是随机的，但在之后是可预知的。如果你想监听特定的端口，则根据工作进程的PID来生成端口号。
- 
-由于在`io.js`或你的程序中的工作进程间没有路由逻辑也没有共享的状态。所以，请不要为你的程序设计成依赖太重的内存数据对象，如设计会话和登陆时。
 
-因为工作进程都是独立的进程，它们可以根据你程序的需要被杀死或被创建，并且并不会影响到其他工作进程。只要有活跃的工作进程，那么服务器就会继续接收连接。但是`io.js`不会自动地为你管理工作进程数。所以根据你的应用需求来管理工作进程池是你的责任。
+ 2. `server.listen(handle)` 明确地监听句柄，会让工作进程使用给定的句柄，而不是与主进程通信。如果工作进程已经有了此句柄，那么将假设你知道你在做什么。
+
+ 3. `server.listen(0)` 通常，这会导致服务器监听一个随机端口。但是，在集群中，每次调用`listen(0)`时，每一个工作进程会收到同样的“随机”端口。也就是说，端口只是在第一次方法被调用时是随机的，但在之后是可预知的。如果你想监听特定的端口，则根据工作进程的PID来生成端口号。
+
+由于在`node.js`或你的程序中的工作进程间没有路由逻辑也没有共享的状态。所以，请不要为你的程序设计成依赖太重的内存数据对象，如设计会话和登陆时。
+
+因为工作进程都是独立的进程，它们可以根据你程序的需要被杀死或被创建，并且并不会影响到其他工作进程。只要有活跃的工作进程，那么服务器就会继续接收连接。但是`node.js`不会自动地为你管理工作进程数。所以根据你的应用需求来管理工作进程池是你的责任。
 
 #### cluster.schedulingPolicy#
 调度策略，选择`cluster.SCHED_RR`来使用循环式，或选择`cluster.SCHED_NONE`来由操作系统处理。这是一个全局设定，并且在你第一次启动了一个工作进程或调用`cluster.setupMaster()`方法后就不可再更改。
@@ -77,13 +78,13 @@ if (cluster.isMaster) {
 
 #### cluster.settings#
  - __Object__
-  - execArgv Array 传递给`io.js`执行的字符串参数（默认为`process.execArgv`）
+  - execArgv Array 传递给`node.js`执行的字符串参数（默认为`process.execArgv`）
   - exec String 工作进程文件的路径（默认为`process.argv[1]`）
   - args Array 传递给工作进程的字符串参数（默认为`process.argv.slice(2)`）
   - silent Boolean 是否将工作进程的输出传递给父进程的`stdio `（默认为`false`）
   - uid Number 设置用户进程的ID
   - gid Number 设置进程组的ID
-  
+
 在调用`.setupMaster()`（或`.fork()`）方法之后，这个`settings`对象会存放方法的配置，包括默认值。
 
 因为`.setupMaster()`仅能被调用一次，所以这个对象被设置后便不可更改。
@@ -125,7 +126,7 @@ cluster.on('exit', function(worker, code, signal) {
 
 #### Event: 'online'#
  - worker Worker object
-  
+
 当创建了一个新的工作线程后，工作线程必须响应一个在线信息。当主进程接收到在线信息后它会触发这个事件。`fork`和`online`事件的区别在于：`fork`是主进程创建了工作进程后触发，`online`是工作进程开始运行时触发。
 
 ```js
@@ -154,7 +155,7 @@ cluster.on('listening', function(worker, address) {
  - 6 (TCPv6)
  - -1 (unix domain socket)
  - "udp4" 或 "udp6" (UDP v4 或 v6)
- 
+
 #### Event: 'disconnect'#
  - worker Worker object
 
@@ -170,7 +171,7 @@ cluster.on('disconnect', function(worker) {
 
 #### Event: 'exit'#
  - worker Worker object
- - code Number 如果正常退出，则为退出码 
+ - code Number 如果正常退出，则为退出码
  - signal String 导致进程被杀死的信号的信号名（如'SIGHUP'）
 
 当任何一个工作进程结束时，`cluster`模块会触发一个`exit`事件。
@@ -306,7 +307,7 @@ socket.on('data', function(id) {
 #### worker.process#
 
  - ChildProcess object
- 
+
 所有的工作进程都通过`child_process.fork()`被创建，返回的对象被作为`.process`属性存储。在一个工作进程中，全局的`process`被存储。
 
 参阅`Child Process module`

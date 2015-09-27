@@ -1,5 +1,6 @@
 # URL#
 
+
 ### 稳定度: 2 - 稳定
 
 这个模块提供了URL解析和解释的工具。通过`require('url')`使用它。
@@ -96,5 +97,5 @@
 ```js
 url.resolve('/one/two/three', 'four')         // '/one/two/four'
 url.resolve('http://example.com/', '/one')    // 'http://example.com/one'
-url.resolve('http://example.com/one', '/two') // 'http://example.com/two' 
+url.resolve('http://example.com/one', '/two') // 'http://example.com/two'
 ```

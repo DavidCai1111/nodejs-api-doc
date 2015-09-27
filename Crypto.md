@@ -66,7 +66,7 @@ console.log(curves); // ['secp256k1', 'secp384r1', ...]
 #### crypto.createCredentials(details)#
 
  >稳定度: 0 - 弃用。使用`tls.createSecureContext`代替。
- 
+
 创建一个加密凭证对象，接受一个可选的带键字典`details`：
 
  - pfx : 一个带着`PFX`或`PKCS12`加密的私钥，加密凭证和CA证书的字符串或`buffer`。
@@ -77,7 +77,7 @@ console.log(curves); // ['secp256k1', 'secp384r1', ...]
  - crl : 一个`PEM`加密`CRL`的字符串或字符串列表。
  - ciphers: 一个描述需要使用或排除的加密算法的字符串。更多加密算法的格式细节参阅`http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT`
 
-如果没有指定`ca`，那么`io.js`将会使用`http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt.`提供的默认公共可信任`CA`列表。
+如果没有指定`ca`，那么`node.js`将会使用`http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt.`提供的默认公共可信任`CA`列表。
 
 #### crypto.createHash(algorithm)#
 
@@ -268,7 +268,7 @@ OpenSSL建议使用`pbkdf2`替代`EVP_BytesToKey`，推荐你通过`crypto.pbkdf
 __private_key__:
  - key : 包含`PEM`编码私钥的字符串。
  - passphrase : 一个私钥密码的字符串。
- 
+
 返回的数字签名编码由`output_format`决定，可以是`'binary'`，`'hex'`或`'base64'`。如果没有指定编码，会返回一个`buffer`。
 
 注意，在调用了`sign()`后，`sign`对象不能再使用了。
@@ -547,7 +547,7 @@ __public_key__:
 
 `Crypto`模块在还没有统一的流API概念，以及没有`Buffer`对象来处理二进制数据前就加入了`Node.js`。
 
-因为这样，它的流类没有其他`io.js`类的典型类，而且很多方法默认接受和返回二进制字符串而不是`Buffer`。这些函数将被改成默认接受和返回`Buffer`。
+因为这样，它的流类没有其他`node.js`类的典型类，而且很多方法默认接受和返回二进制字符串而不是`Buffer`。这些函数将被改成默认接受和返回`Buffer`。
 
 这对于一些但不是所有的使用场景来说是巨大的改变。
 

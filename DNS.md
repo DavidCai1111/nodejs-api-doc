@@ -72,7 +72,7 @@ dns.resolve4('www.google.com', function (err, addresses) {
 
 `dns.lookup`不需要与DNS协议有任何关系。它仅仅是一个连接名字和地址的操作系统功能。
 
-在任何的`io.js`程序中，它的实现对表现有一些微妙但是重要的影响。在使用前，请花一些时间查阅`实现注意事项`章节。
+在任何的`node.js`程序中，它的实现对表现有一些微妙但是重要的影响。在使用前，请花一些时间查阅`实现注意事项`章节。
 
 #### dns.lookupService(address, port, callback)#
 
@@ -208,7 +208,7 @@ dns.resolve4('www.google.com', function (err, addresses) {
 
 ### 实现注意事项
 
-尽管`dns.lookup`和`dns.resolve*/dns.reverse`函数都用于关联一个域名和一个地址（或反之亦然），它们的行为还是有些许区别。这些差别虽然微小，但是对于`io.js`程序的行为有重大影响。
+尽管`dns.lookup`和`dns.resolve*/dns.reverse`函数都用于关联一个域名和一个地址（或反之亦然），它们的行为还是有些许区别。这些差别虽然微小，但是对于`node.js`程序的行为有重大影响。
 
 #### dns.lookup
 

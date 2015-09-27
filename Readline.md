@@ -4,7 +4,7 @@
 
 通过`require('readline')`来使用这个模块。`Readline`允许逐行读取一个流（如`process.stdin`）。
 
-注意，一旦你执行了这个模块，你的`io.js`程序在你关闭此接口之前，将不会退出。以下是如何让你的程序优雅的退出的例子：
+注意，一旦你执行了这个模块，你的`node.js`程序在你关闭此接口之前，将不会退出。以下是如何让你的程序优雅的退出的例子：
 
 ```js
 var readline = require('readline');
@@ -14,7 +14,7 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.question("What do you think of io.js? ", function(answer) {
+rl.question("What do you think of node.js? ", function(answer) {
   // TODO: Log the answer in a database
   console.log("Thank you for your valuable feedback:", answer);
 
@@ -83,7 +83,7 @@ var rl = readline.createInterface({
 
 #### rl.setPrompt(prompt)#
 
-设置提示符，例如当你在命令行运行`iojs`命令时，你看到了`>`，这就是`io.js`的提示符。
+设置提示符，例如当你在命令行运行`iojs`命令时，你看到了`>`，这就是`node.js`的提示符。
 
 #### rl.prompt([preserveCursor])#
 

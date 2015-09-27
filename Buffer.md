@@ -1,7 +1,8 @@
 # Buffer#
 
+
 ### 稳定度: 2 - 稳定
-纯粹的`JavaScript`是Unicode友好的，但是不能很好地处理二进制数据。当处理TCP流或者文件流时，操作八进制流是必要的。`io.js`提供了多种策略来操作，创建和使用八进制流。
+纯粹的`JavaScript`是Unicode友好的，但是不能很好地处理二进制数据。当处理TCP流或者文件流时，操作八进制流是必要的。`node.js`提供了多种策略来操作，创建和使用八进制流。
 
 原始的数据被存储在`Buffer`类的实例中，一个`Buffer`类似于一个整数数组但是使用了V8堆之外的内存分配。一个`Buffer`不能被改变大小。
 
@@ -19,7 +20,7 @@
 
 'base64' - Base64 字符串编码。
 
-'binary' - 一种通过使用每个字符的前八位来将二进制数据解码为字符串的方式。这个编码方法已经不被推荐使用，在处理`Buffer`对象时应避免使用它，这个编码将会在`io.js`的未来版本中移除。
+'binary' - 一种通过使用每个字符的前八位来将二进制数据解码为字符串的方式。这个编码方法已经不被推荐使用，在处理`Buffer`对象时应避免使用它，这个编码将会在`node.js`的未来版本中移除。
 
 'hex' - 把每个字节编码成2个十六进制字符。
 
@@ -249,7 +250,7 @@ console.log(copy);
 例子：复制一个ASCII字符串到一个buffer，一次一个字节：
 
 ```js
-str = "io.js";
+str = "node.js";
 buf = new Buffer(str.length);
 
 for (var i = 0; i < str.length ; i++) {
@@ -258,7 +259,7 @@ for (var i = 0; i < str.length ; i++) {
 
 console.log(buf);
 
-// io.js
+// node.js
 ```
 
 #### buf.equals(otherBuffer)#

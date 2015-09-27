@@ -2,7 +2,7 @@
 
 ### 稳定度: 3 - 锁定
 
-`io.js`又一个简单的模块加载系统。在`io.js`中，文件和模块是一一对应的。以下例子中，`foo.js`加载的同目录下的`circle.js`。
+`node.js`又一个简单的模块加载系统。在`node.js`中，文件和模块是一一对应的。以下例子中，`foo.js`加载的同目录下的`circle.js`。
 
 `foo.js`的内容：
 
@@ -112,15 +112,15 @@ in main, a.done=true, b.done=true
 
 #### 核心模块
 
-`io.js`中有一些模块是被编译成二进制的。这些模块会在本文档的其他地方详细讨论。
+`node.js`中有一些模块是被编译成二进制的。这些模块会在本文档的其他地方详细讨论。
 
-核心模块被定义在`io.js`源码的`lib/`目录下。
+核心模块被定义在`node.js`源码的`lib/`目录下。
 
 当被`require()`时，核心模块总是被优先加载的。例如`require('http')`总是会返回内建的HTTP模块，甚至是有一个同名文件时。
 
 #### 文件模块
 
-如果准确的文件名没有被发现，那么`io.js`将会依次添加`.js`，`.json`或`.node`后缀名，然后试图去加载。
+如果准确的文件名没有被发现，那么`node.js`将会依次添加`.js`，`.json`或`.node`后缀名，然后试图去加载。
 
 `.js`文件被解释为`JavaScript`文本文件，`.json`被解释为`JSON`文本文件，`.node`文件被解释为编译好的插件模块，然后被`dlopen`加载。
 
@@ -134,11 +134,11 @@ in main, a.done=true, b.done=true
 
 #### 从node_modules目录中加载
 
-如果传递给`require()`的模块标识符不是一个本地模块，也没有以`'/'`，`'../'`或`'./'`开始。那么`io.js`将会从当前目录的父目录开始，添加`/node_modules`，试图从这个路径来加载模块。
+如果传递给`require()`的模块标识符不是一个本地模块，也没有以`'/'`，`'../'`或`'./'`开始。那么`node.js`将会从当前目录的父目录开始，添加`/node_modules`，试图从这个路径来加载模块。
 
 如果还是没有找到模块，那么它会再移至此目录的父目录，如此往复，直至到达文件系统的根目录。
 
-例如，如果一个位于`'/home/ry/projects/foo.js'`的文件调用了`require('bar.js')`，那么`io.js`将会按照以下的路径顺序来查找：
+例如，如果一个位于`'/home/ry/projects/foo.js'`的文件调用了`require('bar.js')`，那么`node.js`将会按照以下的路径顺序来查找：
 
 ```SHELL
 /home/ry/projects/node_modules/bar.js
@@ -164,9 +164,9 @@ in main, a.done=true, b.done=true
 
 如果这个文件位于`./some-library`，那么`require('./some-library')`将会试图去加载`./some-library/lib/some-library.js`。
 
-这就是`io.js`所能够了解`package.json`文件的程度。
+这就是`node.js`所能够了解`package.json`文件的程度。
 
-如果目录中没有`package.json`文件，那么`io.js`将会视图去加载当前目录中的`index.js`或`index.node`。例如，如果在上面的例子中没有`package.json`，那么`require('./some-library')`将会试图加载：
+如果目录中没有`package.json`文件，那么`node.js`将会视图去加载当前目录中的`index.js`或`index.node`。例如，如果在上面的例子中没有`package.json`，那么`require('./some-library')`将会试图加载：
 
 ```SHELL
 ./some-library/index.js
@@ -348,25 +348,25 @@ NODE_MODULES_PATHS(START)
 
 #### 从全局文件夹加载
 
-如果`NODE_PATH`环境变量被设置为了一个以冒号分割的绝对路径列表，那么在找不到模块时，`io.js`将会从这些路径中寻找模块（注意：在Windows中，`NODE_PATH `是以分号间隔的）。
+如果`NODE_PATH`环境变量被设置为了一个以冒号分割的绝对路径列表，那么在找不到模块时，`node.js`将会从这些路径中寻找模块（注意：在Windows中，`NODE_PATH `是以分号间隔的）。
 
 `NODE_PATH`最初被创建，是用来支持在当前的模块解析算法被冻结（frozen）前，从不同的路径加载模块的。
 
-`NODE_PATH`仍然被支持，但是，如今`io.js`生态圈已经有了放置依赖模块的公约，它已经不那么必要的。有时，当人们没有意识到`NODE_PATH`有被设置时，依赖于`NODE_PATH`的部署可能会产生出人意料的表现。有时，一个模块的依赖改变了，造成了通过`NODE_PATH`，加载了不同版本的模块。
+`NODE_PATH`仍然被支持，但是，如今`node.js`生态圈已经有了放置依赖模块的公约，它已经不那么必要的。有时，当人们没有意识到`NODE_PATH`有被设置时，依赖于`NODE_PATH`的部署可能会产生出人意料的表现。有时，一个模块的依赖改变了，造成了通过`NODE_PATH`，加载了不同版本的模块。
 
-另外，`io.js`将会查找以下路径：
+另外，`node.js`将会查找以下路径：
 
  - 1: $HOME/.node_modules
  - 2: $HOME/.node_libraries
  - 3: $PREFIX/lib/node
 
-`$HOME`是用户的家目录，`$PREFIX`是`io.js`中配置的`node_prefix `。
+`$HOME`是用户的家目录，`$PREFIX`是`node.js`中配置的`node_prefix `。
 
 由于一些历史原因，高度推荐你将依赖放入`node_modules`目录。它会被加载的更快，且可靠性更好。
 
 #### 访问主模块
 
-当一个文件直接由`io.js`执行，`require.main`将被设置为这个模块。这意味着你可以判断一个文件是否是直接被运行的。
+当一个文件直接由`node.js`执行，`require.main`将被设置为这个模块。这意味着你可以判断一个文件是否是直接被运行的。
 
 ```js
 require.main === module
@@ -378,7 +378,7 @@ require.main === module
 
 #### 附录：包管理小贴士
 
-`io.js`的`require()`函数的语义被设计得足够通用，来支持各种目录结构。包管理程序诸如`dpkg`，`rpm`和`npm`将可以通过不修改`io.js`模块，来构建本地包。
+`node.js`的`require()`函数的语义被设计得足够通用，来支持各种目录结构。包管理程序诸如`dpkg`，`rpm`和`npm`将可以通过不修改`node.js`模块，来构建本地包。
 
 以下我们给出一个建议的可行的目录结构：
 
@@ -386,7 +386,7 @@ require.main === module
 
 包可以依赖于其他包。为了安装`foo`包，你可能需要安装特定版本的`bar`包。`bar`包可能有它自己的依赖，在一些情况下，它们的依赖可以会冲突或者产生循环。
 
-由于`io.js`会查找任何它加载的包得真实路径（也就是说，解析`symlinks`），解析以下结构的方案非常简单：
+由于`node.js`会查找任何它加载的包得真实路径（也就是说，解析`symlinks`），解析以下结构的方案非常简单：
 
  - /usr/lib/node/foo/1.2.3/ - `foo`包的内容，`1.2.3`版本。
  - /usr/lib/node/bar/4.3.2/ - `foo`包所依赖的`bar`包的内容。
@@ -397,6 +397,6 @@ require.main === module
 
 当`foo`包中的代码执行`require('bar')`，将会获得符号链接`/usr/lib/node/foo/1.2.3/node_modules/bar`指向的版本。接着，`bar`包种的代码执行`require('quux')`，它将会获得符号链接`/usr/lib/node/bar/4.3.2/node_modules/quux`指向的版本。
 
-此外，为了优化模块查找的过程，我们将模块放在`/usr/lib/node_modules/<name>/<version>`而不是直接放在`/usr/lib/node`中。然后在找不到依赖时，`io.js`就不会一直去查找`/usr/node_modules`或`/node_modules`目录了。
+此外，为了优化模块查找的过程，我们将模块放在`/usr/lib/node_modules/<name>/<version>`而不是直接放在`/usr/lib/node`中。然后在找不到依赖时，`node.js`就不会一直去查找`/usr/node_modules`或`/node_modules`目录了。
 
-为了让模块在`io.js`的REPL中可用，可能需要将`/usr/lib/node_modules`目录加入到`$NODE_PATH`环境变量。因为使用`node_modules`目录的模块查找都是使用相对路径，且基于调用`require()`的文件的真实路径，因此包本身可以在任何位置。
+为了让模块在`node.js`的REPL中可用，可能需要将`/usr/lib/node_modules`目录加入到`$NODE_PATH`环境变量。因为使用`node_modules`目录的模块查找都是使用相对路径，且基于调用`require()`的文件的真实路径，因此包本身可以在任何位置。

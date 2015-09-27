@@ -4,7 +4,7 @@
 
 `tty`模块主要提供了`tty.ReadStream`和`tty.WriteStream`这两个类。大多数情况下，你都不需要直接使用这个模块。
 
-当`io.js`检测到它运行于TTY上下文中，那么`process.stdin`将会是一个`tty.ReadStream`实例，`process.stdout`将会是一个`tty.WriteStream`实例。测试`io.js`是否运行在TTY上下文中的一个比较好的办法是检查`process.stdout.isTTY`：
+当`node.js`检测到它运行于TTY上下文中，那么`process.stdin`将会是一个`tty.ReadStream`实例，`process.stdout`将会是一个`tty.WriteStream`实例。测试`node.js`是否运行在TTY上下文中的一个比较好的办法是检查`process.stdout.isTTY`：
 
 ```SHELL
 $ iojs -p -e "Boolean(process.stdout.isTTY)"
@@ -23,7 +23,7 @@ false
 
 #### Class: ReadStream#
 
-一个`net.Socket`子类，代表了一个TTY中的可读部分。一般情况下，在任何`io.js`程序（仅当`isatty(0)`为`true`时）中，`process.stdin`将是仅有的`tty.ReadStream`实例。
+一个`net.Socket`子类，代表了一个TTY中的可读部分。一般情况下，在任何`node.js`程序（仅当`isatty(0)`为`true`时）中，`process.stdin`将是仅有的`tty.ReadStream`实例。
 
 #### rs.isRaw#
 
@@ -35,7 +35,7 @@ false
 
 #### Class: WriteStream#
 
-一个`net.Socket`子类，代表了一个TTY中的可写部分。一般情况下，在任何`io.js`程序（仅当`isatty(1)`为`true`时）中，`process.stdout`将是仅有的`tty.WriteStream`实例。
+一个`net.Socket`子类，代表了一个TTY中的可写部分。一般情况下，在任何`node.js`程序（仅当`isatty(1)`为`true`时）中，`process.stdout`将是仅有的`tty.WriteStream`实例。
 
 #### ws.columns#
 

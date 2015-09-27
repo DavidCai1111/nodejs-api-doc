@@ -3,20 +3,20 @@
 `process`对象是一个全局对象，并且何以被在任何地方调用。这是一个`EventEmitter`实例。
 
 ### Exit Codes#
-当没有任何异步操作在等待时，`io.js`通常将会以一个0为退出码退出。以下这些状态码会在其他情况下被用到：
+当没有任何异步操作在等待时，`node.js`通常将会以一个0为退出码退出。以下这些状态码会在其他情况下被用到：
 
  - 1 未捕获的致命异常。这是一个未捕获的异常，并且它没有被`domain`处理，也没有被`uncaughtException`处理。
  - 2 未使用（由`Bash`为内建误操作保留）。
- - 3 内部的`JavaScript`解析错误。`io.js`内部的`JavaScript`源码引导（bootstrapping）造成的一个解释错误。这极其罕见。并且常常只会发生在`io.js`自身的开发过程中。
- - 4 内部的`JavaScript`求值错误。`io.js`内部的`JavaScript`源码引导（bootstrapping）未能在求值时返回一个函数值。这极其罕见。并且常常只会发生在`io.js`自身的开发过程中。
+ - 3 内部的`JavaScript`解析错误。`node.js`内部的`JavaScript`源码引导（bootstrapping）造成的一个解释错误。这极其罕见。并且常常只会发生在`node.js`自身的开发过程中。
+ - 4 内部的`JavaScript`求值错误。`node.js`内部的`JavaScript`源码引导（bootstrapping）未能在求值时返回一个函数值。这极其罕见。并且常常只会发生在`node.js`自身的开发过程中。
  - 5 致命错误。这是V8中严重的不可恢复的错误。典型情况下，一个带有`FATAL ERROR`前缀的信息会被打印在`stderr`。
  - 6 内部异常处理函数丧失功能。这是一个未捕获异常，但是内部的致命异常处理函数被设置为丧失功能，并且不能被调用。
  - 7 内部异常处理函数运行时失败。这是一个未捕获异常，并且内部致命异常处理函数试图处理它时，自身抛出了一个错误。例如它可能在当`process.on('uncaughtException')`或`domain.on('error')`处理函数抛出错误时发生。
- - 8 未使用。`io.js`的之前版本中，退出码`8`通常表示一个未捕获异常。
+ - 8 未使用。`node.js`的之前版本中，退出码`8`通常表示一个未捕获异常。
  - 9 无效参数。当一个位置的选项被指定，或者一个必选的值没有被提供。
- - 10 内部的`JavaScript`运行时错误。`io.js`内部的`JavaScript`源码引导（bootstrapping）函数被调用时抛出一个错误。这极其罕见。并且常常只会发生在`io.js`自身的开发过程中。
+ - 10 内部的`JavaScript`运行时错误。`node.js`内部的`JavaScript`源码引导（bootstrapping）函数被调用时抛出一个错误。这极其罕见。并且常常只会发生在`node.js`自身的开发过程中。
  - 12 无效的调试参数。`--debug`和/或`--debug-brk`选项被设置，当时选择了一个无效的端口。
- - 大于128 信号退出。如果`io.js`收到了一个如`SIGKILL`或`SIGHUP`的致命信号，那么它将以一个`128`加上 信号码的值 的退出码退出。这是一个标准的Unix实践，因为退出码由一个7位整数定义，并且信号的退出设置了一个高顺序位（high-order bit），然后包含一个信号码的值。
+ - 大于128 信号退出。如果`node.js`收到了一个如`SIGKILL`或`SIGHUP`的致命信号，那么它将以一个`128`加上 信号码的值 的退出码退出。这是一个标准的Unix实践，因为退出码由一个7位整数定义，并且信号的退出设置了一个高顺序位（high-order bit），然后包含一个信号码的值。
 
 #### Event: 'exit'#
 
@@ -36,7 +36,7 @@ process.on('exit', function(code) {
 
 #### Event: 'beforeExit'#
 
-这个事件在`io.js`清空了它的事件循环并且没有任何已安排的任务时触发。通常`io.js`当没有更多被安排的任务时就会退出，但是`beforeExit`中可以执行异步调用，让`io.js`继续运行。
+这个事件在`node.js`清空了它的事件循环并且没有任何已安排的任务时触发。通常`node.js`当没有更多被安排的任务时就会退出，但是`beforeExit`中可以执行异步调用，让`node.js`继续运行。
 
 `beforeExit`在程序被显示终止时不会触发，如`process.exit()`或未捕获的异常。除非想去安排更多的任务，否则它不应被用来做为`exit`事件的替代。
 
@@ -64,7 +64,7 @@ console.log('This will not run.');
 
 请不要使用它，使用`domain`来替代。如果你已经使用了它，请在不处理这个异常之后重启你的应用。
 
-请不要像`io.js`的`Error Resume Next`这样使用。一个未捕获异常意味着你的应用或拓展有未定义的状态。盲目地恢复意味着任何事都可能发生。
+请不要像`node.js`的`Error Resume Next`这样使用。一个未捕获异常意味着你的应用或拓展有未定义的状态。盲目地恢复意味着任何事都可能发生。
 
 想象你在升级你的系统时电源被拉断了。10次中前9次都没有问题，但是第10次时，你的系统崩溃了。
 
@@ -136,18 +136,18 @@ process.on('SIGINT', function() {
 
 注意：
 
- - SIGUSR1 是`io.js`用于开启调试的保留信号。可以为其添加一个监听器，但不能阻止调试的开始。
- - SIGTERM 和 SIGINT在非Windows平台下有在以 128 + 信号 退出码退出前重置终端模式的默认监听器。如果另有监听器被添加，默认监听器会被移除（即`io.js`将会不再退出）。
+ - SIGUSR1 是`node.js`用于开启调试的保留信号。可以为其添加一个监听器，但不能阻止调试的开始。
+ - SIGTERM 和 SIGINT在非Windows平台下有在以 128 + 信号 退出码退出前重置终端模式的默认监听器。如果另有监听器被添加，默认监听器会被移除（即`node.js`将会不再退出）。
  - SIGPIPE 默认被忽略，可以被添加监听器。
- - SIGHUP 当控制台被关闭时会在Windows中产生，或者其他平台有其他相似情况时（参阅`signal(7)`）。它可以被添加监听器，但是Windows中`io.js`会无条件的在10秒后关闭终端。在其他非Windows平台，它的默认行为是结束`io.js`，但是一旦被添加了监听器，默认行为会被移除。
+ - SIGHUP 当控制台被关闭时会在Windows中产生，或者其他平台有其他相似情况时（参阅`signal(7)`）。它可以被添加监听器，但是Windows中`node.js`会无条件的在10秒后关闭终端。在其他非Windows平台，它的默认行为是结束`node.js`，但是一旦被添加了监听器，默认行为会被移除。
  - SIGTERM 在Windows中不被支持，它可以被监听。
  - SIGINT 支持所有的平台。可以由 CTRL+C 产生（尽管它可能是可配置的）。当启用终端的`raw mode`时，它不会产生。
  - SIGBREAK 在Windows中，按下 CTRL+BREAK 时它会产生。在非Windows平台下，它可以被监听，但它没有产生的途径。
  - SIGWINCH 当终端被改变大小时产生。Windows下，它只会在当光标被移动时写入控制台或可读tty使用`raw mode`时发生。
- - SIGKILL 可以被添加监听器。它会无条件得在所有平台下关闭`io.js`。
+ - SIGKILL 可以被添加监听器。它会无条件得在所有平台下关闭`node.js`。
  - SIGSTOP 可以被添加监听器。
  
-注意Windows不支持发送信号，但`io.js`通过`process.kill()`和`child_process.kill()`提供了模拟：- 发送信号`0`被用来检查进程的存在 - 发送SIGINT， SIGTERM 和 SIGKILL 会导致目标进程的无条件退出。
+注意Windows不支持发送信号，但`node.js`通过`process.kill()`和`child_process.kill()`提供了模拟：- 发送信号`0`被用来检查进程的存在 - 发送SIGINT， SIGTERM 和 SIGKILL 会导致目标进程的无条件退出。
 
 #### process.stdout#
 
@@ -161,7 +161,7 @@ console.log = function(msg) {
 };
 ```
 
-在`io.js`中，`process.stderr`和`process.stdout`与其他流不同，因为他们不能被关闭（调用`end()`会报错）。它们永远不触发`finish`事件并且写操作通常是阻塞的。
+在`node.js`中，`process.stderr`和`process.stdout`与其他流不同，因为他们不能被关闭（调用`end()`会报错）。它们永远不触发`finish`事件并且写操作通常是阻塞的。
 
  - 当指向普通文件或TTY文件描述符时，它们是阻塞的。
 
@@ -169,7 +169,7 @@ console.log = function(msg) {
   - 他们在Linux/Unix中阻塞
   - 他们在Windows中的其他流里不阻塞
 
-若要检查`io.js`是否在一个TTY上下文中运行，读取`process.stderr`，`process.stdout`或`process.stdin`的`isTTY`属性：
+若要检查`node.js`是否在一个TTY上下文中运行，读取`process.stderr`，`process.stdout`或`process.stdin`的`isTTY`属性：
 
 ```SHELL
 $ iojs -p "Boolean(process.stdin.isTTY)"
@@ -189,7 +189,7 @@ false
 
 一个指向`stderr`的可写流。
 
-在`io.js`中，`process.stderr`和`process.stdout`与其他流不同，因为他们不能被关闭（调用`end()`会报错）。它们永远不触发`finish`事件并且写操作通常是阻塞的。
+在`node.js`中，`process.stderr`和`process.stdout`与其他流不同，因为他们不能被关闭（调用`end()`会报错）。它们永远不触发`finish`事件并且写操作通常是阻塞的。
 
  - 当指向普通文件或TTY文件描述符时，它们是阻塞的。
 
@@ -258,7 +258,7 @@ $ iojs process-2.js one two=three four
 
 #### process.execArgv#
 
-这是在启动时`io.js`自身参数的集合。这些参数不会出现在`process.argv`中，并且不会包含`io.js`可执行文件，脚本名和其他脚本名之后的参数。这些参数对开启和父进程相同执行环境的子进程非常有用。
+这是在启动时`node.js`自身参数的集合。这些参数不会出现在`process.argv`中，并且不会包含`node.js`可执行文件，脚本名和其他脚本名之后的参数。这些参数对开启和父进程相同执行环境的子进程非常有用。
 
 例子：
 
@@ -280,7 +280,7 @@ $ iojs --harmony script.js --version
 
 #### process.abort()#
 
-这将导致`io.js`触发`abort`事件。这个将导致`io.js`退出，并创建一个核心文件。
+这将导致`node.js`触发`abort`事件。这个将导致`node.js`退出，并创建一个核心文件。
 
 #### process.chdir(directory)#
 
@@ -347,7 +347,7 @@ console.log(process.env.foo);
 process.exit(1);
 ```
 
-在执行`io.js`的shell中可以看到为`1`的退出码。
+在执行`node.js`的shell中可以看到为`1`的退出码。
 
 #### process.exitCode#
 
@@ -483,7 +483,7 @@ if (process.geteuid && process.seteuid) {
 
 注意：这个函数只在POSIX平台上有效（如在Windows，Android中无效）。
 
-返回一个补充群组ID的数组。如果包含了有效的组ID，POSIX将不会指定。但`io.js`保证它始终是。
+返回一个补充群组ID的数组。如果包含了有效的组ID，POSIX将不会指定。但`node.js`保证它始终是。
 
 #### process.setgroups(groups)#
 
@@ -521,7 +521,7 @@ console.log('Version: ' + process.version);
 
 #### process.versions#
 
-一个暴露io.js版本和它的依赖的字符串属性。
+一个暴露node.js版本和它的依赖的字符串属性。
 
 ```js
 console.log(process.versions);
@@ -542,7 +542,7 @@ console.log(process.versions);
 
 #### process.config#
 
-一个表示用于编译当前`io.js`执行文件的配置的JavaScript对象。这和运行`./configure`脚本产生的`config.gypi`一样。
+一个表示用于编译当前`node.js`执行文件的配置的JavaScript对象。这和运行`./configure`脚本产生的`config.gypi`一样。
 
 一个可能的输出：
 
@@ -592,7 +592,7 @@ setTimeout(function() {
 
 process.kill(process.pid, 'SIGHUP');
 
-注意：当`SIGUSR1 `被`io.js`收到，它会开始调试。参阅`Signal Events`。
+注意：当`SIGUSR1 `被`node.js`收到，它会开始调试。参阅`Signal Events`。
 
 process.pid#
 
@@ -630,7 +630,7 @@ console.log('This platform is ' + process.platform);
 
 #### process.memoryUsage()#
 
-返回当前`io.js`进程内存使用情况（用字节描述）的对象。
+返回当前`node.js`进程内存使用情况（用字节描述）的对象。
 
 ```js
 var util = require('util');
@@ -737,7 +737,7 @@ console.log('Changed umask from: ' + oldmask.toString(8) +
 
 #### process.uptime()#
 
-`io.js`进程已执行的秒数。
+`node.js`进程已执行的秒数。
 
 #### process.hrtime()#
 

@@ -1,9 +1,10 @@
 # Child Process
 
-### 稳定度: 2 - 稳定
-`io.js`通过`child_process`模块提供了三向的`popen`功能。
 
-可以无阻塞地通过子进程的`stdin`，`stdout`和`stderr`以流的方式传递数据。（注意某些程序在内部使用了行缓冲I/O，这不会影响`io.js`，但是这意味你传递给子进程的数据可能不会在第一时间被消费）。
+### 稳定度: 2 - 稳定
+`node.js`通过`child_process`模块提供了三向的`popen`功能。
+
+可以无阻塞地通过子进程的`stdin`，`stdout`和`stderr`以流的方式传递数据。（注意某些程序在内部使用了行缓冲I/O，这不会影响`node.js`，但是这意味你传递给子进程的数据可能不会在第一时间被消费）。
 
 可以通过`require('child_process').spawn()`或`require('child_process').fork()`创建子进程。这两者间的语义有少许差别，将会在后面进行解释。
 
@@ -33,7 +34,7 @@
 
 注意子进程的stdio流可能仍为打开状态。
 
-还需要注意的是，`io.js`已经为我们添加了'SIGINT'信号和'SIGTERM'信号的事件处理函数，所以在父进程发出这两个信号时，进程将会退出。
+还需要注意的是，`node.js`已经为我们添加了'SIGINT'信号和'SIGTERM'信号的事件处理函数，所以在父进程发出这两个信号时，进程将会退出。
 
 参阅 `waitpid(2)`。
 
@@ -192,7 +193,7 @@ process.send({ foo: 'bar' });
 
 请注意父进程，子进程中的`send()`方法都是同步的，所以发送大量数据是不被建议的（可以使用管道代替，参阅`child_process.spawn`）。
 
-发送`{cmd: 'NODE_foo'}`信息时是一个特殊情况。所有的在`cmd`属性中包含了`NODE_`前缀的信息都不会触发`message`事件，因为这是`io.js`内核使用的内部信息。包含这个前缀的信息都会触发`internalMessage`事件。请避免使用这个事件，它在改变的时候不会收到通知。
+发送`{cmd: 'NODE_foo'}`信息时是一个特殊情况。所有的在`cmd`属性中包含了`NODE_`前缀的信息都不会触发`message`事件，因为这是`node.js`内核使用的内部信息。包含这个前缀的信息都会触发`internalMessage`事件。请避免使用这个事件，它在改变的时候不会收到通知。
 
 `child.send()`的`sendHandle`参数时用来给另一个进程发送一个`TCP服务器`或一个`socket`的。将之作为第二个参数传入，子进程将在`message`事件中会收到这个对象。
 
@@ -383,9 +384,9 @@ child.on('error', function (err) {
 'pipe' - 创建一个子进程与父进程之间的管道，管道的父进程端已父进程的`child_process`对象的属性（`ChildProcess.stdio[fd]`）暴露给父进程。为文件表示（fds）0 - 2 创建的管道也可以通过`ChildProcess.stdin`，`ChildProcess.stdout`和`ChildProcess.stderr`分别访问。
 
 'ipc' - 创建一个子进程和父进程间 传输信息/文件描述符 的IPC信道。一个子进程最多可能有一个IPC stdio 文件描述符。设置该选项将激活`ChildProcess.send()`方法。如果子进程向此文件描述符中写入JSON数据，则会触发`
-ChildProcess.on('message')`。如果子进程是一个`io.js`程序，那么IPC信道的存在将会激活`process.send()`和`process.on('message')`。
+ChildProcess.on('message')`。如果子进程是一个`node.js`程序，那么IPC信道的存在将会激活`process.send()`和`process.on('message')`。
 
-'ignore' - 不在子进程中设置文件描述符。注意`io.js`总是会为通过`spawn`创建的子进程打开文件描述符(fd) 0 - 2。如果这其中任意一项被设置为了`ignore`，`io.js`会打开`/dev/null`并将其附给子进程对应的文件描述符（fd）。
+'ignore' - 不在子进程中设置文件描述符。注意`node.js`总是会为通过`spawn`创建的子进程打开文件描述符(fd) 0 - 2。如果这其中任意一项被设置为了`ignore`，`node.js`会打开`/dev/null`并将其附给子进程对应的文件描述符（fd）。
 
 Stream object - 与子进程共享一个与tty，文件，socket，或管道相关的可读/可写流。该流底层（underlying）的文件标识在子进程中被复制给stdio数组索引对应的文件描述符（fd）。
 
@@ -529,11 +530,11 @@ child = exec('cat *.js bad_file | wc -l',
 
 Return: ChildProcess object
 
-这个方法是`spawn() `的特殊形式，用于创建`io.js`进程。返回的对象除了拥有`ChildProcess`实例的所有方法，还有一个内建的通信信道。详情参阅`child.send(message, [sendHandle])`。
+这个方法是`spawn() `的特殊形式，用于创建`node.js`进程。返回的对象除了拥有`ChildProcess`实例的所有方法，还有一个内建的通信信道。详情参阅`child.send(message, [sendHandle])`。
 
-这些`io.js`子进程都是全新的V8实例。每个新的`io.js`进程都至少需要30ms启动以及10mb的内存。所以，你不能无休止地创建它们。
+这些`node.js`子进程都是全新的V8实例。每个新的`node.js`进程都至少需要30ms启动以及10mb的内存。所以，你不能无休止地创建它们。
 
-`options`对象中的`execPath`属性可以用非当前`io.js`可执行文件来创建子进程。这需要小心使用，并且缺省情况下会使用子进程上的`NODE_CHANNEL_FD`环境变量所指定的文件描述符来通讯。该文件描述符的输入和输出假定为以行分割的JSON对象。
+`options`对象中的`execPath`属性可以用非当前`node.js`可执行文件来创建子进程。这需要小心使用，并且缺省情况下会使用子进程上的`NODE_CHANNEL_FD`环境变量所指定的文件描述符来通讯。该文件描述符的输入和输出假定为以行分割的JSON对象。
 
 注意：不像POSIX中的`fork()`，`child_process.fork()`不会复制当前进程。
 

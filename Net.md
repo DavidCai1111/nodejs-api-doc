@@ -128,7 +128,7 @@ server.on('error', function (e) {
 });
 ```
 
-（注意，`io.js`中所有的`socket`都已经设置了`SO_REUSEADDR`）
+（注意，`node.js`中所有的`socket`都已经设置了`SO_REUSEADDR`）
 
 #### server.listen(path[, callback])#
 
@@ -264,7 +264,7 @@ server.listen(function() {
 
 #### Class: net.Socket#
 
-这个对象是一个TCP或本地`socket`的抽象。`net.Socket`实例实现了双工流（duplex Stream）接口。它可以被使用者创建，并且被作为客户端（配合`connect()`）使用。或者也可以被`io.js`创建，并且通过服务器的`connection`事件传递给使用者。
+这个对象是一个TCP或本地`socket`的抽象。`net.Socket`实例实现了双工流（duplex Stream）接口。它可以被使用者创建，并且被作为客户端（配合`connect()`）使用。或者也可以被`node.js`创建，并且通过服务器的`connection`事件传递给使用者。
 
 #### new net.Socket([options])#
 
@@ -318,7 +318,7 @@ server.listen(function() {
 
 #### socket.bufferSize#
 
-`net.Socket`的属性，用于`socket.write()`。它可以帮助用户获取更快的运行速度。计算机不能一直保持大量数据被写入`socket`的状态，网络连接可以很慢。`io.js`在内部会排队等候数据被写入`socekt`并确保传输连接上的数据完好。 (内部实现为：轮询`socekt`的文件描述符等待它为可写)。
+`net.Socket`的属性，用于`socket.write()`。它可以帮助用户获取更快的运行速度。计算机不能一直保持大量数据被写入`socket`的状态，网络连接可以很慢。`node.js`在内部会排队等候数据被写入`socekt`并确保传输连接上的数据完好。 (内部实现为：轮询`socekt`的文件描述符等待它为可写)。
 
 内部缓存的可能结果是内存使用会增长。这个属性展示了缓存中还有多少待写入的字符（字符的数目约等于要被写入的字节数，但是缓冲区可能包含字符串，而字符串是惰性编码的，所以确切的字节数是未知的）。
 

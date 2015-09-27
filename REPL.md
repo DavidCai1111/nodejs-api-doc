@@ -19,7 +19,7 @@ Type '.help' for options.
 3
 ```
 
-要使用高级的行编辑器的话，带着环境变量`NODE_NO_READLINE=1`启动`io.js`。它将会在允许你使用`rlwrap`的终端设置中，启动一个主要的调试`REPL`（main and debugger REPL）。
+要使用高级的行编辑器的话，带着环境变量`NODE_NO_READLINE=1`启动`node.js`。它将会在允许你使用`rlwrap`的终端设置中，启动一个主要的调试`REPL`（main and debugger REPL）。
 
 例如，你可以把以下内容加入`bashrc`文件：
 
@@ -71,7 +71,7 @@ function eval(cmd, context, filename, callback) {
 
 在用tab补全时 - `eval`将会带着一个作为输入字符串的`.scope`调用。它被期望返回一个`scope`名字数组，被用来自动补全。
 
-多个`REPL`可以运行相同的`io.js`实例。共享同一个全局对象，但是各自的I/O独立。
+多个`REPL`可以运行相同的`node.js`实例。共享同一个全局对象，但是各自的I/O独立。
 
 下面是在`stdin`，Unix `socket` 和 TCP `socket` 上启动一个`REPL`的例子：
 
@@ -82,7 +82,7 @@ var net = require("net"),
 connections = 0;
 
 repl.start({
-  prompt: "io.js via stdin> ",
+  prompt: "node.js via stdin> ",
   input: process.stdin,
   output: process.stdout
 });
@@ -90,7 +90,7 @@ repl.start({
 net.createServer(function (socket) {
   connections += 1;
   repl.start({
-    prompt: "io.js via Unix socket> ",
+    prompt: "node.js via Unix socket> ",
     input: socket,
     output: socket
   }).on('exit', function() {
@@ -101,7 +101,7 @@ net.createServer(function (socket) {
 net.createServer(function (socket) {
   connections += 1;
   repl.start({
-    prompt: "io.js via TCP socket> ",
+    prompt: "node.js via TCP socket> ",
     input: socket,
     output: socket
   }).on('exit', function() {
@@ -112,7 +112,7 @@ net.createServer(function (socket) {
 
 在命令行中运行这个程序会在`stdin`上启动一个`REPL`。另外的`REPL`客户端将会通过Unix `socket`或TCP `socket`连接。`telnet`在连接TCP `socket`时非常有用，`socat`在连接Unix `socket`和TCP `socket`时都非常有用。
 
-通过从基于Unix `socket` 的服务器启动`REPL`，你可以不用重启，而连接到一个长久执行的（long-running）`io.js`进程。
+通过从基于Unix `socket` 的服务器启动`REPL`，你可以不用重启，而连接到一个长久执行的（long-running）`node.js`进程。
 
 一个通过`net.Server`和`net.Socket`实例运行“全特性”（终端）`REPL`的例子，参阅`https://gist.github.com/2209310`。
 

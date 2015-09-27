@@ -366,7 +366,7 @@ socket.on('end', function() {
  - ciphers:  一个描述需要使用或排除的加密器的字符串。更多加密器的格式细节参阅`http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT`。
  - honorCipherOrder : 选择一个加密器时，使用使用服务器的首选项而不是客户端的首选项。默认为`true`。更多细节参阅`tls`模块文档。
 
-如果没有指定`ca`，那么`io.js`将会使用`http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt`提供的默认公共可信任CA列表。
+如果没有指定`ca`，那么`node.js`将会使用`http://mxr.mozilla.org/mozilla/source/security/nss/lib/ckfw/builtins/certdata.txt`提供的默认公共可信任CA列表。
 
 #### tls.createSecurePair([context][, isServer][, requestCert][, rejectUnauthorized])#
 
@@ -533,14 +533,14 @@ socket.on('end', function() {
    { C: 'UK',
      ST: 'Acknack Ltd',
      L: 'Rhys Jones',
-     O: 'io.js',
+     O: 'node.js',
      OU: 'Test TLS Certificate',
      CN: 'localhost' },
   issuerInfo:
    { C: 'UK',
      ST: 'Acknack Ltd',
      L: 'Rhys Jones',
-     O: 'io.js',
+     O: 'node.js',
      OU: 'Test TLS Certificate',
      CN: 'localhost' },
   issuer:

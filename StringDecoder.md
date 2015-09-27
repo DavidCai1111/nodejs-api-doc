@@ -1,5 +1,6 @@
 # StringDecoder#
 
+
 ### 稳定度: 2 - 稳定
 
 通过`require('string_decoder')`来使用这个模块。`StringDecoder`解码一个`buffer`为一个字符串。它是一个`buffer.toString()`的简单接口，但是提供了utf8的额外支持。
