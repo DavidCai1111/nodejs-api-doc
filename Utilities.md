@@ -6,7 +6,41 @@
 
 `util`模块主要的设计意图是满足`node.js`内部API的需要。但是许多工具对于你的程序也十分有用。如果你发现这些功能不能满足你的需要，那么鼓励你编写自己的工具集。我们对任何`node.js`内部功能不需要的功能，都不感兴趣。
 
+
+### util.callbackify(original)#
+> 于v8.2.0加入
+ - original <Function> `async`函数
+ - Returns: <Function> 回调函数
+
+参数接收一个`async`函数(或者函数返回值是`promise`), 返回一个Node.js错误优先的回调函数, 第一个参数是错误原因(如果`Promise`处于`resolve`, 则返回`null`), 第二个参数返回结果
+
+例子
+
+```js
+const util = require('util');
+
+async function fn() {
+  return await Promise.resolve('hello world');
+}
+const callbackFunction = util.callbackify(fn);
+
+callbackFunction((err, ret) => {
+  if (err) throw err;
+  console.log(ret);
+});
+```
+
+输出:
+```json
+hello world
+```
+
+备注:
+ - `callback` 是异步执行的，并且会有一个有限的堆栈跟踪。 如果`callback`抛出，进程将发出`uncaughtException`事件，如果不处理则退出。
+ - 由于`null`具有作为回调的第一个参数的特殊含义，因此如果外层函数拒绝带有虚假值的`Promise`作为原因(`reason`)，则该值将被包装在Error中，初识值将存储在名为`reason`的字段中。
+
 #### util.debuglog(section)#
+> 于v0.11.3加入
  - section String 需要被调试的程序节点
  - Returns: Function 日志处理函数
 
@@ -31,6 +65,30 @@ FOO 3245: hello from foo [123]
 
 你可以通过逗号设置多个`NODE_DEBUG`环境变量。例如，`NODE_DEBUG=fs,net,tls`。
 
+#### util.deprecate(function, string) #
+> 于v0.8.0加入
+`util.deprecate（）`方法包装给定的函数或类，使其被标记为已弃用。
+
+```js
+const util = require('util');
+
+exports.puts = util.deprecate(function() {
+  for (let i = 0, len = arguments.length; i < len; ++i) {
+    process.stdout.write(arguments[i] + '\n');
+  }
+}, 'util.puts: Use console.log instead');
+```
+
+当被调用时，util.deprecate（）将返回一个函数，该函数将调用`process.on（'warning'）`事件发出一个`DeprecationWarning`警告。 默认情况下，第一次被调用时，这个警告将被发射并打印到`stderr`。 发出警告后，将调用包装函数。
+
+如果`--no-deprecation` 或 `--no-warnings`其中一个命令行标记被使用，或者在第一个弃用警告之前将`process.noDeprecation`属性设置为`true`，那么`util.deprecate（）`方法将不执行任何操作。
+
+如果`--trace-deprecation` 或 `--trace-warnings`其中一个命令行标记被设置，或者将`process.noDeprecation`属性设置为`true`，当第一次调用`deprecated`方法时，会打印一个警告或者对战信息到`stderr`中。
+
+如果`--trace-deprecation`命令被设置，或者将`process.noDeprecation`属性设置为`true`，在第一次调用`deprecated`方法时将会抛出异常
+
+`-throw-deprecation` 命令行标记和 `process.throwDeprecation `属性优先于 `--trace-depreation` 和 `process.traceDeprecation`。
+
 #### util.format(format[, ...])#
 
 使用第一个参数，像`printf`一样的格式输出格式化字符串。
@@ -39,6 +97,9 @@ FOO 3245: hello from foo [123]
 
  - %s - 字符串
  - %d - 数字（整数和浮点数）
+ - %i - 整型
+ - $o - 对象。 是`javascripts`通用对象的一种字符串表现形式。与`util.inspect()` 设置 `{ showHidden: true, depth: 4, showProxy: true }`类似。将显示完成的对象，但不包括`不可枚举的`符号和属性。
+ - $O - 对象。 是`javascripts`通用对象的一种字符串表现形式。与`util.inspect()`不设置任何选项类似。将显示完成的对象，但不包括`不可枚举的`符号和属性。
  - %j - JSON。如果参数包含循环引用，则返回字符串`'[Circular]'`。
  - %% - 单独的百分比符号（`'%'`），它不消耗一个参数。
 
@@ -58,6 +119,63 @@ util.format('%s:%s', 'foo', 'bar', 'baz'); // 'foo:bar baz'
 
 ```js
 util.format(1, 2, 3); // '1 2 3'
+```
+
+#### util.inherits(constructor, superConstructor)#
+> - 历史
+>   - v5.0.0 构造函数现在可以使用ES6中的`类`
+>   - v0.3.0 被添加
+
+备注：不鼓励使用`util.inherits()`。 请使用ES6类并扩展关键字以获得语言级别的继承支持。 另请注意，这两种风格在语义上是不兼容的。
+
+ - `constructor` <Function>
+ - `superConstructor` <Function>
+
+将原型方法从一个构造函数继承到另一个构造函数。 构造函数的原型将被设置为由超级构造函数创建的新对象。
+
+作为一种额外的便捷使用方法，`superConstructor` 将可以使用`constructor.super_ property`访问。
+
+```js
+const util = require('util');
+const EventEmitter = require('events');
+
+function MyStream() {
+  EventEmitter.call(this);
+}
+
+util.inherits(MyStream, EventEmitter);
+
+MyStream.prototype.write = function(data) {
+  this.emit('data', data);
+};
+
+const stream = new MyStream();
+
+console.log(stream instanceof EventEmitter); // true
+console.log(MyStream.super_ === EventEmitter); // true
+
+stream.on('data', (data) => {
+  console.log(`Received data: "${data}"`);
+});
+stream.write('It works!'); // Received data: "It works!"
+```
+
+在ES6中使用`类`和`继承`
+```js
+const EventEmitter = require('events');
+
+class MyStream extends EventEmitter {
+  write(data) {
+    this.emit('data', data);
+  }
+}
+
+const stream = new MyStream();
+
+stream.on('data', (data) => {
+  console.log(`Received data: "${data}"`);
+});
+stream.write('With ES6');
 ```
 
 #### util.log(string)#
@@ -127,6 +245,126 @@ obj.inspect = function(depth) {
 util.inspect(obj);
   // "{ bar: 'baz' }"
 ```
+
+#### util.inspect.custom #
+> 添加: v6.6.0
+可用于声明定制检查功能的符号，可以参考[Custom inspection functions on Objects](https://nodejs.org/dist/latest-v8.x/docs/api/util.html#util_custom_inspection_functions_on_objects)
+
+#### util.inspect.defaultOptions #
+> 添加: v6.4.0
+
+`defaultOptions`允许自定义`util.inspect`的默认选项。 这对于像`console.log`或`util.format`这样的函数是非常有用的，它隐式地调用`util.inspect`。 它应被设置为包含一个或多个有效的`util.inspect()`选项的对象。 当然直接设置选项属性也被支持的。
+
+```js
+const util = require('util');
+const arr = Array(101).fill(0);
+
+console.log(arr); // 打印被截取过后的数组
+util.inspect.defaultOptions.maxArrayLength = null;
+console.log(arr); // 打印整个数组
+```
+
+#### util.promisify(original) #
+> v8.0.0加入
+
+ - `original` <Function>
+ - `Returns` <Function>
+
+把Node.js的回调风格，即`(err，value）=> ...`作为最后一个参数，并返回一个`promise`。
+
+举例:
+```js
+const util = require('util');
+const fs = require('fs');
+
+const stat = util.promisify(fs.stat);
+stat('.').then((stats) => {
+  // Do something with `stats`
+}).catch((error) => {
+  // Handle the error.
+});
+```
+
+或者使用`async`:
+```js
+const util = require('util');
+const fs = require('fs');
+
+const stat = util.promisify(fs.stat);
+
+async function callStat() {
+  const stats = await stat('.');
+  console.log(`This directory is owned by ${stats.uid}`);
+}
+```
+
+如果存在原生的`[util.promisify.custom]`属性，`promisify`会返回执行后的结果，可以参考[`Custom promisified functions`](https://nodejs.org/dist/latest-v8.x/docs/api/util.html#util_custom_promisified_functions)。
+
+基本所有情况下，`promisify()`方法都会假设`original`是将回调函数作为最后一个参数传入，如果不是，则返回`undefined`。
+
+#### 自定义 promisified 函数#
+使用`util.promisify.custom`符号可以覆盖`util.promisify()`的返回值：
+
+```js
+const util = require('util');
+
+function doSomething(foo, callback) {
+  // ...
+}
+
+doSomething[util.promisify.custom] = function(foo) {
+  return getPromiseSomehow();
+};
+
+const promisified = util.promisify(doSomething);
+console.log(promisified === doSomething[util.promisify.custom]);
+// prints 'true'
+```
+
+这对于源函数不遵循将错误优先回调作为最后一个参数的标准格式的情况很有用。
+
+例如，这样一个函数`(food，onSuccess Callback，onError Callback)`:
+
+```js
+doSomething[util.promisify.custom] = function(foo) {
+  return new Promise(function(resolve, reject) {
+    doSomething(foo, resolve, reject);
+  });
+};
+```
+
+#### util.promisify.custom#
+> v8.0.0添加
+ - <symbol>
+
+可用于声明函数的自定义`promisified`变体的符号，参考[Custom promisified functions](https://nodejs.org/dist/latest-v8.x/docs/api/util.html#util_custom_promisified_functions)。
+
+#### Class: util.TextDecoder#
+> v8.3.0添加
+一种[WHATWG编码标准](https://encoding.spec.whatwg.org/)TextDecoder API的实现。
+
+```js
+const decoder = new TextDecoder('shift_jis');
+let string = '';
+let buffer;
+while (buffer = getNextChunkSomehow()) {
+  string += decoder.decode(buffer, { stream: true });
+}
+string += decoder.decode(); // end-of-stream
+```
+
+### 废弃掉的API
+
+以下API已被弃用，不应再使用。 应该更新现有的应用程序和模块以寻找替代方法。
+
+#### util._extend(target, source)#
+> v0.7.5添加  v6.0.0废弃
+>稳定度: 0 - 弃用: 用 `Object.assign()` 代替.
+
+`util._extend()`本来不打算在内部Node.js模块之外使用。 是社区的人找到他随意使用的。
+
+它已被弃用，不应在新代码中使用。 `JavaScript`通过`Object.assign()`提供了非常类似的内置功能。
+
 
 #### util.isArray(object)#
 
