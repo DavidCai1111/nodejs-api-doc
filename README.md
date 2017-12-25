@@ -16,6 +16,7 @@
 
 - [jnduan](https://github.com/jnduan)
 - [caizixian](https://github.com/caizixian)
+- [Richardwei](https://github.com/richardwei195)
 
 ### License
 The MIT License (MIT)
